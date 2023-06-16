@@ -1,0 +1,38 @@
+{
+  "name": "@cap-js/audit-logging",
+  "version": "0.0.1",
+  "description": "CAP cds-plugin providing audit logging re personal data out-of-the-box.",
+  "repository": "cap-js/audit-logging",
+  "author": "SAP SE (https://www.sap.com)",
+  "homepage": "https://cap.cloud.sap/",
+  "license": "SEE LICENSE IN LICENSE",
+  "main": "cds-plugin.js",
+  "files": [
+    "lib",
+    "srv"
+  ],
+  "peerDependencies": {
+    "@sap/cds": ">=6"
+  },
+  "devDependencies": {
+    "eslint": "^8"
+  },
+  "cds": {
+    "requires": {
+      "audit-log": true,
+      "kinds": {
+        "audit-log": {
+          "_model": "./srv/audit-log",
+          "[development]": {
+            "impl": "./srv/log2console",
+            "outbox": false
+          },
+          "[production]": {
+            "impl": "./srv/log2als",
+            "outbox": true
+          }
+        }
+      }
+    }
+  }
+}
