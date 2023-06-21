@@ -22,13 +22,13 @@
       "audit-log": true,
       "kinds": {
         "audit-log": {
-          "_model": "./srv/audit-log",
+          "_model": "@cap-js/audit-logging/srv/audit-log",
           "[development]": {
-            "impl": "./srv/log2console",
+            "impl": "@cap-js/audit-logging/srv/log2console",
             "outbox": false
           },
           "[production]": {
-            "impl": "./srv/log2als",
+            "impl": "@cap-js/audit-logging/srv/log2als",
             "outbox": true
           }
         }
