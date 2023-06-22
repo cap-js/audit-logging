@@ -1,8 +1,8 @@
 using {sap.auditlog.test.personal_data.db as db} from '../db/schema';
 
-@path    : '/draft-1'
+@path    : '/fiori-1'
 @requires: 'admin'
-service Draft_1 {
+service Fiori_1 {
   @odata.draft.enabled
   entity Orders                as projection on db.Orders;
 
@@ -116,9 +116,9 @@ service Draft_1 {
   }
 }
 
-@path    : '/draft-2'
+@path    : '/fiori-2'
 @requires: 'admin'
-service Draft_2 {
+service Fiori_2 {
   @odata.draft.enabled
   entity Customers             as projection on db.Customers;
 

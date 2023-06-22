@@ -27,7 +27,7 @@ describe('personal data audit logging in CRUD', () => {
     _logs.push(...args)
   }
 
-  const CUSTOMER_ID = `bcd4a37a-6319-4d52-bb48-02fd06b9ffe9`
+  const CUSTOMER_ID = 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9'
   const DATA_SUBJECT = {
     type: 'CRUD_1.Customers',
     role: 'Customer',
