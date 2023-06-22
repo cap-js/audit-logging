@@ -1,0 +1,32 @@
+{
+  "name": "personal-data",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^7",
+    "@cap-js/audit-logging": "*",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": ">=0"
+  },
+  "scripts": {
+    "start": "cds-serve"
+  },
+  "cds": {
+    "features": {
+      "serve_on_root": true
+    },
+    "requires": {
+      "audit-log": {
+        "kind": "audit-log-to-library",
+        "credentials": {
+          "logToConsole": true
+        }
+      }
+    }
+  }
+}

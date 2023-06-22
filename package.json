@@ -11,6 +11,10 @@
     "lib",
     "srv"
   ],
+  "scripts": {
+    "lint": "npx eslint .",
+    "test": "jest --silent"
+  },
   "peerDependencies": {
     "@sap/cds": "*"
   },
