@@ -12,24 +12,34 @@
     "srv"
   ],
   "peerDependencies": {
-    "@sap/cds": ">=6"
+    "@sap/cds": "*"
   },
   "devDependencies": {
-    "eslint": "^8"
+    "eslint": "^8",
+    "@sap/audit-logging": "^5.7.0"
   },
   "cds": {
     "requires": {
       "audit-log": true,
       "kinds": {
         "audit-log": {
-          "_model": "@cap-js/audit-logging/srv/audit-log",
+          "_model": "@cap-js/audit-logging",
           "[development]": {
-            "impl": "@cap-js/audit-logging/srv/log2console",
-            "outbox": false
+            "kind": "audit-log-to-console"
           },
           "[production]": {
-            "impl": "@cap-js/audit-logging/srv/log2als",
-            "outbox": true
+            "kind": "audit-log-to-library"
+          }
+        },
+        "audit-log-to-console": {
+          "impl": "@cap-js/audit-logging/srv/log2console",
+          "outbox": false
+        },
+        "audit-log-to-library": {
+          "impl": "@cap-js/audit-logging/srv/log2library",
+          "outbox": true,
+          "_credentials": {
+            "logToConsole": true
           }
         }
       }

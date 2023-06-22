@@ -4,10 +4,10 @@ const { auditAccess } = require('./lib/access')
 const { augmentContext, calcMods4Before, calcMods4After, emitMods } = require('./lib/modification')
 const { hasPersonalData } = require('./lib/utils')
 
-// TODO: remove
-if (cds.version.match(/^6/)) {
-  cds.env.requires['audit-log'] = cds.env.requires['audit-log'] || { impl: '@cap-js/audit-logging/srv/log2console' }
-}
+// // UNCOMMENT THIS IF YOU CAN'T USE CDS 7
+// if (cds.version.match(/^6/)) {
+//   cds.env.requires['audit-log'] = cds.env.requires['audit-log'] || { impl: '@cap-js/audit-logging/srv/log2console' }
+// }
 
 // TODO: why does cds.requires.audit-log: false in sample package.json not work ootb?!
 

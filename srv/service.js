@@ -40,10 +40,10 @@ module.exports = class AuditLogService extends OutboxService {
    */
 
   log(event, data = {}) {
-    return super.emit('log', { event, data: _augment(data) })
+    return this.emit('log', { event, data: _augment(data) })
   }
 
   logSync(event, data = {}) {
-    return super.send('logSync', { event, data: _augment(data) })
+    return this.send('logSync', { event, data: _augment(data) })
   }
 }

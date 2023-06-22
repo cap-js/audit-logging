@@ -1,4 +1,4 @@
-const AuditLogService = require('./audit-log')
+const AuditLogService = require('./service')
 
 module.exports = class AuditLog2Console extends AuditLogService {
   async init() {
@@ -7,6 +7,7 @@ module.exports = class AuditLog2Console extends AuditLogService {
 
     this.on('*', function(req) {
       const { event, data } = req.data
+
       console.log(`[audit-log] - ${event}:\n${JSON.stringify(data, null, 2).split('\n').map(l => `  ${l}`).join('\n')}`)
     })
   }
