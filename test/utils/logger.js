@@ -1,10 +1,35 @@
+const _deepCopy = arg => {
+  if (Buffer.isBuffer(arg)) return Buffer.from(arg)
+  if (Array.isArray(arg)) return _deepCopyArray(arg)
+  if (typeof arg === 'object') return _deepCopyObject(arg)
+  return arg
+}
+
+const _deepCopyArray = arr => {
+  if (!arr) return arr
+  const clone = []
+  for (const item of arr) clone.push(_deepCopy(item))
+  return clone
+}
+
+const _deepCopyObject = obj => {
+  if (!obj) return obj
+  const clone = {}
+  for (const key in obj) clone[key] = _deepCopy(obj[key])
+  return clone
+}
+
+const deepCopy = data => {
+  if (Array.isArray(data)) return _deepCopyArray(data)
+  return _deepCopyObject(data)
+}
+
 module.exports = (levels = {}) => {
   const _logs = {}
 
   const _push = (level, ...args) => {
     if (args.length > 1 || typeof args[0] !== 'object') return _logs[level].push(...args)
-    // NOTE: test logger in @sap/cds uses an own deep copy impl
-    const copy = JSON.parse(JSON.stringify(args[0]))
+    const copy = deepCopy(args[0])
     args[0].message && (copy.message = args[0].message)
     // args[0].stack && (copy.stack = args[0].stack)
     _logs[level].push(copy)

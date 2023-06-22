@@ -2,18 +2,19 @@ const cds = require('@sap/cds')
 
 // TODO: why needed?
 cds.env.features.serve_on_root = true
+
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
   impl: '@cap-js/audit-logging/srv/log2library',
   credentials: { logToConsole: true }
 }
 
-const _logger = require('../logger')({ debug: true })
+const _logger = require('../utils/logger')({ debug: true })
 cds.log.Logger = _logger
 
 const { POST, PATCH, GET, DELETE, data } = cds.test(__dirname)
 
-describe('personal data audit logging in CRUD', () => {
+describe('personal data audit logging in CRUD with kind audit-log-to-library', () => {
   let __log, _logs
   const _log = (...args) => {
     if (args.length !== 1 || !args[0].uuid) {
@@ -769,7 +770,7 @@ describe('personal data audit logging in CRUD', () => {
       const newUUID = '542ce505-73ae-4860-a7f5-00fbccf1dae9'
       const response = await PATCH(`/crud-1/Customers(${newUUID})`, newCustomer, { auth: ALICE })
 
-      expect(response).toMatchObject({ status: 200 })
+      expect(response).toMatchObject({ status: 201 })
       expect(_logs.length).toBe(2)
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -810,7 +811,7 @@ describe('personal data audit logging in CRUD', () => {
 
       const response = await PATCH('/crud-1/Pages(123)', page, { auth: ALICE })
 
-      expect(response).toMatchObject({ status: 200 })
+      expect(response).toMatchObject({ status: 201 })
       expect(_logs.length).toBe(2)
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1530,7 +1531,7 @@ describe('personal data audit logging in CRUD', () => {
 
       // check only one select used to look up data subject
       const selects = _logger._logs.debug.filter(
-        l => typeof l === 'string' && l.match(/SELECT [Customers.]*ID FROM CRUD_1_Customers/)
+        l => typeof l === 'string' && l.match(/^SELECT/) && l.match(/SELECT [Customers.]*ID FROM CRUD_1_Customers/)
       )
       expect(selects.length).toBe(1)
     })
