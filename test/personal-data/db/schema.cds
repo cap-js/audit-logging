@@ -1,0 +1,98 @@
+using {cuid} from '@sap/cds/common';
+
+namespace sap.auditlog.test.personal_data.db;
+
+entity Orders : cuid {
+  header : Composition of one OrderHeader;
+  items  : Composition of many OrderItems
+             on $self = items.order;
+  misc   : String;
+}
+
+entity OrderItems : cuid {
+  name     : String;
+  order    : Association to Orders;
+  customer : Association to Customers;
+}
+
+entity OrderHeader : cuid {
+  description   : String;
+  sensitiveData : Composition of one SensitiveData;
+}
+
+aspect SensitiveData : cuid {
+  customer : Association to Customers;
+  note     : String;
+}
+
+entity Pages {
+  key ID        : Integer;
+      personal  : Integer;
+      sensitive : Integer;
+}
+
+entity Customers : cuid {
+  emailAddress   : String;
+  firstName      : String;
+  lastName       : String;
+  creditCardNo   : String(16);
+  someOtherField : String(128);
+  addresses      : Composition of many CustomerPostalAddress
+                     on addresses.customer = $self;
+  comments       : Composition of many Comments
+                     on comments.customer = $self;
+  status         : Composition of CustomerStatus;
+}
+
+entity CustomerPostalAddress : cuid {
+  customer       : Association to one Customers @assert.integrity: false;
+  street         : String(128);
+  town           : String(128);
+  someOtherField : String(128);
+  attachments    : Composition of many AddressAttachment
+                     on attachments.address = $self;
+}
+
+entity Comments : cuid {
+  customer : Association to one Customers;
+  text     : String;
+}
+
+entity CustomerStatus : cuid {
+  description : String;
+  todo        : String;
+  change      : Composition of StatusChange;
+  notes       : Composition of many Notes
+                  on notes.customerStatus = $self;
+}
+
+entity StatusChange {
+  key ID          : UUID;
+  key secondKey   : String;
+      description : String;
+      last        : Composition of LastOne;
+}
+
+entity LastOne : cuid {
+  lastOneField : String;
+}
+
+entity AddressAttachment : cuid {
+  description  : String;
+  todo         : String;
+  notAnnotated : String;
+  address      : Association to one CustomerPostalAddress;
+  notes        : Composition of many Notes
+                   on notes.attachment = $self;
+}
+
+type dummies {
+  dummy : String;
+}
+
+entity Notes : cuid {
+  note           :      String;
+  attachment     :      Association to AddressAttachment;
+  customerStatus :      Association to CustomerStatus;
+  dummyArray     : many dummies;
+}

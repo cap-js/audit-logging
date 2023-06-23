@@ -18,10 +18,12 @@ module.exports = class AuditLog2Library extends AuditLogService {
     await super.init()
 
     this.on('*', function(req) {
-      const { event, data } = req.data
+      const { event, data } = req.data.event && req.data.data ? req.data : req
 
       if (event.match(/^dataAccess/)) return this._dataAccess(data)
       if (event.match(/^dataModification/)) return this._dataModification(data)
+      if (event.match(/^configChange/)) return this._configChange(data)
+      if (event.match(/^security/)) return this._securityEvent(data)
 
       LOG._info && LOG.info(`event ${event} not implemented`)
     })
@@ -49,15 +51,14 @@ module.exports = class AuditLog2Library extends AuditLogService {
     return client
   }
 
-  async _dataAccess(access) {
-    // REVISIT: previous model/impl supported bulk
-    const accesses = [access]
+  async _dataAccess(accesses) {
+    if (!Array.isArray(accesses)) accesses = [accesses]
 
     const client = this._client || await this._getClient()
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: access.tenant, user: access.user }
+    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: accesses[0].tenant, user: accesses[0].user }
     const { entries, errors } = _buildDataAccessLogs(client, accesses, tenant, user)
     if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
 
@@ -66,20 +67,51 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
   }
 
-  async _dataModification(modification) {
-    // REVISIT: previous model/impl supported bulk
-    const modifications = [modification]
+  async _dataModification(modifications) {
+    if (!Array.isArray(modifications)) modifications = [modifications]
 
     const client = this._client || await this._getClient()
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: modification.tenant, user: modification.user }
+    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: modifications[0].tenant, user: modifications[0].user }
     const { entries, errors } = _buildDataModificationLogs(client, modifications, tenant, user)
     if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
 
     // write the logs
     await Promise.all(entries.map(entry => _sendDataModificationLog(entry).catch(err => errors.push(err))))
+    if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+  }
+
+  async _configChange(configurations) {
+    if (!Array.isArray(configurations)) configurations = [configurations]
+
+    const client = this._client || await this._getClient()
+    if (!client) return
+
+    // build the logs
+    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: configurations[0].tenant, user: configurations[0].user }
+    const { entries, errors } = _buildConfigChangeLogs(client, configurations, tenant, user)
+    if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+
+    // write the logs
+    await Promise.all(entries.map(entry => _sendConfigChangeLog(entry).catch(err => errors.push(err))))
+    if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+  }
+
+  async _securityEvent(arg) {
+    const { action, data } = arg
+
+    const client = this._client || await this._getClient()
+    if (!client) return
+
+    // build the logs
+    const { tenant, user } = this._oauth2 ? { tenant: '$PROVIDER', user: '$USER' } : { tenant: arg.tenant, user: arg.user }
+    const { entries, errors } = _buildSecurityLog(client, action, data, tenant, user)
+    if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+
+    // write the logs
+    await Promise.all(entries.map(entry => _sendSecurityLog(entry).catch(err => errors.push(err))))
     if (errors.length) throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
   }
 }
@@ -190,77 +222,77 @@ function _sendDataModificationLog(entry) {
 }
 
 /*
- * security
- */
-
-// function _buildSecurityLog(client, action, data, tenant, user) {
-//   let entry
-
-//   try {
-//     entry = client.securityMessage('action: %s, data: %s', action, data)
-//     if (tenant) entry.tenant(tenant)
-//     if (user) entry.by(user)
-//   } catch (err) {
-//     err.message = `Building security log failed with error: ${err.message}`
-//     throw err
-//   }
-
-//   return entry
-// }
-
-// function _sendSecurityLog(entry) {
-//   return new Promise((resolve, reject) => {
-//     entry.log(function (err) {
-//       if (err) {
-//         err.message = `Writing security log failed with error: ${err.message}`
-//         return reject(err)
-//       }
-
-//       resolve()
-//     })
-//   })
-// }
-
-/*
  * config
  */
 
-// function _buildConfigChangeLogs(client, configurations, tenant, user) {
-//   const entries = []
-//   const errors = []
+function _buildConfigChangeLogs(client, configurations, tenant, user) {
+  const entries = []
+  const errors = []
 
-//   for (const configuration of configurations) {
-//     try {
-//       const { dataObject } = getObjectAndDataSubject(configuration)
-//       const entry = client.configurationChange(dataObject).by(user)
-//       if (tenant) entry.tenant(tenant)
-//       for (const each of configuration.attributes) entry.attribute(getAttributeToLog(each))
-//       entries.push(entry)
-//     } catch (err) {
-//       err.message = `Building configuration change log failed with error: ${err.message}`
-//       errors.push(err)
-//     }
-//   }
+  for (const configuration of configurations) {
+    try {
+      const { dataObject } = _getObjectAndDataSubject(configuration)
+      const entry = client.configurationChange(dataObject).by(user)
+      if (tenant) entry.tenant(tenant)
+      for (const each of configuration.attributes) entry.attribute(_getAttributeToLog(each))
+      entries.push(entry)
+    } catch (err) {
+      err.message = `Building configuration change log failed with error: ${err.message}`
+      errors.push(err)
+    }
+  }
 
-//   return { entries, errors }
-// }
+  return { entries, errors }
+}
 
-// function _sendConfigChangeLog(entry) {
-//   return new Promise((resolve, reject) => {
-//     entry.logPrepare(function (err) {
-//       if (err) {
-//         err.message = `Preparing configuration change log failed with error: ${err.message}`
-//         return reject(err)
-//       }
+function _sendConfigChangeLog(entry) {
+  return new Promise((resolve, reject) => {
+    entry.logPrepare(function (err) {
+      if (err) {
+        err.message = `Preparing configuration change log failed with error: ${err.message}`
+        return reject(err)
+      }
 
-//       entry.logSuccess(function (err) {
-//         if (err) {
-//           err.message = `Writing configuration change log failed with error: ${err.message}`
-//           return reject(err)
-//         }
+      entry.logSuccess(function (err) {
+        if (err) {
+          err.message = `Writing configuration change log failed with error: ${err.message}`
+          return reject(err)
+        }
 
-//         resolve()
-//       })
-//     })
-//   })
-// }
+        resolve()
+      })
+    })
+  })
+}
+
+/*
+ * security
+ */
+
+function _buildSecurityLog(client, action, data, tenant, user) {
+  let entry
+
+  try {
+    entry = client.securityMessage('action: %s, data: %s', action, data)
+    if (tenant) entry.tenant(tenant)
+    if (user) entry.by(user)
+  } catch (err) {
+    err.message = `Building security log failed with error: ${err.message}`
+    throw err
+  }
+
+  return entry
+}
+
+function _sendSecurityLog(entry) {
+  return new Promise((resolve, reject) => {
+    entry.log(function (err) {
+      if (err) {
+        err.message = `Writing security log failed with error: ${err.message}`
+        return reject(err)
+      }
+
+      resolve()
+    })
+  })
+}
