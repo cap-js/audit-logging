@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "jest --silent"
+    "test": "npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": "*"
