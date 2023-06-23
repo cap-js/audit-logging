@@ -10,8 +10,8 @@
   },
   "devDependencies": {
     "@sap/cds": "*",
-    "@cap-js/sqlite": "*",
-    "express": "^4"
+    "express": "^4",
+    "sqlite3": "^5.1.6"
   },
   "cds": {
     "features": {
