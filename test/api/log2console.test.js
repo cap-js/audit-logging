@@ -1,11 +1,11 @@
 const cds = require('@sap/cds')
 
-// TODO: why needed?
-cds.env.features.serve_on_root = true
+// // TODO: why needed?
+// cds.env.features.serve_on_root = true
 
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
-  impl: '@cap-js/audit-logging/srv/log2console',
+  impl: '../../srv/log2console',
   outbox: true
 }
 
