@@ -5,21 +5,7 @@
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
-  "_dependencies": {
-    "@cap-js/audit-logging": "file:../../../audit-logging"
-  },
-  "devDependencies": {
-    "@sap/cds": "*",
-    "express": "^4",
-    "sqlite3": "^5.1.6"
-  },
-  "_workspaces": [
-    "../../*"
-  ],
   "cds": {
-    "features": {
-      "serve_on_root": true
-    },
     "plugins": [
       "../.."
     ]

@@ -1,8 +1,5 @@
 const cds = require('@sap/cds')
 
-// // TODO: why needed?
-// cds.env.features.serve_on_root = true
-
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
