@@ -8,7 +8,7 @@ module.exports = class AuditLog2Console extends AuditLogService {
     this.on('*', function(req) {
       const { event, data } = req.data.event && req.data.data ? req.data : req
 
-      console.log(`[audit-log] - ${event}:\n${_beautify(data)}`)
+      console.log(`[audit-log] - ${event}:\n${_format(data)}`)
     })
   }
 }
@@ -17,6 +17,6 @@ module.exports = class AuditLog2Console extends AuditLogService {
  * utils
  */
 
-function _beautify(data) {
+function _format(data) {
   return JSON.stringify(data, null, 2).split('\n').map(l => `  ${l}`).join('\n')
 }
