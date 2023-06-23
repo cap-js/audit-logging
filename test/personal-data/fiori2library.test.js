@@ -5,7 +5,7 @@ cds.env.features.serve_on_root = true
 
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
-  impl: '@cap-js/audit-logging/srv/log2library',
+  impl: '../../srv/log2library',
   credentials: { logToConsole: true }
 }
 
