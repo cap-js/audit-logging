@@ -13,8 +13,7 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "npx jest --silent",
-    "test:better-sqlite": "CDS_ENV=better-sqlite npx jest --silent"
+    "test": "npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": "*"
@@ -47,10 +46,7 @@
         },
         "audit-log-to-library": {
           "impl": "@cap-js/audit-logging/srv/log2library",
-          "outbox": true,
-          "_credentials": {
-            "logToConsole": true
-          }
+          "outbox": true
         }
       }
     }
