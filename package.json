@@ -13,12 +13,14 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "npx jest --silent"
+    "test": "npx jest --silent",
+    "test:better-sqlite": "CDS_ENV=better-sqlite npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": "*"
   },
   "devDependencies": {
+    "@cap-js/sqlite": "^0.1.0",
     "@sap/audit-logging": "^5.7.0",
     "axios": "^1.4.0",
     "eslint": "^8",
