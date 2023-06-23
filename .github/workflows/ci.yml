@@ -22,5 +22,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm i -g @sap/cds-dk
     - run: npm i
+    - run: cds v
     - run: npm run lint
     - run: npm run test
