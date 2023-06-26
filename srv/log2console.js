@@ -9,7 +9,8 @@ module.exports = class AuditLog2Console extends AuditLogService {
     await super.init()
 
     this.on('*', function (req) {
-      const { event, data } = req
+      // REVISIT: rest adapter currently dispatches requests (instead of invoking the respective operation)
+      const { event, data } = req.data.event ? req.data : req
 
       console.log(`[audit-log] - ${event}:`, data)
     })

@@ -40,6 +40,17 @@
           },
           "[production]": {
             "kind": "audit-log-to-library"
+          },
+          "[mock]": {
+            "kind": "audit-log-to-console",
+            "model": "@cap-js/audit-logging",
+            "service": "sap.auditlog.AuditLogService"
+          },
+          "[demo]": {
+            "kind": "rest",
+            "credentials": { "url": "http://localhost:5005/rest/audit-log" },
+            "model": "@cap-js/audit-logging",
+            "service": "sap.auditlog.AuditLogService"
           }
         },
         "audit-log-to-console": {

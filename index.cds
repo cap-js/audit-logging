@@ -1,6 +1,5 @@
 namespace sap.auditlog;
 
-@protocol: 'none'
 service AuditLogService {
 
   action log(event : String, data : LogEntry);
@@ -26,6 +25,7 @@ service AuditLogService {
 
 }
 
+@open
 type LogEntry {
   id        : UUID;
   tenant    : String;
