@@ -41,11 +41,11 @@ module.exports = class AuditLogService extends OutboxService {
    */
 
   log(event, data = {}) {
-    return this.emit('log', { event, data })
+    return this.emit(event, data)
   }
 
   logSync(event, data = {}) {
-    return this.send('logSync', { event, data })
+    return this.send(event, data)
   }
 
   /*

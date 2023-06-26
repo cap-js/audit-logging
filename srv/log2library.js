@@ -18,7 +18,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
     await super.init()
 
     this.on('*', function(req) {
-      const { event, data } = req.data.event && req.data.data ? req.data : req
+      const { event, data } = req
 
       if (event.match(/^dataAccess/)) return this._dataAccess(data)
       if (event.match(/^dataModification/)) return this._dataModification(data)
