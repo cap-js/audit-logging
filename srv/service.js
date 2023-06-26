@@ -53,18 +53,20 @@ module.exports = class AuditLogService extends OutboxService {
    */
 
   dataAccessLog(data = {}) {
-    return this.emit('dataAccessLog', data)
+    return this.emit('SensitiveDataRead', data)
   }
 
   dataModificationLog(data = {}) {
-    return this.emit('dataModificationLog', data)
+    return this.emit('PersonalDataModified', data)
   }
 
   configChangeLog(data = {}) {
-    return this.emit('configChangeLog', data)
+    // REVISIT: event name
+    return this.emit('ConfigurationModified', data)
   }
 
   securityLog(data = {}) {
-    return this.emit('securityLog', data)
+    // REVISIT: event name
+    return this.emit('SecurityEvent', data)
   }
 }
