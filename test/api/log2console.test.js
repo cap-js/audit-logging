@@ -13,12 +13,12 @@ const wait = require('util').promisify(setTimeout)
 describe('AuditLogService API with kind audit-log-to-console', () => {
   let __log, _logs
   const _log = (...args) => {
-    if (!(args.length === 1 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
+    if (!(args.length === 2 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
       // > not an audit log (most likely, anyway)
       return __log(...args)
     }
 
-    _logs.push(JSON.parse(args[0].split('\n').slice(1).join('')))
+    _logs.push(args[1])
   }
 
   const ALICE = { username: 'alice', password: 'password' }

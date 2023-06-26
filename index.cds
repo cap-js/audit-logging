@@ -7,22 +7,20 @@ service AuditLogService {
   action logSync(event : String, data : LogEntry);
 
   event SensitiveDataRead : LogEntry {
-    subject    :      DataSubject;
-    subjects   : many DataSubject;
-    object     :      DataObject;
-    channel    :      String;
-    attributes : many {
-      name     :      String
+    dataSubject : DataSubject;
+    dataObject  : DataObject;
+    attributes  : many {
+      name      : String
     };
   }
 
-  event PersonalDataChanged : LogEntry {
-    subject    : DataSubject;
-    object     : DataObject;
-    attributes : many {
-      name     : String;
-      old      : String;
-      new      : String
+  event PersonalDataModified : LogEntry {
+    dataSubject : DataSubject;
+    dataObject  : DataObject;
+    attributes  : many {
+      name      : String;
+      old       : String;
+      new       : String
     };
   };
 
