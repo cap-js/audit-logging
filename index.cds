@@ -1,6 +1,6 @@
 namespace sap.auditlog;
 
-@protocol: 'none'
+// @protocol: 'none' //> only required if we add .model in cds.requires.audit-log
 service AuditLogService {
 
   action log(event : String, data : LogEntry);

@@ -137,7 +137,8 @@ module.exports = class AuditLog2Library extends AuditLogService {
  */
 
 function _getAttributeToLog(ele) {
-  return { name: ele.name, old: ele.old || 'null', new: ele.new || 'null' }
+  // REVISIT: Why should we log null as string?
+  return ele
 }
 
 /*

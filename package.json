@@ -32,9 +32,9 @@
       "audit-log": true,
       "kinds": {
         "audit-log": {
-          "_model": "@cap-js/audit-logging",
-          "_service": "sap.auditlog.AuditLogService",
-          "_handle": [ "READ", "WRITE" ],
+          "-model": "@cap-js/audit-logging",
+          "-service": "sap.auditlog.AuditLogService",
+          "-handle": [ "READ", "WRITE" ],
           "[development]": {
             "kind": "audit-log-to-console"
           },
@@ -44,11 +44,13 @@
         },
         "audit-log-to-console": {
           "impl": "@cap-js/audit-logging/srv/log2console",
+          "-kind": "rest",
           "outbox": false
         },
         "audit-log-to-library": {
           "impl": "@cap-js/audit-logging/srv/log2library",
           "vcap": { "label": "auditlog" },
+          "-kind": "rest",
           "outbox": true
         }
       }
