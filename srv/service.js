@@ -47,26 +47,4 @@ module.exports = class AuditLogService extends OutboxService {
   logSync(event, data = {}) {
     return this.send(event, data)
   }
-
-  /*
-   * compat api (await audit.<event>(data))
-   */
-
-  dataAccessLog(data = {}) {
-    return this.emit('SensitiveDataRead', data)
-  }
-
-  dataModificationLog(data = {}) {
-    return this.emit('PersonalDataModified', data)
-  }
-
-  configChangeLog(data = {}) {
-    // REVISIT: event name
-    return this.emit('ConfigurationModified', data)
-  }
-
-  securityLog(data = {}) {
-    // REVISIT: event name
-    return this.emit('SecurityEvent', data)
-  }
 }
