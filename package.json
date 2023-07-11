@@ -32,8 +32,6 @@
       "audit-log": true,
       "kinds": {
         "audit-log": {
-          "_model": "@cap-js/audit-logging",
-          "_service": "sap.auditlog.AuditLogService",
           "_handle": [ "READ", "WRITE" ],
           "[development]": {
             "kind": "audit-log-to-console"
