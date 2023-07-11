@@ -1,6 +1,5 @@
 namespace sap.auditlog;
 
-@protocol: 'none'
 service AuditLogService {
 
   action log(event : String, data : LogEntry);
