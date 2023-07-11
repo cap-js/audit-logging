@@ -7,9 +7,9 @@ const ANONYMOUS = 'anonymous'
 
 const _augment = data => {
   data.id = data.id || cds.utils.uuid()
-  data.tenant = data.tenant || cds.context.tenant || ANONYMOUS
-  data.user = data.user || cds.context.user?.id || ANONYMOUS
-  data.timestamp = data.timestamp || cds.context.timestamp
+  data.tenant = cds.context.tenant || ANONYMOUS
+  data.user = cds.context.user?.id || ANONYMOUS
+  data.timestamp = cds.context.timestamp
   return data
 }
 
