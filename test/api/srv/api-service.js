@@ -26,41 +26,6 @@ module.exports = async function () {
   })
 
   /*
-   * compat
-   */
-
-  this.on('testDataAccessLog', async function () {
-    // REVISIT: data structure is not yet final
-    await audit.dataAccessLog({
-      dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-      dataSubject: { type: 'test', id: [{ keyName: 'test', value: 'test' }], role: 'test' },
-      attributes: [{ name: 'test' }]
-    })
-  })
-
-  this.on('testDataModificationLog', async function () {
-    // REVISIT: data structure is not yet final
-    await audit.dataModificationLog({
-      dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-      dataSubject: { type: 'test', id: [{ keyName: 'test', value: 'test' }], role: 'test' },
-      attributes: [{ name: 'test', oldValue: 'test', newValue: 'test' }]
-    })
-  })
-
-  this.on('testConfigChangeLog', async function () {
-    // REVISIT: data structure is not yet final
-    await audit.configChangeLog({
-      dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-      attributes: [{ name: 'test', oldValue: 'test', newValue: 'test' }]
-    })
-  })
-
-  this.on('testSecurityLog', async function () {
-    // REVISIT: data structure is not yet final
-    await audit.securityLog({ action: 'dummy', data: 'dummy' })
-  })
-
-  /*
    * test helpers
    */
   let _sequence = []

@@ -14,9 +14,6 @@ module.exports = class AuditLog2Library extends AuditLogService {
       throw new Error('No or malformed credentials for "audit-log"')
     }
 
-    // call AuditLogService's init
-    await super.init()
-
     this.on('*', function (req) {
       const { event, data } = req
 
@@ -25,8 +22,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
       if (event === 'ConfigurationModified' || event.match(/^configChange/)) return this._configChange(data)
       if (event === 'SecurityEvent' || event.match(/^security/)) return this._securityEvent(data)
 
-      LOG._info && LOG.info(`event ${event} not implemented`)
+      LOG._warn && LOG.warn(`event "${event}" is not implemented`)
     })
+
+    // call AuditLogService's init
+    await super.init()
   }
 
   async _getClient() {
@@ -150,7 +150,7 @@ function _buildDataAccessLogs(client, accesses, tenant, user) {
 
   for (const access of accesses) {
     try {
-      const entry = client.read(access.dataObject).dataSubject(access.dataSubject).by(user)
+      const entry = client.read(access.object).dataSubject(access.data_subject).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of access.attributes) entry.attribute(each)
       if (access.attachments) for (const each of access.attachments) entry.attachment(each)
@@ -187,7 +187,7 @@ function _buildDataModificationLogs(client, modifications, tenant, user) {
 
   for (const modification of modifications) {
     try {
-      const entry = client.update(modification.dataObject).dataSubject(modification.dataSubject).by(user)
+      const entry = client.update(modification.object).dataSubject(modification.data_subject).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of modification.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
@@ -230,7 +230,7 @@ function _buildConfigChangeLogs(client, configurations, tenant, user) {
 
   for (const configuration of configurations) {
     try {
-      const entry = client.configurationChange(configuration.dataObject).by(user)
+      const entry = client.configurationChange(configuration.object).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of configuration.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
