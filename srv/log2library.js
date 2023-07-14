@@ -136,8 +136,20 @@ module.exports = class AuditLog2Library extends AuditLogService {
  * utils
  */
 
-function _getAttributeToLog(ele) {
-  return { name: ele.name, old: ele.old || 'null', new: ele.new || 'null' }
+function _getStringifiedId(id) {
+  return Object.keys(id).reduce((acc, cur) => { acc[cur] = String(id[cur]); return acc; }, {})
+}
+
+function _getObjectToLog(object) {
+  return { type: object.type, id: _getStringifiedId(object.id) }
+}
+
+function _getDataSubjectToLog(dataSubject) {
+  return Object.assign(_getObjectToLog(dataSubject), { role: String(dataSubject.role) })
+}
+
+function _getAttributeToLog(attribute) {
+  return { name: attribute.name, old: String(attribute.old) || 'null', new: String(attribute.new) || 'null' }
 }
 
 /*
@@ -150,7 +162,7 @@ function _buildDataAccessLogs(client, accesses, tenant, user) {
 
   for (const access of accesses) {
     try {
-      const entry = client.read(access.object).dataSubject(access.data_subject).by(user)
+      const entry = client.read(_getObjectToLog(access.object)).dataSubject(_getDataSubjectToLog(access.data_subject)).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of access.attributes) entry.attribute(each)
       if (access.attachments) for (const each of access.attachments) entry.attachment(each)
@@ -187,7 +199,7 @@ function _buildDataModificationLogs(client, modifications, tenant, user) {
 
   for (const modification of modifications) {
     try {
-      const entry = client.update(modification.object).dataSubject(modification.data_subject).by(user)
+      const entry = client.update(_getObjectToLog(modification.object)).dataSubject(_getDataSubjectToLog(modification.data_subject)).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of modification.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
@@ -230,7 +242,7 @@ function _buildConfigChangeLogs(client, configurations, tenant, user) {
 
   for (const configuration of configurations) {
     try {
-      const entry = client.configurationChange(configuration.object).by(user)
+      const entry = client.configurationChange(_getObjectToLog(configuration.object)).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of configuration.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
@@ -271,6 +283,7 @@ function _buildSecurityLog(client, action, data, tenant, user) {
   let entry
 
   try {
+    // TODO: action?!
     entry = client.securityMessage('action: %s, data: %s', action, data)
     if (tenant) entry.tenant(tenant)
     if (user) entry.by(user)
