@@ -3,21 +3,19 @@ const cds = require('@sap/cds')
 // REVISIT: cds.OutboxService or technique to avoid extending OutboxService
 const OutboxService = require('@sap/cds/libx/_runtime/messaging/Outbox')
 
-const ANONYMOUS = 'anonymous'
-
-const _augment = data => {
-  data.id = data.id || cds.utils.uuid()
-  data.tenant = cds.context.tenant || ANONYMOUS
-  data.user = cds.context.user?.id || ANONYMOUS
-  data.timestamp = cds.context.timestamp
-  return data
-}
-
 module.exports = class AuditLogService extends OutboxService {
+  async init() {
+    this.before('*', function (req) {
+      req.data = _augment(req.data)
+    })
+
+    // call OutboxService's init
+    await super.init()
+  }
+
   async emit(first, second) {
     let { event, data } = typeof first === 'object' ? first : { event: first, data: second }
     if (data.event && data.data) ({ event, data } = data)
-    data = _augment(data)
 
     // immediate or deferred?
     if (!this.options.outbox) return this.send(event, data)
@@ -33,7 +31,7 @@ module.exports = class AuditLogService extends OutboxService {
   async send(event, data) {
     if (data.event && data.data) ({ event, data } = data)
 
-    return super.send(event, _augment(data))
+    return super.send(event, data)
   }
 
   /*
@@ -47,4 +45,14 @@ module.exports = class AuditLogService extends OutboxService {
   logSync(event, data = {}) {
     return this.send(event, data)
   }
+}
+
+const ANONYMOUS = 'anonymous'
+
+const _augment = data => {
+  data.uuid = cds.utils.uuid()
+  data.tenant = cds.context.tenant || ANONYMOUS
+  data.user = cds.context.user?.id || ANONYMOUS
+  data.timestamp = cds.context.timestamp
+  return data
 }
