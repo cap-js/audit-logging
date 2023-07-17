@@ -80,4 +80,10 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
   })
+
+  test('the default inspect depth of 2 is enough', async () => {
+    const audit = await cds.connect.to('audit-log')
+    await audit.log('foo', { data_subject: { ID: { bar: 'baz' } } })
+    expect(_logs).toContainMatchObject({ data_subject: { ID: { bar: 'baz' } } })
+  })
 })
