@@ -32,7 +32,7 @@
       "audit-log": true,
       "kinds": {
         "audit-log": {
-          "_handle": [ "READ", "WRITE" ],
+          "handle": [ "WRITE" ],
           "[development]": {
             "kind": "audit-log-to-console"
           },

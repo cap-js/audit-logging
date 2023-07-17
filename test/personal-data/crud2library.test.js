@@ -3,7 +3,14 @@ const cds = require('@sap/cds')
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
   impl: '../../srv/log2library',
-  credentials: { logToConsole: true }
+  credentials: { logToConsole: true },
+  _credentials: {
+    "url": "https://api.auditlog.cf.sap.hana.ondemand.com:8081",
+    "password": "75bed768240bdd3f",
+    "user": "aad2fd9acbd42206",
+    "vendor": "SAP"
+  },
+  handle: ['READ', 'WRITE']
 }
 
 const _logger = require('../utils/logger')({ debug: true })
@@ -364,6 +371,7 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
               someOtherField: 'dummy'
             },
             {
+              // note: no change in data
               ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82',
               customer_ID: CUSTOMER_ID,
               street: 'sue',
@@ -895,7 +903,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: oldAddresses[0].town, new: 'null' }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -908,7 +915,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: oldAddresses[1].town, new: 'null' }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -921,7 +927,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: 'null', new: newAddresses[0].town }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
