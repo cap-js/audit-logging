@@ -1,4 +1,5 @@
 const cds = require('@sap/cds')
+
 const LOG = cds.log('audit-log')
 
 const AuditLogService = require('./service')
@@ -6,24 +7,26 @@ const AuditLogService = require('./service')
 module.exports = class AuditLog2Library extends AuditLogService {
   async init() {
     // credentials stuff
-    if (this.options.credentials?.uaa) {
+    const { credentials } = this.options
+    if (!credentials) throw new Error('No or malformed credentials for "audit-log"')
+    if (credentials.uaa) {
       if (this.options.outbox && this.options.outbox.kind === 'persistent-outbox')
         throw new Error('The combination of persistent-outbox and audit logging with OAuth2 plan is not supported')
       this._oauth2 = true
-    } else if (!this.options.credentials) {
-      throw new Error('No or malformed credentials for "audit-log"')
     }
 
     this.on('*', function (req) {
       const { event, data } = req
 
       // event.match() is used to support the old event names
-      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._dataAccess(data)
-      if (event === 'PersonalDataModified' || event.match(/^dataModification/i)) return this._dataModification(data)
-      if (event === 'ConfigurationModified' || event.match(/^configChange/i)) return this._configChange(data)
-      if (event === 'SecurityEvent' || event.match(/^security/i)) return this._security(data)
+      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._handleSensitiveDataRead(data)
+      if (event === 'PersonalDataModified' || event.match(/^dataModification/i))
+        return this._handlePersonalDataModified(data)
+      if (event === 'ConfigurationModified' || event.match(/^configChange/i))
+        return this._handleConfigurationModified(data)
+      if (event === 'SecurityEvent' || event.match(/^security/i)) return this._handleSecurityEvent(data)
 
-      LOG._warn && LOG.warn(`event "${event}" is not implemented`)
+      LOG._warn && LOG.warn(`Event "${event}" is not implemented`)
     })
 
     // call AuditLogService's init
@@ -52,7 +55,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
     return client
   }
 
-  async _dataAccess(accesses) {
+  async _handleSensitiveDataRead(accesses) {
     if (!Array.isArray(accesses)) accesses = [accesses]
 
     const client = this._client || (await this._getClient())
@@ -60,7 +63,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
 
     // build the logs
     const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
+      ? { tenant: '$SUBSCRIBER', user: '$USER' }
       : { tenant: accesses[0].tenant, user: accesses[0].user }
     const { entries, errors } = _buildDataAccessLogs(client, accesses, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
@@ -70,7 +73,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _dataModification(modifications) {
+  async _handlePersonalDataModified(modifications) {
     if (!Array.isArray(modifications)) modifications = [modifications]
 
     const client = this._client || (await this._getClient())
@@ -78,7 +81,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
 
     // build the logs
     const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
+      ? { tenant: '$SUBSCRIBER', user: '$USER' }
       : { tenant: modifications[0].tenant, user: modifications[0].user }
     const { entries, errors } = _buildDataModificationLogs(client, modifications, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
@@ -88,7 +91,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _configChange(configurations) {
+  async _handleConfigurationModified(configurations) {
     if (!Array.isArray(configurations)) configurations = [configurations]
 
     const client = this._client || (await this._getClient())
@@ -96,7 +99,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
 
     // build the logs
     const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
+      ? { tenant: '$SUBSCRIBER', user: '$USER' }
       : { tenant: configurations[0].tenant, user: configurations[0].user }
     const { entries, errors } = _buildConfigChangeLogs(client, configurations, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
@@ -106,7 +109,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _security(arg) {
+  async _handleSecurityEvent(arg) {
     const { action, data } = arg
 
     const client = this._client || (await this._getClient())
@@ -114,7 +117,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
 
     // build the logs
     const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
+      ? { tenant: '$SUBSCRIBER', user: '$USER' }
       : { tenant: arg.tenant, user: arg.user }
     const { entries, errors } = _buildSecurityLog(client, action, data, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
@@ -138,7 +141,10 @@ function _getErrorToThrow(errors) {
 }
 
 function _getStringifiedId(id) {
-  return Object.keys(id).reduce((acc, cur) => { acc[cur] = String(id[cur]); return acc; }, {})
+  return Object.keys(id).reduce((acc, cur) => {
+    acc[cur] = String(id[cur])
+    return acc
+  }, {})
 }
 
 function _getObjectToLog(object) {
@@ -163,7 +169,10 @@ function _buildDataAccessLogs(client, accesses, tenant, user) {
 
   for (const access of accesses) {
     try {
-      const entry = client.read(_getObjectToLog(access.object)).dataSubject(_getDataSubjectToLog(access.data_subject)).by(user)
+      const entry = client
+        .read(_getObjectToLog(access.object))
+        .dataSubject(_getDataSubjectToLog(access.data_subject))
+        .by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of access.attributes) entry.attribute(each)
       if (access.attachments) for (const each of access.attachments) entry.attachment(each)
@@ -201,7 +210,10 @@ function _buildDataModificationLogs(client, modifications, tenant, user) {
 
   for (const modification of modifications) {
     try {
-      const entry = client.update(_getObjectToLog(modification.object)).dataSubject(_getDataSubjectToLog(modification.data_subject)).by(user)
+      const entry = client
+        .update(_getObjectToLog(modification.object))
+        .dataSubject(_getDataSubjectToLog(modification.data_subject))
+        .by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of modification.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)

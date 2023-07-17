@@ -4,12 +4,6 @@ cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
   impl: '../../srv/log2library',
   credentials: { logToConsole: true },
-  _credentials: {
-    "url": "https://api.auditlog.cf.sap.hana.ondemand.com:8081",
-    "password": "75bed768240bdd3f",
-    "user": "aad2fd9acbd42206",
-    "vendor": "SAP"
-  },
   handle: ['READ', 'WRITE']
 }
 

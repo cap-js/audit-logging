@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 
 const { GET } = cds.test(__dirname)
 
-describe('data access', () => {
+describe('handle', () => {
   let __log, _logs
   const _log = (...args) => {
     if (!(args.length === 2 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
@@ -36,14 +36,14 @@ describe('data access', () => {
     expect(cds.env.requires['audit-log'].handle).toEqual(['WRITE'])
   })
 
-  test('is not logged by default', async () => {
+  test('data access is not logged by default', async () => {
     const response = await GET('/crud-1/Customers', { auth: ALICE })
 
     expect(response).toMatchObject({ status: 200 })
     expect(_logs.length).toBe(0)
   })
 
-  test('can be handled out of the box', async () => {
+  test('data access can be handled out of the box', async () => {
     cds.env.requires['audit-log'].handle = ['READ', 'WRITE']
 
     const response = await GET('/crud-1/Customers', { auth: ALICE })
