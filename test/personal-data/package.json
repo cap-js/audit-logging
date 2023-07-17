@@ -6,6 +6,6 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@cap-js/audit-logging": "../.."
+    "@cap-js/audit-logging": "*"
   }
 }
