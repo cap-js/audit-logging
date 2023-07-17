@@ -17,10 +17,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
     this.on('*', function (req) {
       const { event, data } = req
 
-      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/)) return this._dataAccess(data)
-      if (event === 'PersonalDataModified' || event.match(/^dataModification/)) return this._dataModification(data)
-      if (event === 'ConfigurationModified' || event.match(/^configChange/)) return this._configChange(data)
-      if (event === 'SecurityEvent' || event.match(/^security/)) return this._securityEvent(data)
+      // event.match() is used to support the old event names
+      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._dataAccess(data)
+      if (event === 'PersonalDataModified' || event.match(/^dataModification/i)) return this._dataModification(data)
+      if (event === 'ConfigurationModified' || event.match(/^configChange/i)) return this._configChange(data)
+      if (event === 'SecurityEvent' || event.match(/^security/i)) return this._security(data)
 
       LOG._warn && LOG.warn(`event "${event}" is not implemented`)
     })
@@ -62,13 +63,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
       ? { tenant: '$PROVIDER', user: '$USER' }
       : { tenant: accesses[0].tenant, user: accesses[0].user }
     const { entries, errors } = _buildDataAccessLogs(client, accesses, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendDataAccessLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
   async _dataModification(modifications) {
@@ -82,13 +81,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
       ? { tenant: '$PROVIDER', user: '$USER' }
       : { tenant: modifications[0].tenant, user: modifications[0].user }
     const { entries, errors } = _buildDataModificationLogs(client, modifications, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendDataModificationLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
   async _configChange(configurations) {
@@ -102,16 +99,14 @@ module.exports = class AuditLog2Library extends AuditLogService {
       ? { tenant: '$PROVIDER', user: '$USER' }
       : { tenant: configurations[0].tenant, user: configurations[0].user }
     const { entries, errors } = _buildConfigChangeLogs(client, configurations, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendConfigChangeLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _securityEvent(arg) {
+  async _security(arg) {
     const { action, data } = arg
 
     const client = this._client || (await this._getClient())
@@ -122,19 +117,25 @@ module.exports = class AuditLog2Library extends AuditLogService {
       ? { tenant: '$PROVIDER', user: '$USER' }
       : { tenant: arg.tenant, user: arg.user }
     const { entries, errors } = _buildSecurityLog(client, action, data, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendSecurityLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 }
 
 /*
  * utils
  */
+
+function _getErrorToThrow(errors) {
+  if (errors.length === 1) return errors[0]
+  const error = new cds.error('MULTIPLE_ERRORS')
+  error.details = errors
+  if (errors.some(e => e.unrecoverable)) error.unrecoverable = true
+  return error
+}
 
 function _getStringifiedId(id) {
   return Object.keys(id).reduce((acc, cur) => { acc[cur] = String(id[cur]); return acc; }, {})
@@ -169,6 +170,7 @@ function _buildDataAccessLogs(client, accesses, tenant, user) {
       entries.push(entry)
     } catch (err) {
       err.message = `Building data access log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -205,6 +207,7 @@ function _buildDataModificationLogs(client, modifications, tenant, user) {
       entries.push(entry)
     } catch (err) {
       err.message = `Building data modification log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -248,6 +251,7 @@ function _buildConfigChangeLogs(client, configurations, tenant, user) {
       entries.push(entry)
     } catch (err) {
       err.message = `Building configuration change log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -289,6 +293,7 @@ function _buildSecurityLog(client, action, data, tenant, user) {
     if (user) entry.by(user)
   } catch (err) {
     err.message = `Building security log failed with error: ${err.message}`
+    if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
     throw err
   }
 

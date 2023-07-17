@@ -19,13 +19,8 @@ module.exports = class AuditLogService extends OutboxService {
 
     // immediate or deferred?
     if (!this.options.outbox) return this.send(event, data)
-    try {
-      // this will open a new (detached!) tx -> preserve user
-      await this.tx(() => super.send(new cds.Request({ event, data })))
-    } catch (e) {
-      if (e.code === 'ERR_ASSERTION') e.unrecoverable = true
-      throw e
-    }
+    // this will open a new (detached!) tx -> preserve user
+    await this.tx(() => super.send(new cds.Request({ event, data })))
   }
 
   async send(event, data) {
