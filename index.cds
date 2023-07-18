@@ -29,13 +29,14 @@ service AuditLogService {
 
   // POST /audit-log/v2/configuration-changes
   event ConfigurationModified : LogEntry {
+    object     :      DataObject;
     attributes : many Modification;
   };
 
   // POST /audit-log/v2/security-events
   event SecurityEvent : LogEntry {
     data : {};
-    ip : String;
+    ip   : String;
   };
 
 }
