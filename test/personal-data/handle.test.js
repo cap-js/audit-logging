@@ -1,5 +1,12 @@
 const cds = require('@sap/cds')
 
+// FIXME: why is this needed?
+cds.env.requires['audit-log'] = {
+  kind: 'audit-log-to-console',
+  impl: '../../srv/log2console',
+  handle: ['WRITE']
+}
+
 const { GET } = cds.test(__dirname)
 
 describe('handle', () => {
@@ -17,7 +24,7 @@ describe('handle', () => {
 
   let _handle
 
-  beforeAll(async () => {
+  beforeAll(() => {
     __log = global.console.log
     global.console.log = _log
     _handle = cds.env.requires['audit-log'].handle

@@ -5,7 +5,9 @@
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
-  "dependencies": {
-    "@cap-js/audit-logging": "*"
+  "cds": {
+    "plugins": [
+      "../../cds-plugin"
+    ]
   }
 }

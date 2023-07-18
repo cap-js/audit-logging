@@ -1,14 +1,15 @@
 const cds = require('@sap/cds')
 
+// FIXME: why is this needed?
+cds.env.requires['audit-log'] = {
+  kind: 'audit-log-to-library',
+  impl: '../../srv/log2library',
+  credentials: process.env.ALS_CREDS ? JSON.parse(process.env.ALS_CREDS) : require('./.creds.json').eu10.standard
+}
+
+const { POST } = cds.test(__dirname)
+
 describe('Log to Audit Log Service via REST v2', () => {
-  cds.env.requires['audit-log'] = {
-    kind: 'audit-log-to-library',
-    impl: '../../srv/log2library',
-    credentials: process.env.ALS_CREDS ? JSON.parse(process.env.ALS_CREDS) : require('./.creds.json').eu10.standard
-  }
-
-  const { POST } = cds.test(__dirname)
-
   const object = { type: 'foo.bar', id: { foo: 'bar' } }
   const data_subject = Object.assign({ role: 'foo.bar' }, object)
   const attributes = [{ name: 'foo', old: 'bar', new: 'baz' }]

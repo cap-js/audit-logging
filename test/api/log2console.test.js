@@ -1,5 +1,6 @@
 const cds = require('@sap/cds')
 
+// FIXME: why is this needed?
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
@@ -23,7 +24,7 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
 
   const ALICE = { username: 'alice', password: 'password' }
 
-  beforeAll(async () => {
+  beforeAll(() => {
     __log = global.console.log
     global.console.log = _log
   })
