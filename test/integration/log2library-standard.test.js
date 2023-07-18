@@ -10,5 +10,5 @@ cds.env.requires['audit-log'] = {
 }
 
 describe('Log to Audit Log Service via library with standard plan', () => {
-  require('./test')
+  require('./tests')
 })

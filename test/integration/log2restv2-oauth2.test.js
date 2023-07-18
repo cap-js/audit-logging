@@ -13,5 +13,5 @@ describe('Log to Audit Log Service via REST v2 with oauth2 plan', () => {
   // required for tests to exit correctly (cf. token expiration timeouts)
   jest.useFakeTimers()
 
-  require('./test')
+  require('./tests')
 })

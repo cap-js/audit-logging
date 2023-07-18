@@ -1,7 +1,6 @@
-@path: '/api'
+@path: '/integration'
 service IntegrationService {
 
-  // passthrough
   action passthrough(event : String, data : String);
 
 }

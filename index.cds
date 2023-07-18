@@ -5,7 +5,6 @@ service AuditLogService {
   action log(event : String, data : LogEntry);
   action logSync(event : String, data : LogEntry);
 
-  // POST /audit-log/v2/data-accesses
   event SensitiveDataRead : LogEntry {
     data_subject : DataSubject;
     object       : DataObject;
@@ -19,7 +18,6 @@ service AuditLogService {
     channel      : String;
   }
 
-  // POST /audit-log/v2/data-modifications
   event PersonalDataModified : LogEntry {
     data_subject :      DataSubject;
     object       :      DataObject;
@@ -27,13 +25,11 @@ service AuditLogService {
     success      :      Boolean default true;
   };
 
-  // POST /audit-log/v2/configuration-changes
   event ConfigurationModified : LogEntry {
     object     :      DataObject;
     attributes : many Modification;
   };
 
-  // POST /audit-log/v2/security-events
   event SecurityEvent : LogEntry {
     data : {};
     ip   : String;

@@ -6,8 +6,6 @@ const { hasPersonalData } = require('./lib/utils')
 
 const WRITE = ['CREATE', 'UPDATE', 'DELETE']
 
-// TODO: why does cds.requires.audit-log: false in sample package.json not work ootb?!
-
 /*
  * Add generic audit logging handlers
  */

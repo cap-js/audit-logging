@@ -17,10 +17,7 @@ module.exports = async function () {
     await audit.logSync('foo', { bar: 'baz' })
   })
 
-  /*
-   * test helpers
-   */
-
+  // test helpers
   let _sequence = []
   this.before('*', req => !req.event.match(/sequence/i) && req.on('succeeded', () => _sequence.push('request succeeded')))
   this.on('getSequence', req => req.reply(_sequence))
