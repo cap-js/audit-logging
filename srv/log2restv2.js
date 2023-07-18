@@ -24,7 +24,10 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._handle(data, PATHS.DA)
       if (event === 'PersonalDataModified' || event.match(/^dataModification/i)) return this._handle(data, PATHS.DM)
       if (event === 'ConfigurationModified' || event.match(/^configChange/i)) return this._handle(data, PATHS.CC)
-      if (event === 'SecurityEvent' || event.match(/^security/i)) return this._handle(data, PATHS.SE)
+      if (event === 'SecurityEvent' || event.match(/^security/i)) {
+        if (typeof data.data === 'object') data.data = JSON.stringify(data.data)
+        return this._handle(data, PATHS.SE)
+      }
 
       LOG._warn && LOG.warn(`Event "${event}" is not implemented`)
     })
@@ -63,7 +66,14 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
 
   async _send(data, path) {
     const url = this.options.credentials.url + path
-    const headers = { authorization: this._auth, 'content-type': 'application/json' }
+    const headers = {
+      authorization: this._auth,
+      'content-type': 'application/json'
+      // TODO
+      // XS_AUDIT_APP: undefined,
+      // XS_AUDIT_ORG: undefined,
+      // XS_AUDIT_SPACE: undefined
+    }
     if (this._oauth2) {
       headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
       data.tenant = '$SUBSCRIBER'

@@ -2,21 +2,13 @@
 service APIService {
 
   // default
-  action testEmit();
-  action testSend();
-
+  action   testEmit();
+  action   testSend();
   // new
-  action testLog();
-  action testLogSync();
-
-  // compat  
-  action testDataAccessLog();
-  action testDataModificationLog();
-  action testConfigChangeLog();
-  action testSecurityLog();
-
+  action   testLog();
+  action   testLogSync();
   // test helpers
   function getSequence() returns many String;
-  action resetSequence();
+  action   resetSequence();
 
 }

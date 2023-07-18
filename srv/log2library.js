@@ -110,21 +110,17 @@ module.exports = class AuditLog2Library extends AuditLogService {
   }
 
   async _handleSecurityEvent(arg) {
-    const { action, data } = arg
-
     const client = this._client || (await this._getClient())
     if (!client) return
 
-    // build the logs
+    // build the log
     const { tenant, user } = this._oauth2
       ? { tenant: '$SUBSCRIBER', user: '$USER' }
       : { tenant: arg.tenant, user: arg.user }
-    const { entries, errors } = _buildSecurityLog(client, action, data, tenant, user)
-    if (errors.length) throw _getErrorToThrow(errors)
+    const entry = _buildSecurityLog(client, arg.data, tenant, user)
 
-    // write the logs
-    await Promise.all(entries.map(entry => _sendSecurityLog(entry).catch(err => errors.push(err))))
-    if (errors.length) throw _getErrorToThrow(errors)
+    // write the log
+    await _sendSecurityLog(entry)
   }
 }
 
@@ -295,21 +291,17 @@ function _sendConfigChangeLog(entry) {
  * security
  */
 
-function _buildSecurityLog(client, action, data, tenant, user) {
-  let entry
-
+function _buildSecurityLog(client, data, tenant, user) {
   try {
-    // TODO: action?!
-    entry = client.securityMessage('action: %s, data: %s', action, data)
+    const entry = client.securityMessage(data)
     if (tenant) entry.tenant(tenant)
     if (user) entry.by(user)
+    return entry
   } catch (err) {
     err.message = `Building security log failed with error: ${err.message}`
     if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
     throw err
   }
-
-  return entry
 }
 
 function _sendSecurityLog(entry) {

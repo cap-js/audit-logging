@@ -42,17 +42,21 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
       const response = await POST('/api/testEmit', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['request succeeded', 'audit log logged'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
-  
+
     test('send is immediate', async () => {
       const response = await POST('/api/testSend', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['audit log logged', 'request succeeded'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
@@ -64,17 +68,21 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
       const response = await POST('/api/testLog', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['request succeeded', 'audit log logged'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
-  
+
     test('logSync is immediate', async () => {
       const response = await POST('/api/testLogSync', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['audit log logged', 'request succeeded'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
