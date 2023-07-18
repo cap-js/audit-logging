@@ -65,16 +65,17 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
   }
 
   async _send(data, path) {
-    const url = this.options.credentials.url + path
+    let url = this.options.credentials.url + path
     const headers = {
       authorization: this._auth,
       'content-type': 'application/json'
-      // TODO
+      // TODO: what are these for?
       // XS_AUDIT_APP: undefined,
       // XS_AUDIT_ORG: undefined,
       // XS_AUDIT_SPACE: undefined
     }
     if (this._oauth2) {
+      url = url.replace('/v2', '/oauth2/v2')
       headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
       data.tenant = '$SUBSCRIBER'
     }
