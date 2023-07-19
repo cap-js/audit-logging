@@ -13,6 +13,7 @@ module.exports = class AuditLog2Library extends AuditLogService {
       if (this.options.outbox && this.options.outbox.kind === 'persistent-outbox')
         throw new Error('The combination of persistent-outbox and audit logging with OAuth2 plan is not supported')
       this._oauth2 = true
+      this._providerTenant = credentials.uaa.tenantid
     }
 
     this.on('*', function (req) {
@@ -62,9 +63,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$SUBSCRIBER', user: '$USER' }
-      : { tenant: accesses[0].tenant, user: accesses[0].user }
+    let { tenant, user } = accesses[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildDataAccessLogs(client, accesses, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
 
@@ -80,9 +83,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$SUBSCRIBER', user: '$USER' }
-      : { tenant: modifications[0].tenant, user: modifications[0].user }
+    let { tenant, user } = modifications[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildDataModificationLogs(client, modifications, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
 
@@ -98,9 +103,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$SUBSCRIBER', user: '$USER' }
-      : { tenant: configurations[0].tenant, user: configurations[0].user }
+    let { tenant, user } = configurations[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildConfigChangeLogs(client, configurations, tenant, user)
     if (errors.length) throw _getErrorToThrow(errors)
 
@@ -114,9 +121,11 @@ module.exports = class AuditLog2Library extends AuditLogService {
     if (!client) return
 
     // build the log
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$SUBSCRIBER', user: '$USER' }
-      : { tenant: arg.tenant, user: arg.user }
+    let { tenant, user } = arg
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const entry = _buildSecurityLog(client, arg.data, tenant, user)
 
     // write the log

@@ -12,6 +12,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     if (credentials.uaa) {
       this._oauth2 = true
       this._tokens = new Map()
+      this._providerTenant = credentials.uaa.tenantid
     } else {
       this._auth = 'Basic ' + Buffer.from(credentials.user + ':' + credentials.password).toString('base64')
     }
@@ -79,7 +80,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     if (this._oauth2) {
       url = this.options.credentials.url + PATHS.OAUTH2[path]
       headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
-      data.tenant = '$SUBSCRIBER'
+      data.tenant = data.tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
     } else {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
