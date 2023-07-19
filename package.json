@@ -37,7 +37,7 @@
             "kind": "audit-log-to-console"
           },
           "[production]": {
-            "kind": "audit-log-to-library"
+            "kind": "audit-log-to-restv2"
           }
         },
         "audit-log-to-console": {
