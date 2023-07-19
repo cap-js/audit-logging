@@ -16,6 +16,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     } else {
       this._auth = 'Basic ' + Buffer.from(credentials.user + ':' + credentials.password).toString('base64')
     }
+    this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : {}
 
     this.on('*', function (req) {
       const { event, data } = req
@@ -53,8 +54,8 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       acc += (acc ? '&' : '') + cur + '=' + data[cur]
       return acc
     }, '')
-    // TODO: x-zid
-    const headers = { 'content-type': 'application/x-www-form-urlencoded', '_x-zid': tenant }
+    const headers = { 'content-type': 'application/x-www-form-urlencoded' }
+    if (tenant !== this._providerTenant) headers['x-zid'] = tenant
     try {
       const { access_token, expires_in } = await _post(url, urlencoded, headers)
       tokens.set(tenant, access_token)
@@ -71,11 +72,11 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
   async _send(data, path) {
     let url
     const headers = {
-      'content-type': 'application/json'
+      'content-type': 'application/json',
       // TODO: what are these for?
-      // XS_AUDIT_APP: undefined,
-      // XS_AUDIT_ORG: undefined,
-      // XS_AUDIT_SPACE: undefined
+      XS_AUDIT_ORG: this._vcap.organization_name,
+      XS_AUDIT_SPACE: this._vcap.space_name,
+      XS_AUDIT_APP: this._vcap.application_name
     }
     if (this._oauth2) {
       url = this.options.credentials.url + PATHS.OAUTH2[path]
