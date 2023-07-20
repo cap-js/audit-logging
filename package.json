@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "CDS_ENV=better-sqlite npx jest --silent"
+    "test": "npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": "*"

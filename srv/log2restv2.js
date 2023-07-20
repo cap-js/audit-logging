@@ -16,7 +16,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     } else {
       this._auth = 'Basic ' + Buffer.from(credentials.user + ':' + credentials.password).toString('base64')
     }
-    this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : {}
+    this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : null
 
     this.on('*', function (req) {
       const { event, data } = req
@@ -64,19 +64,19 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       return access_token
     } catch (err) {
       // 401 could also mean x-zid is not valid
-      if (String(err.response.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
+      if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
     }
   }
 
   async _send(data, path) {
     let url
-    const headers = {
-      'content-type': 'application/json',
-      // TODO: what are these for?
-      XS_AUDIT_ORG: this._vcap.organization_name,
-      XS_AUDIT_SPACE: this._vcap.space_name,
-      XS_AUDIT_APP: this._vcap.application_name
+    const headers = { 'content-type': 'application/json' }
+    // TODO: what are these for?
+    if (this._vcap) {
+      headers.XS_AUDIT_ORG = this._vcap.organization_name
+      headers.XS_AUDIT_SPACE = this._vcap.space_name
+      headers.XS_AUDIT_APP = this._vcap.application_name
     }
     if (this._oauth2) {
       url = this.options.credentials.url + PATHS.OAUTH2[path]
@@ -89,7 +89,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     try {
       await _post(url, data, headers)
     } catch (err) {
-      if (String(err.response.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
+      if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
     }
   }
