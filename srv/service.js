@@ -7,12 +7,8 @@ module.exports = class AuditLogService extends OutboxService {
   async init() {
     // add common audit log entry fields
     this.before('*', req => {
-      const {
-        tenant,
-        user: { id: user },
-        timestamp: time
-      } = cds.context
-      Object.assign(req.data, { uuid: cds.utils.uuid(), tenant, user, time })
+      const { tenant, user, timestamp: time } = cds.context
+      Object.assign(req.data, { uuid: cds.utils.uuid(), tenant, user: user.id, time })
     })
 
     // call OutboxService's init
