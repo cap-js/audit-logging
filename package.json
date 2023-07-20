@@ -19,12 +19,12 @@
     "@sap/cds": "*"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^0.1.0",
     "@sap/audit-logging": "^5.7.0",
     "axios": "^1.4.0",
     "eslint": "^8",
     "express": "^4.18.2",
-    "jest": "^29.5.0"
+    "jest": "^29.5.0",
+    "sqlite3": "^5.1.6"
   },
   "cds": {
     "requires": {
