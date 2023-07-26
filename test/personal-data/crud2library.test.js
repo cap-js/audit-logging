@@ -1903,17 +1903,16 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
     })
   })
 
-  describe('avoid audit logs by prepending on', () => {
+  describe('avoid audit logs by overwriting handle', () => {
     let _avoid
 
     beforeAll(async () => {
       const als = cds.services['audit-log'] || (await cds.connect.to('audit-log'))
 
-      als.prepend(srv => {
-        srv.on('dataAccessLog', function (req, next) {
-          if (!_avoid) return next()
-        })
-      })
+      const _handle = als.handle
+      als.handle = async function (req) {
+        if (!_avoid) return _handle.call(this, req)
+      }
     })
 
     afterAll(() => {
@@ -1941,8 +1940,7 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
       })
     })
 
-    // TODO: compat api not yet implemented
-    xtest('read all Customers with avoid = true', async () => {
+    test('read all Customers with avoid = true', async () => {
       _avoid = true
 
       const response = await GET('/crud-1/Customers', { auth: ALICE })
