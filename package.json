@@ -1,7 +1,7 @@
 {
   "name": "@cap-js/audit-logging",
   "version": "0.0.1",
-  "description": "CDS plugin providing integration to the SAP BTP Audit Logging Service as well as personal data-related audit logging out-of-the-box based on annotations.",
+  "description": "CDS plugin providing integration to the SAP BTP Audit Logging Service as well as out-of-the-box personal data-related audit logging based on annotations.",
   "repository": "cap-js/audit-logging",
   "author": "SAP SE (https://www.sap.com)",
   "homepage": "https://cap.cloud.sap/",
