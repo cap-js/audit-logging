@@ -1,6 +1,5 @@
 const cds = require('@sap/cds')
 
-// FIXME: why is this needed?
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-restv2',
   impl: '../../srv/log2restv2',
