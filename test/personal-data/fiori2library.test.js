@@ -3,7 +3,8 @@ const cds = require('@sap/cds')
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
   impl: '../../srv/log2library',
-  credentials: { logToConsole: true }
+  credentials: { logToConsole: true },
+  handle: ['READ', 'WRITE']
 }
 
 const _logger = require('../utils/logger')({ debug: true })
@@ -34,7 +35,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
 
   const ALICE = { username: 'alice', password: 'password' }
 
-  beforeAll(async () => {
+  beforeAll(() => {
     __log = global.console.log
     global.console.log = _log
   })

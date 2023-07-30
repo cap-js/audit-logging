@@ -7,7 +7,16 @@
   "private": true,
   "cds": {
     "plugins": [
-      "../.."
-    ]
+      "../../cds-plugin"
+    ],
+    "requires": {
+      "audit-log": {
+        "[test]": {
+          "kind": "audit-log-to-console",
+          "impl": "../../srv/log2console",
+          "outbox": true
+        }
+      }
+    }
   }
 }

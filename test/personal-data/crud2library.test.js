@@ -3,7 +3,8 @@ const cds = require('@sap/cds')
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-library',
   impl: '../../srv/log2library',
-  credentials: { logToConsole: true }
+  credentials: { logToConsole: true },
+  handle: ['READ', 'WRITE']
 }
 
 const _logger = require('../utils/logger')({ debug: true })
@@ -34,7 +35,7 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
 
   const ALICE = { username: 'alice', password: 'password' }
 
-  beforeAll(async () => {
+  beforeAll(() => {
     __log = global.console.log
     global.console.log = _log
   })
@@ -364,6 +365,7 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
               someOtherField: 'dummy'
             },
             {
+              // note: no change in data
               ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82',
               customer_ID: CUSTOMER_ID,
               street: 'sue',
@@ -895,7 +897,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: oldAddresses[0].town, new: 'null' }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -908,7 +909,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: oldAddresses[1].town, new: 'null' }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -921,7 +921,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           { name: 'town', old: 'null', new: newAddresses[0].town }
         ]
       })
-
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -1900,55 +1899,6 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
         data_subject: DATA_SUBJECT,
         attributes: [{ name: 'note', old: 'positive', new: 'negative' }]
       })
-    })
-  })
-
-  describe('avoid audit logs by prepending on', () => {
-    let _avoid
-
-    beforeAll(async () => {
-      const als = cds.services['audit-log'] || (await cds.connect.to('audit-log'))
-
-      als.prepend(srv => {
-        srv.on('dataAccessLog', function (req, next) {
-          if (!_avoid) return next()
-        })
-      })
-    })
-
-    afterAll(() => {
-      // hackily remove on handler
-      cds.services['audit-log']._handlers.on.shift()
-    })
-
-    beforeEach(() => {
-      _avoid = undefined
-    })
-
-    test('read all Customers with avoid = false', async () => {
-      const response = await GET('/crud-1/Customers', { auth: ALICE })
-
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.Customers',
-          id: { ID: CUSTOMER_ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
-
-    // TODO: compat api not yet implemented
-    xtest('read all Customers with avoid = true', async () => {
-      _avoid = true
-
-      const response = await GET('/crud-1/Customers', { auth: ALICE })
-
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
     })
   })
 })

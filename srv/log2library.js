@@ -1,4 +1,5 @@
 const cds = require('@sap/cds')
+
 const LOG = cds.log('audit-log')
 
 const AuditLogService = require('./service')
@@ -6,27 +7,31 @@ const AuditLogService = require('./service')
 module.exports = class AuditLog2Library extends AuditLogService {
   async init() {
     // credentials stuff
-    if (this.options.credentials?.uaa) {
+    const { credentials } = this.options
+    if (!credentials) throw new Error('No or malformed credentials for "audit-log"')
+    if (credentials.uaa) {
       if (this.options.outbox && this.options.outbox.kind === 'persistent-outbox')
         throw new Error('The combination of persistent-outbox and audit logging with OAuth2 plan is not supported')
       this._oauth2 = true
-    } else if (!this.options.credentials) {
-      throw new Error('No or malformed credentials for "audit-log"')
+      this._providerTenant = credentials.uaa.tenantid
     }
-
-    // call AuditLogService's init
-    await super.init()
 
     this.on('*', function (req) {
       const { event, data } = req
 
-      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/)) return this._dataAccess(data)
-      if (event === 'PersonalDataModified' || event.match(/^dataModification/)) return this._dataModification(data)
-      if (event === 'ConfigurationModified' || event.match(/^configChange/)) return this._configChange(data)
-      if (event === 'SecurityEvent' || event.match(/^security/)) return this._securityEvent(data)
+      // event.match() is used to support the old event names
+      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._handleSensitiveDataRead(data)
+      if (event === 'PersonalDataModified' || event.match(/^dataModification/i))
+        return this._handlePersonalDataModified(data)
+      if (event === 'ConfigurationModified' || event.match(/^configChange/i))
+        return this._handleConfigurationModified(data)
+      if (event === 'SecurityEvent' || event.match(/^security/i)) return this._handleSecurityEvent(data)
 
-      LOG._info && LOG.info(`event ${event} not implemented`)
+      LOG._warn && LOG.warn(`Event "${event}" is not implemented`)
     })
+
+    // call AuditLogService's init
+    await super.init()
   }
 
   async _getClient() {
@@ -51,84 +56,80 @@ module.exports = class AuditLog2Library extends AuditLogService {
     return client
   }
 
-  async _dataAccess(accesses) {
+  async _handleSensitiveDataRead(accesses) {
     if (!Array.isArray(accesses)) accesses = [accesses]
 
     const client = this._client || (await this._getClient())
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
-      : { tenant: accesses[0].tenant, user: accesses[0].user }
+    let { tenant, user } = accesses[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildDataAccessLogs(client, accesses, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendDataAccessLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _dataModification(modifications) {
+  async _handlePersonalDataModified(modifications) {
     if (!Array.isArray(modifications)) modifications = [modifications]
 
     const client = this._client || (await this._getClient())
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
-      : { tenant: modifications[0].tenant, user: modifications[0].user }
+    let { tenant, user } = modifications[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildDataModificationLogs(client, modifications, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendDataModificationLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _configChange(configurations) {
+  async _handleConfigurationModified(configurations) {
     if (!Array.isArray(configurations)) configurations = [configurations]
 
     const client = this._client || (await this._getClient())
     if (!client) return
 
     // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
-      : { tenant: configurations[0].tenant, user: configurations[0].user }
+    let { tenant, user } = configurations[0]
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
     const { entries, errors } = _buildConfigChangeLogs(client, configurations, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
 
     // write the logs
     await Promise.all(entries.map(entry => _sendConfigChangeLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    if (errors.length) throw _getErrorToThrow(errors)
   }
 
-  async _securityEvent(arg) {
-    const { action, data } = arg
-
+  async _handleSecurityEvent(arg) {
     const client = this._client || (await this._getClient())
     if (!client) return
 
-    // build the logs
-    const { tenant, user } = this._oauth2
-      ? { tenant: '$PROVIDER', user: '$USER' }
-      : { tenant: arg.tenant, user: arg.user }
-    const { entries, errors } = _buildSecurityLog(client, action, data, tenant, user)
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    // build the log
+    let { tenant, user } = arg
+    if (this._oauth2) {
+      tenant = tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
+      user = '$USER'
+    }
+    const entry = _buildSecurityLog(client, arg.data, tenant, user)
 
-    // write the logs
-    await Promise.all(entries.map(entry => _sendSecurityLog(entry).catch(err => errors.push(err))))
-    if (errors.length)
-      throw errors.length === 1 ? errors[0] : Object.assign(new Error('MULTIPLE_ERRORS'), { details: errors })
+    // write the log
+    await _sendSecurityLog(entry)
   }
 }
 
@@ -136,8 +137,31 @@ module.exports = class AuditLog2Library extends AuditLogService {
  * utils
  */
 
-function _getAttributeToLog(ele) {
-  return { name: ele.name, old: ele.old || 'null', new: ele.new || 'null' }
+function _getErrorToThrow(errors) {
+  if (errors.length === 1) return errors[0]
+  const error = new cds.error('MULTIPLE_ERRORS')
+  error.details = errors
+  if (errors.some(e => e.unrecoverable)) error.unrecoverable = true
+  return error
+}
+
+function _getStringifiedId(id) {
+  return Object.keys(id).reduce((acc, cur) => {
+    acc[cur] = String(id[cur])
+    return acc
+  }, {})
+}
+
+function _getObjectToLog(object) {
+  return { type: object.type, id: _getStringifiedId(object.id) }
+}
+
+function _getDataSubjectToLog(dataSubject) {
+  return Object.assign(_getObjectToLog(dataSubject), { role: String(dataSubject.role) })
+}
+
+function _getAttributeToLog(attribute) {
+  return { name: attribute.name, old: String(attribute.old) || 'null', new: String(attribute.new) || 'null' }
 }
 
 /*
@@ -150,13 +174,17 @@ function _buildDataAccessLogs(client, accesses, tenant, user) {
 
   for (const access of accesses) {
     try {
-      const entry = client.read(access.dataObject).dataSubject(access.dataSubject).by(user)
+      const entry = client
+        .read(_getObjectToLog(access.object))
+        .dataSubject(_getDataSubjectToLog(access.data_subject))
+        .by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of access.attributes) entry.attribute(each)
       if (access.attachments) for (const each of access.attachments) entry.attachment(each)
       entries.push(entry)
     } catch (err) {
       err.message = `Building data access log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -187,12 +215,16 @@ function _buildDataModificationLogs(client, modifications, tenant, user) {
 
   for (const modification of modifications) {
     try {
-      const entry = client.update(modification.dataObject).dataSubject(modification.dataSubject).by(user)
+      const entry = client
+        .update(_getObjectToLog(modification.object))
+        .dataSubject(_getDataSubjectToLog(modification.data_subject))
+        .by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of modification.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
     } catch (err) {
       err.message = `Building data modification log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -230,12 +262,13 @@ function _buildConfigChangeLogs(client, configurations, tenant, user) {
 
   for (const configuration of configurations) {
     try {
-      const entry = client.configurationChange(configuration.dataObject).by(user)
+      const entry = client.configurationChange(_getObjectToLog(configuration.object)).by(user)
       if (tenant) entry.tenant(tenant)
       for (const each of configuration.attributes) entry.attribute(_getAttributeToLog(each))
       entries.push(entry)
     } catch (err) {
       err.message = `Building configuration change log failed with error: ${err.message}`
+      if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
       errors.push(err)
     }
   }
@@ -267,19 +300,17 @@ function _sendConfigChangeLog(entry) {
  * security
  */
 
-function _buildSecurityLog(client, action, data, tenant, user) {
-  let entry
-
+function _buildSecurityLog(client, data, tenant, user) {
   try {
-    entry = client.securityMessage('action: %s, data: %s', action, data)
+    const entry = client.securityMessage(data)
     if (tenant) entry.tenant(tenant)
     if (user) entry.by(user)
+    return entry
   } catch (err) {
     err.message = `Building security log failed with error: ${err.message}`
+    if (err.code === 'ERR_ASSERTION') err.unrecoverable = true
     throw err
   }
-
-  return entry
 }
 
 function _sendSecurityLog(entry) {

@@ -1,36 +1,47 @@
 namespace sap.auditlog;
 
-@protocol: 'none'
 service AuditLogService {
 
   action log(event : String, data : LogEntry);
   action logSync(event : String, data : LogEntry);
 
   event SensitiveDataRead : LogEntry {
-    dataSubject : DataSubject;
-    dataObject  : DataObject;
-    attributes  : many {
-      name      : String
+    data_subject : DataSubject;
+    object       : DataObject;
+    attributes   : many {
+      name       : String;
     };
+    attachments  : many {
+      id         : String;
+      name       : String;
+    };
+    channel      : String;
   }
 
   event PersonalDataModified : LogEntry {
-    dataSubject : DataSubject;
-    dataObject  : DataObject;
-    attributes  : many {
-      name      : String;
-      old       : String;
-      new       : String
-    };
+    data_subject :      DataSubject;
+    object       :      DataObject;
+    attributes   : many Modification;
+    success      :      Boolean default true;
+  };
+
+  event ConfigurationModified : LogEntry {
+    object     :      DataObject;
+    attributes : many Modification;
+  };
+
+  event SecurityEvent : LogEntry {
+    data : {};
+    ip   : String;
   };
 
 }
 
 type LogEntry {
-  id        : UUID;
-  tenant    : String;
-  user      : String;
-  timestamp : Timestamp;
+  uuid   : UUID;
+  tenant : String;
+  user   : String;
+  time   : Timestamp;
 }
 
 type DataObject {
@@ -40,4 +51,10 @@ type DataObject {
 
 type DataSubject : DataObject {
   role : String;
+}
+
+type Modification {
+  name : String;
+  old  : String;
+  new  : String;
 }
