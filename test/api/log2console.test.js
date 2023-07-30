@@ -1,11 +1,5 @@
 const cds = require('@sap/cds')
 
-cds.env.requires['audit-log'] = {
-  kind: 'audit-log-to-console',
-  impl: '../../srv/log2console',
-  outbox: true
-}
-
 const { POST, GET } = cds.test(__dirname)
 
 const wait = require('util').promisify(setTimeout)
@@ -23,7 +17,7 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
 
   const ALICE = { username: 'alice', password: 'password' }
 
-  beforeAll(async () => {
+  beforeAll(() => {
     __log = global.console.log
     global.console.log = _log
   })
@@ -42,17 +36,21 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
       const response = await POST('/api/testEmit', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['request succeeded', 'audit log logged'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
-  
+
     test('send is immediate', async () => {
       const response = await POST('/api/testSend', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['audit log logged', 'request succeeded'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
@@ -64,68 +62,64 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
       const response = await POST('/api/testLog', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['request succeeded', 'audit log logged'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
-  
+
     test('logSync is immediate', async () => {
       const response = await POST('/api/testLogSync', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       await wait(42)
-      const { data: { value: sequence }} = await GET('/api/getSequence()', { auth: ALICE })
+      const {
+        data: { value: sequence }
+      } = await GET('/api/getSequence()', { auth: ALICE })
       expect(sequence).toEqual(['audit log logged', 'request succeeded'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
   })
 
-  describe('compat', () => {
-    test('dataAccessLog', async () => {
-      const response = await POST('/api/testDataAccessLog', {}, { auth: ALICE })
-      expect(response).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(1)
-      // REVISIT: data structure is not yet final
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-        dataSubject: { type: 'test', role: 'test', id: [{ keyName: 'test', value: 'test' }] },
-        attributes: [{ name: 'test' }]
-      })
+  test('the default inspect depth of 2 is enough', async () => {
+    const audit = await cds.connect.to('audit-log')
+    await audit.log('foo', { data_subject: { ID: { bar: 'baz' } } })
+    expect(_logs).toContainMatchObject({ data_subject: { ID: { bar: 'baz' } } })
+  })
+
+  describe('intercept audit logs', () => {
+    let _intercept
+
+    beforeAll(async () => {
+      const als = cds.services['audit-log'] || (await cds.connect.to('audit-log'))
+
+      const _log = als.log
+      als.log = async function (event, data) {
+        if (!_intercept) return _log.call(this, event, data)
+      }
     })
 
-    test('dataModificationLog', async () => {
-      const response = await POST('/api/testDataModificationLog', {}, { auth: ALICE })
-      expect(response).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(1)
-      // REVISIT: data structure is not yet final
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-        dataSubject: { type: 'test', role: 'test', id: [{ keyName: 'test', value: 'test' }] },
-        attributes: [{ name: 'test', oldValue: 'test', newValue: 'test' }]
-      })
+    beforeEach(async () => {
+      _intercept = undefined
     })
 
-    test('configChangeLog', async () => {
-      const response = await POST('/api/testConfigChangeLog', {}, { auth: ALICE })
+    test('intercept on', async () => {
+      _intercept = true
+
+      const response = await POST('/api/testLog', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(1)
-      // REVISIT: data structure is not yet final
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        dataObject: { type: 'test', id: [{ keyName: 'test', value: 'test' }] },
-        attributes: [{ name: 'test', oldValue: 'test', newValue: 'test' }]
-      })
+      expect(_logs.length).toBe(0)
     })
 
-    test('testSecurityLog', async () => {
-      const response = await POST('/api/testSecurityLog', {}, { auth: ALICE })
+    test('intercept off', async () => {
+      _intercept = false
+
+      const response = await POST('/api/testLog', {}, { auth: ALICE })
       expect(response).toMatchObject({ status: 204 })
       expect(_logs.length).toBe(1)
-      // REVISIT: data structure is not yet final
-      expect(_logs).toContainMatchObject({ user: 'alice', action: 'dummy', data: 'dummy' })
+      expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
   })
 })
