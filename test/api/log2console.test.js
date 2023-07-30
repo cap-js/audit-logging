@@ -95,4 +95,38 @@ describe('AuditLogService API with kind audit-log-to-console', () => {
     await audit.log('foo', { data_subject: { ID: { bar: 'baz' } } })
     expect(_logs).toContainMatchObject({ data_subject: { ID: { bar: 'baz' } } })
   })
+
+  describe('intercept audit logs', () => {
+    let _intercept
+
+    beforeAll(async () => {
+      const als = cds.services['audit-log'] || (await cds.connect.to('audit-log'))
+
+      const _log = als.log
+      als.log = async function (event, data) {
+        if (!_intercept) return _log.call(this, event, data)
+      }
+    })
+
+    beforeEach(async () => {
+      _intercept = undefined
+    })
+
+    test('intercept on', async () => {
+      _intercept = true
+
+      const response = await POST('/api/testLog', {}, { auth: ALICE })
+      expect(response).toMatchObject({ status: 204 })
+      expect(_logs.length).toBe(0)
+    })
+
+    test('intercept off', async () => {
+      _intercept = false
+
+      const response = await POST('/api/testLog', {}, { auth: ALICE })
+      expect(response).toMatchObject({ status: 204 })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
+    })
+  })
 })
