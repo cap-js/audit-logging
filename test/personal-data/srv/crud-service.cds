@@ -111,12 +111,16 @@ service CRUD_1 {
     dummyArray @PersonalData.IsPotentiallyPersonal;
   }
 
-  // currently this generates no annotations in CSN
-  annotate dummies with @PersonalData: {
-    DataSubjectRole: 'Customer',
-    EntitySemantics: 'DataSubjectDetails'
+  entity Employees             as projection on db.Employees;
+
+  annotate Employees with @PersonalData: {
+    EntitySemantics: 'DataSubject',
+    DataSubjectRole: 'Employee'
   } {
-    dummy @PersonalData.IsPotentiallyPersonal;
+    ID     @PersonalData.FieldSemantics   : 'DataSubjectID';
+    name   @PersonalData.IsPotentiallyPersonal;
+    notes  @PersonalData.IsPotentiallySensitive @PersonalData.IsPotentiallyPersonal;
+    skills @PersonalData.IsPotentiallyPersonal;
   }
 }
 
