@@ -2,7 +2,7 @@ namespace sap.auditlog;
 
 service AuditLogService {
 
-  action log(event : String, data : LogEntry);
+  action log    (event : String, data : LogEntry);
   action logSync(event : String, data : LogEntry);
 
   event SensitiveDataRead : LogEntry {
@@ -23,17 +23,17 @@ service AuditLogService {
     object       :      DataObject;
     attributes   : many Modification;
     success      :      Boolean default true;
-  };
+  }
 
   event ConfigurationModified : LogEntry {
     object     :      DataObject;
     attributes : many Modification;
-  };
+  }
 
   event SecurityEvent : LogEntry {
     data : {};
     ip   : String;
-  };
+  }
 
 }
 
