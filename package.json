@@ -16,7 +16,7 @@
     "test": "npx jest --silent"
   },
   "peerDependencies": {
-    "@sap/cds": "*"
+    "@sap/cds": "^7"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1.0.1",
