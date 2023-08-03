@@ -96,3 +96,12 @@ entity Notes : cuid {
   customerStatus :      Association to CustomerStatus;
   dummyArray     : many dummies;
 }
+
+entity Employees : cuid {
+  name   : {
+    first : String;
+    last  : String;
+  };
+  notes  : many String;
+  skills : many String;
+}

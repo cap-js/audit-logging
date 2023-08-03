@@ -328,14 +328,64 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
 
   describe('modification and read draft logging', () => {
     test('draft edit, patch and activate with another data subject and sensitive data only in composition children', async () => {
-      await POST(`/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/draftEdit`, {}, { auth: ALICE })
       const { data: customer } = await GET(
-        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)?$expand=addresses`,
+        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses`,
         { auth: ALICE }
       )
-      const addressID = customer.addresses[0].ID
+      const address_1 = customer.addresses[0]
+      const address_2 = customer.addresses[1]
+
+      // reset logs
+      _logs = []
+
+      // draftEdit transfers active data to draft tables -> read sensitive data -> logs
+      await POST(`/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/draftEdit`, {}, { auth: ALICE })
+      expect(_logs.length).toBe(2)
+      expect(_logs.length).toBe(2)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object: {
+          type: 'Fiori_2.CustomerPostalAddress',
+          id: { ID: address_1.ID }
+        },
+        data_subject: {
+          type: 'Fiori_2.CustomerPostalAddress',
+          role: 'Address',
+          id: {
+            ID: address_1.ID,
+            street: address_1.street,
+            town: address_1.town
+          }
+        },
+        attributes: [{ name: 'someOtherField' }]
+      })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object: {
+          type: 'Fiori_2.CustomerPostalAddress',
+          id: { ID: address_2.ID }
+        },
+        data_subject: {
+          type: 'Fiori_2.CustomerPostalAddress',
+          role: 'Address',
+          id: {
+            ID: address_2.ID,
+            street: address_2.street,
+            town: address_2.town
+          }
+        },
+        attributes: [{ name: 'someOtherField' }]
+      })
+
+      // reset logs
+      _logs = []
+
+      // draft data is never logged
+      await GET(`/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)?$expand=addresses`, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+
       await PATCH(
-        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)/addresses(ID=${addressID},IsActiveEntity=false)`,
+        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)/addresses(ID=${address_1.ID},IsActiveEntity=false)`,
         {
           street: 'updated',
           town: 'updated town'
@@ -349,19 +399,18 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
       )
 
       expect(response).toMatchObject({ status: 200 })
-      // TODO: check if this is correct
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
           type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: addressID }
+          id: { ID: address_1.ID }
         },
         data_subject: {
           type: 'Fiori_2.CustomerPostalAddress',
           role: 'Address',
           id: {
-            ID: addressID,
+            ID: address_1.ID,
             street: 'updated',
             town: 'updated town'
           }
@@ -420,7 +469,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           { name: 'emailAddress', old: 'null', new: customer.emailAddress },
           { name: 'firstName', old: 'null', new: customer.firstName },
           { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: 'null', new: customer.creditCardNo }
+          { name: 'creditCardNo', old: '***', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -440,41 +489,47 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
 
     test('draft edit, read union, delete draft', async () => {
       let response = await POST(
-        `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=true)/Fiori_1.draftEdit`,
+        `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/Fiori_1.draftEdit`,
         { PreserveChanges: true },
         { auth: ALICE }
       )
-
       expect(response).toMatchObject({ status: 201 })
-      // TODO: check if this is correct
-      expect(_logs.length).toBe(0) // REVISIT: Read active personal data will be logged after using expand ** in edit.js
+      expect(_logs.length).toBe(10)
+      for (const l of _logs) expect(l).toMatchObject({ data_subject: { id: { ID: CUSTOMER_ID } } })
 
+      // reset logs
+      _logs = []
+
+      // draft data is never logged. however, the read of the active data is logged.
       response = await GET(
         '/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)',
         { auth: ALICE }
       )
-
       expect(response).toMatchObject({ status: 200 })
-      // TODO: check if this is correct
       expect(_logs.length).toBe(1)
+
+      // reset logs
+      _logs = []
 
       response = await DELETE(`/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)`, { auth: ALICE })
-
       expect(response).toMatchObject({ status: 204 })
-      // TODO: check if this is correct
-      expect(_logs.length).toBe(1)
+      expect(_logs.length).toBe(0)
     })
 
     test('draft edit, patch and activate', async () => {
-      let response = await POST(
+      let response
+
+      // draftEdit transfers active data to draft tables -> read sensitive data -> logs
+      response = await POST(
         `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=true)/Fiori_1.draftEdit`,
         { PreserveChanges: true },
         { auth: ALICE }
       )
-
       expect(response).toMatchObject({ status: 201 })
-      // TODO: check if this is correct
-      expect(_logs.length).toBe(0) // REVISIT: Read active personal data will be logged after using expand ** in edit.js
+      expect(_logs.length).toBe(10)
+
+      // reset logs
+      _logs = []
 
       const customer = {
         ID: response.data.ID,
@@ -486,18 +541,17 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
       }
 
       response = await PATCH(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`, customer, { auth: ALICE })
-
       expect(response).toMatchObject({ status: 200 })
-      // TODO: check if this is correct
       expect(_logs.length).toBe(0)
+
+      // reset logs
+      _logs = []
 
       response = await POST(
         `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/Fiori_1.draftActivate`,
         {},
         { auth: ALICE }
       )
-
-      // TODO: check if this is correct
       expect(_logs.length).toBe(2)
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -514,7 +568,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           { name: 'emailAddress', old: 'foo@bar.com', new: customer.emailAddress },
           { name: 'firstName', old: 'foo', new: customer.firstName },
           { name: 'lastName', old: 'bar', new: customer.lastName },
-          { name: 'creditCardNo', old: '12345', new: customer.creditCardNo }
+          { name: 'creditCardNo', old: '***', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -596,7 +650,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           { name: 'emailAddress', old: 'null', new: customer.emailAddress },
           { name: 'firstName', old: 'null', new: customer.firstName },
           { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: 'null', new: customer.creditCardNo }
+          { name: 'creditCardNo', old: '***', new: '***' }
         ]
       })
 
@@ -622,7 +676,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject,
         attributes: [
-          { name: 'street', old: 'null', new: address.street },
+          { name: 'street', old: '***', new: '***' },
           { name: 'town', old: 'null', new: address.town }
         ]
       })
@@ -659,7 +713,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           { name: 'emailAddress', old: 'foo@bar.com', new: 'null' },
           { name: 'firstName', old: 'foo', new: 'null' },
           { name: 'lastName', old: 'bar', new: 'null' },
-          { name: 'creditCardNo', old: '12345', new: 'null' }
+          { name: 'creditCardNo', old: '***', new: '***' }
         ]
       })
 
@@ -671,7 +725,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: oldAddresses[0].street, new: 'null' },
+          { name: 'street', old: '***', new: '***' },
           { name: 'town', old: oldAddresses[0].town, new: 'null' }
         ]
       })
@@ -684,7 +738,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: oldAttachments[0].description, new: 'null' },
+          { name: 'description', old: '***', new: '***' },
           { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
         ]
       })
@@ -696,7 +750,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: oldAttachments[1].description, new: 'null' },
+          { name: 'description', old: '***', new: '***' },
           { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
         ]
       })
@@ -708,7 +762,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: oldAddresses[1].street, new: 'null' },
+          { name: 'street', old: '***', new: '***' },
           { name: 'town', old: oldAddresses[1].town, new: 'null' }
         ]
       })
@@ -720,7 +774,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: 'active', new: 'null' },
+          { name: 'description', old: '***', new: '***' },
           { name: 'todo', old: 'send reminder', new: 'null' }
         ]
       })
@@ -731,7 +785,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: 'new change', new: 'null' }]
+        attributes: [{ name: 'description', old: '***', new: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -740,7 +794,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           id: { ID: oldLast.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: 'some last value', new: 'null' }]
+        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
       })
 
       const selects = _logger._logs.debug.filter(
@@ -768,8 +822,10 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
       )
 
       expect(response).toMatchObject({ status: 201 })
-      // TODO: check if this is correct
-      expect(_logs.length).toBe(0) // REVISIT: Read active personal data will be logged after using expand ** in edit.js
+      expect(_logs.length).toBe(10)
+
+      // reset logs
+      _logs = []
 
       response = await PATCH(
         `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=false)`,
@@ -778,8 +834,10 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
       )
 
       expect(response).toMatchObject({ status: 200 })
-      // TODO: check if this is correct
       expect(_logs.length).toBe(0)
+
+      // reset logs
+      _logs = []
 
       const body = {
         requests: [
@@ -803,7 +861,6 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
       response = await POST('/fiori-1/$batch', body, { auth: ALICE })
       expect(response).toMatchObject({ status: 200 })
       expect(response.data.responses.every(r => r.status >= 200 && r.status < 300)).toBeTruthy()
-      // TODO: check if this is correct
       expect(_logs.length).toBe(11)
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -813,7 +870,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: oldAddresses[0].street, new: 'null' },
+          { name: 'street', old: '***', new: '***' },
           { name: 'town', old: oldAddresses[0].town, new: 'null' }
         ]
       })
@@ -825,7 +882,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: oldAttachments[0].description, new: 'null' },
+          { name: 'description', old: '***', new: '***' },
           { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
         ]
       })
@@ -837,7 +894,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: oldAttachments[1].description, new: 'null' },
+          { name: 'description', old: '***', new: '***' },
           { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
         ]
       })
@@ -849,7 +906,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: oldAddresses[1].street, new: 'null' },
+          { name: 'street', old: '***', new: '***' },
           { name: 'town', old: oldAddresses[1].town, new: 'null' }
         ]
       })
@@ -860,7 +917,7 @@ describe('personal data audit logging in Fiori with kind audit-log-to-library', 
           id: { ID: oldAttachmentNotes[0].ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: 'start', new: 'null' }]
+        attributes: [{ name: 'note', old: '***', new: '***' }]
       })
     })
   })
