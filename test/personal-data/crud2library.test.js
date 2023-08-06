@@ -71,8 +71,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           role: 'Address',
           id: {
             ID: addressID1,
-            street: 'zu',
-            town: 'lu'
+            street: 'moo',
+            town: 'shu'
           }
         },
         attributes: [{ name: 'someOtherField' }]
@@ -398,8 +398,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           }
         },
         attributes: [
-          { name: 'street', new: 'updated', old: 'zu' },
-          { name: 'town', new: 'updated town', old: 'lu' }
+          { name: 'street', new: 'updated', old: 'moo' },
+          { name: 'town', new: 'updated town', old: 'shu' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1964,15 +1964,15 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
       // reset logs
       _logs = []
 
-      res = await PATCH(`/crud-3/R1/${r1.r1_ID}`, { r1_firstName: 'zu', r1_lastName: 'lu' }, { auth: ALICE })
+      res = await PATCH(`/crud-3/R1/${r1.r1_ID}`, { r1_firstName: 'moo', r1_lastName: 'shu' }, { auth: ALICE })
       expect(_logs.length).toBe(2)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object,
         data_subject,
         attributes: [
-          { name: 'r1_firstName', old: r1.r1_firstName, new: 'zu' },
-          { name: 'r1_lastName', old: r1.r1_lastName, new: 'lu' }
+          { name: 'r1_firstName', old: r1.r1_firstName, new: 'moo' },
+          { name: 'r1_lastName', old: r1.r1_lastName, new: 'shu' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1993,8 +1993,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
         data_subject,
         attributes: [
           { name: 'r1_emailAddress', old: r1.r1_emailAddress, new: 'null' },
-          { name: 'r1_firstName', old: 'zu', new: 'null' },
-          { name: 'r1_lastName', old: 'lu', new: 'null' },
+          { name: 'r1_firstName', old: 'moo', new: 'null' },
+          { name: 'r1_lastName', old: 'shu', new: 'null' },
           { name: 'r1_creditCardNo', old: '***', new: '***' }
         ]
       })
@@ -2035,15 +2035,15 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
       // reset logs
       _logs = []
 
-      res = await PATCH(`/crud-3/R2/${r2.r2_ID}`, { r2_firstName: 'zu', r2_lastName: 'lu' }, { auth: ALICE })
+      res = await PATCH(`/crud-3/R2/${r2.r2_ID}`, { r2_firstName: 'moo', r2_lastName: 'shu' }, { auth: ALICE })
       expect(_logs.length).toBe(2)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object,
         data_subject,
         attributes: [
-          { name: 'r2_firstName', old: r2.r2_firstName, new: 'zu' },
-          { name: 'r2_lastName', old: r2.r2_lastName, new: 'lu' }
+          { name: 'r2_firstName', old: r2.r2_firstName, new: 'moo' },
+          { name: 'r2_lastName', old: r2.r2_lastName, new: 'shu' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -2064,8 +2064,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
         data_subject,
         attributes: [
           { name: 'r2_emailAddress', old: r2.r2_emailAddress, new: 'null' },
-          { name: 'r2_firstName', old: 'zu', new: 'null' },
-          { name: 'r2_lastName', old: 'lu', new: 'null' },
+          { name: 'r2_firstName', old: 'moo', new: 'null' },
+          { name: 'r2_lastName', old: 'shu', new: 'null' },
           { name: 'r2_creditCardNo', old: '***', new: '***' }
         ]
       })
