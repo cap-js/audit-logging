@@ -71,8 +71,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           role: 'Address',
           id: {
             ID: addressID1,
-            street: 'moo',
-            town: 'shu'
+            street: 'zu',
+            town: 'lu'
           }
         },
         attributes: [{ name: 'someOtherField' }]
@@ -398,8 +398,8 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
           }
         },
         attributes: [
-          { name: 'street', new: 'updated', old: 'moo' },
-          { name: 'town', new: 'updated town', old: 'shu' }
+          { name: 'street', new: 'updated', old: 'zu' },
+          { name: 'town', new: 'updated town', old: 'lu' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1925,6 +1925,150 @@ describe('personal data audit logging in CRUD with kind audit-log-to-library', (
       expect(_logs.length).toBe(2)
       expect(_logs[0].attributes).toEqual([{ name: 'notes', old: '***', new: '***' }])
       expect(_logs[1].attributes).toEqual([{ name: 'notes' }])
+    })
+  })
+
+  describe('with renamings', () => {
+    test('one level', async () => {
+      let res
+
+      const r1 = {
+        r1_emailAddress: 'foo.bar@baz.com',
+        r1_firstName: 'foo',
+        r1_lastName: 'bar',
+        r1_creditCardNo: '12345'
+      }
+      res = await POST('/crud-3/R1', r1, { auth: ALICE })
+      r1.r1_ID = res.data.r1_ID
+      const object = { type: 'CRUD_3.R1', id: { r1_ID: r1.r1_ID } }
+      const data_subject = Object.assign({ role: 'Renamed Customer' }, object)
+      expect(_logs.length).toBe(2)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r1_emailAddress', old: 'null', new: r1.r1_emailAddress },
+          { name: 'r1_firstName', old: 'null', new: r1.r1_firstName },
+          { name: 'r1_lastName', old: 'null', new: r1.r1_lastName },
+          { name: 'r1_creditCardNo', old: '***', new: '***' }
+        ]
+      })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [{ name: 'r1_creditCardNo' }]
+      })
+
+      // reset logs
+      _logs = []
+
+      res = await PATCH(`/crud-3/R1/${r1.r1_ID}`, { r1_firstName: 'zu', r1_lastName: 'lu' }, { auth: ALICE })
+      expect(_logs.length).toBe(2)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r1_firstName', old: r1.r1_firstName, new: 'zu' },
+          { name: 'r1_lastName', old: r1.r1_lastName, new: 'lu' }
+        ]
+      })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [{ name: 'r1_creditCardNo' }]
+      })
+
+      // reset logs
+      _logs = []
+
+      res = await DELETE(`/crud-3/R1/${r1.r1_ID}`, { auth: ALICE })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r1_emailAddress', old: r1.r1_emailAddress, new: 'null' },
+          { name: 'r1_firstName', old: 'zu', new: 'null' },
+          { name: 'r1_lastName', old: 'lu', new: 'null' },
+          { name: 'r1_creditCardNo', old: '***', new: '***' }
+        ]
+      })
+    })
+
+    test('two levels', async () => {
+      let res
+
+      const r2 = {
+        r2_emailAddress: 'foo.bar@baz.com',
+        r2_firstName: 'foo',
+        r2_lastName: 'bar',
+        r2_creditCardNo: '12345'
+      }
+      res = await POST('/crud-3/R2', r2, { auth: ALICE })
+      r2.r2_ID = res.data.r2_ID
+      const object = { type: 'CRUD_3.R2', id: { r2_ID: r2.r2_ID } }
+      const data_subject = Object.assign({ role: 'Twice Renamed Customer' }, object)
+      expect(_logs.length).toBe(2)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r2_emailAddress', old: 'null', new: r2.r2_emailAddress },
+          { name: 'r2_firstName', old: 'null', new: r2.r2_firstName },
+          { name: 'r2_lastName', old: 'null', new: r2.r2_lastName },
+          { name: 'r2_creditCardNo', old: '***', new: '***' }
+        ]
+      })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [{ name: 'r2_creditCardNo' }]
+      })
+
+      // reset logs
+      _logs = []
+
+      res = await PATCH(`/crud-3/R2/${r2.r2_ID}`, { r2_firstName: 'zu', r2_lastName: 'lu' }, { auth: ALICE })
+      expect(_logs.length).toBe(2)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r2_firstName', old: r2.r2_firstName, new: 'zu' },
+          { name: 'r2_lastName', old: r2.r2_lastName, new: 'lu' }
+        ]
+      })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [{ name: 'r2_creditCardNo' }]
+      })
+
+      // reset logs
+      _logs = []
+
+      res = await DELETE(`/crud-3/R2/${r2.r2_ID}`, { auth: ALICE })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject,
+        attributes: [
+          { name: 'r2_emailAddress', old: r2.r2_emailAddress, new: 'null' },
+          { name: 'r2_firstName', old: 'zu', new: 'null' },
+          { name: 'r2_lastName', old: 'lu', new: 'null' },
+          { name: 'r2_creditCardNo', old: '***', new: '***' }
+        ]
+      })
     })
   })
 })

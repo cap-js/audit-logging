@@ -117,9 +117,9 @@ service CRUD_1 {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Employee'
   } {
-    ID     @PersonalData.FieldSemantics   : 'DataSubjectID';
+    ID     @PersonalData.FieldSemantics: 'DataSubjectID';
     name   @PersonalData.IsPotentiallyPersonal;
-    notes  @PersonalData.IsPotentiallySensitive @PersonalData.IsPotentiallyPersonal;
+    notes  @PersonalData.IsPotentiallySensitive  @PersonalData.IsPotentiallyPersonal;
     skills @PersonalData.IsPotentiallyPersonal;
   }
 }
@@ -158,4 +158,35 @@ service CRUD_2 {
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
   }
+}
+
+@path    : '/crud-3'
+@requires: 'admin'
+service CRUD_3 {
+
+  entity R1                    as projection on db.RBase {
+    key ID           as r1_ID,
+        emailAddress as r1_emailAddress,
+        firstName    as r1_firstName,
+        lastName     as r1_lastName,
+        creditCardNo as r1_creditCardNo
+  }
+
+  annotate R1 with @PersonalData: {
+    EntitySemantics: 'DataSubject',
+    DataSubjectRole: 'Renamed Customer'
+  };
+
+  entity R2                    as projection on R1 {
+    key r1_ID           as r2_ID,
+        r1_emailAddress as r2_emailAddress,
+        r1_firstName    as r2_firstName,
+        r1_lastName     as r2_lastName,
+        r1_creditCardNo as r2_creditCardNo
+  }
+
+  annotate R2 with @PersonalData: {
+    EntitySemantics: 'DataSubject',
+    DataSubjectRole: 'Twice Renamed Customer'
+  };
 }

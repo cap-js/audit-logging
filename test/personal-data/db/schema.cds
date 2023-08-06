@@ -105,3 +105,21 @@ entity Employees : cuid {
   notes  : many String;
   skills : many String;
 }
+
+entity RBase : cuid {
+  emailAddress : String;
+  firstName    : String;
+  lastName     : String;
+  creditCardNo : String(16);
+}
+
+annotate RBase with @PersonalData             : {
+  EntitySemantics: 'DataSubject',
+  DataSubjectRole: 'RBase'
+} {
+  ID           @PersonalData.FieldSemantics: 'DataSubjectID';
+  emailAddress @PersonalData.IsPotentiallyPersonal;
+  firstName    @PersonalData.IsPotentiallyPersonal;
+  lastName     @PersonalData.IsPotentiallyPersonal;
+  creditCardNo @PersonalData.IsPotentiallySensitive;
+}
