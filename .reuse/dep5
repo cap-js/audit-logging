@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: audit-logging
+Upstream-Contact: The CAP team <cap@sap.com>
+Source: https://github.com/cap-js/audit-logging
+
+Files: *
+Copyright: 2023 SAP SE or an SAP affiliate company and contributors and audit-logging contributors.
+License: Apache-2.0
+
