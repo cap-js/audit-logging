@@ -8,7 +8,7 @@ Documentation can be found at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/
 
 ## Requirements
 
-See [Getting Started](https://cap.cloud.sap/docs/get-started) on how to jumpstart your development and grow as you go with CAP - The Cloud Application Programming Model.
+See [Getting Started](https://cap.cloud.sap/docs/get-started) on how to jumpstart your development and grow as you go with SAP Cloud Application Programming Model.
 
 The end-to-end out-of-the-box functionality provided by this plugin requires a paid-for instance of the SAP BTP Audit Logging Service. However, it is possible to provide an own implementation that writes the audit logs to a custom store.
 
