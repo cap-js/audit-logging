@@ -1,8 +1,8 @@
 const cds = require('@sap/cds')
 
 cds.env.requires['audit-log'] = {
-  kind: 'audit-log-to-library',
-  impl: '../../srv/log2library',
+  kind: 'audit-log-to-console',
+  impl: '../../srv/log2console',
   credentials: { logToConsole: true },
   handle: ['READ', 'WRITE']
 }
@@ -12,18 +12,15 @@ cds.log.Logger = _logger
 
 const { POST, PATCH, GET, DELETE, data } = cds.test(__dirname)
 
-describe('personal data audit logging in Fiori with kind audit-log-to-library', () => {
+describe('personal data audit logging in Fiori', () => {
   let __log, _logs
   const _log = (...args) => {
-    if (args.length !== 1 || !args[0].uuid) {
+    if (!(args.length === 2 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
       // > not an audit log (most likely, anyway)
       return __log(...args)
     }
 
-    // do not add log preps
-    if (args[0].attributes && 'old' in args[0].attributes[0] && !args[0].success) return
-
-    _logs.push(...args)
+    _logs.push(args[1])
   }
 
   const CUSTOMER_ID = 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9'

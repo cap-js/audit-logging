@@ -6,7 +6,7 @@ cds.env.requires['audit-log'] = {
   credentials: process.env.ALS_CREDS_STANDARD && JSON.parse(process.env.ALS_CREDS_STANDARD)
 }
 
-describe('Log to Audit Log Service via REST v2 with standard plan', () => {
+describe('Log to Audit Log Service with standard plan', () => {
   if (!cds.env.requires['audit-log'].credentials)
     return test.skip('Skipping tests due to missing credentials', () => {})
 

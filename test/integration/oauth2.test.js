@@ -9,7 +9,7 @@ cds.env.requires['audit-log'] = {
 // stay in provider account (i.e., use "$PROVIDER" and avoid x-zid header when fetching oauth2 token)
 cds.env.requires.auth.users.alice.tenant = cds.env.requires['audit-log'].credentials.uaa.tenantid
 
-describe('Log to Audit Log Service via REST v2 with oauth2 plan', () => {
+describe('Log to Audit Log Service with oauth2 plan', () => {
   if (!cds.env.requires['audit-log'].credentials)
     return test.skip('Skipping tests due to missing credentials', () => {})
 
