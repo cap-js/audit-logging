@@ -70,8 +70,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       return access_token
     } catch (err) {
       // 401 could also mean x-zid is not valid
-      if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
-        err.unrecoverable = true
+      if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
     }
   }
@@ -96,7 +95,9 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     try {
       await _post(url, data, headers)
     } catch (err) {
-      if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
+      // 429 (rate limit) is not unrecoverable
+      if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
+        err.unrecoverable = true
       throw err
     }
   }

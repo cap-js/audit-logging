@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1.0.1",
-    "@sap/audit-logging": "^5.7.0",
     "axios": "^1.4.0",
     "eslint": "^8",
     "express": "^4.18.2",
@@ -44,13 +43,6 @@
         "audit-log-to-console": {
           "impl": "@cap-js/audit-logging/srv/log2console",
           "outbox": false
-        },
-        "audit-log-to-library": {
-          "impl": "@cap-js/audit-logging/srv/log2library",
-          "vcap": {
-            "label": "auditlog"
-          },
-          "outbox": true
         },
         "audit-log-to-restv2": {
           "impl": "@cap-js/audit-logging/srv/log2restv2",
