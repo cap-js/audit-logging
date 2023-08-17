@@ -4,7 +4,7 @@ const { POST, GET } = cds.test(__dirname)
 
 const wait = require('util').promisify(setTimeout)
 
-describe('AuditLogService API with kind audit-log-to-console', () => {
+describe('AuditLogService API', () => {
   let __log, _logs
   const _log = (...args) => {
     if (!(args.length === 2 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
