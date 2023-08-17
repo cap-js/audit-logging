@@ -3,7 +3,6 @@ const cds = require('@sap/cds')
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
-  credentials: { logToConsole: true },
   handle: ['READ', 'WRITE']
 }
 
@@ -463,10 +462,10 @@ describe('personal data audit logging in Fiori', () => {
           id: { ID: customer.ID }
         },
         attributes: [
-          { name: 'emailAddress', old: 'null', new: customer.emailAddress },
-          { name: 'firstName', old: 'null', new: customer.firstName },
-          { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', new: customer.emailAddress },
+          { name: 'firstName', new: customer.firstName },
+          { name: 'lastName', new: customer.lastName },
+          { name: 'creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -644,10 +643,10 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject,
         attributes: [
-          { name: 'emailAddress', old: 'null', new: customer.emailAddress },
-          { name: 'firstName', old: 'null', new: customer.firstName },
-          { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', new: customer.emailAddress },
+          { name: 'firstName', new: customer.firstName },
+          { name: 'lastName', new: customer.lastName },
+          { name: 'creditCardNo', new: '***' }
         ]
       })
 
@@ -673,8 +672,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: address.town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: address.town }
         ]
       })
     })
@@ -707,10 +706,10 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'emailAddress', old: 'foo@bar.com', new: 'null' },
-          { name: 'firstName', old: 'foo', new: 'null' },
-          { name: 'lastName', old: 'bar', new: 'null' },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', old: 'foo@bar.com' },
+          { name: 'firstName', old: 'foo' },
+          { name: 'lastName', old: 'bar' },
+          { name: 'creditCardNo', old: '***' }
         ]
       })
 
@@ -722,8 +721,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
 
@@ -735,8 +734,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -747,8 +746,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -759,8 +758,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -771,8 +770,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'send reminder', new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: 'send reminder' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -782,7 +781,7 @@ describe('personal data audit logging in Fiori', () => {
           id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -791,7 +790,7 @@ describe('personal data audit logging in Fiori', () => {
           id: { ID: oldLast.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
+        attributes: [{ name: 'lastOneField', old: '***' }]
       })
 
       const selects = _logger._logs.debug.filter(
@@ -867,8 +866,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -879,8 +878,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -891,8 +890,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -903,8 +902,8 @@ describe('personal data audit logging in Fiori', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -914,7 +913,7 @@ describe('personal data audit logging in Fiori', () => {
           id: { ID: oldAttachmentNotes[0].ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
     })
   })

@@ -3,7 +3,6 @@ const cds = require('@sap/cds')
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
-  credentials: { logToConsole: true },
   handle: ['READ', 'WRITE']
 }
 
