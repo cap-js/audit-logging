@@ -22,11 +22,17 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       const { event, data } = req
 
       // event.match() is used to support the old event names
-      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) return this._handle(data, 'DATA_ACCESS')
-      if (event === 'PersonalDataModified' || event.match(/^dataModification/i))
+      if (event === 'SensitiveDataRead' || event.match(/^dataAccess/i)) {
+        return this._handle(data, 'DATA_ACCESS')
+      }
+      if (event === 'PersonalDataModified' || event.match(/^dataModification/i)) {
+        data.success = true
         return this._handle(data, 'DATA_MODIFICATION')
-      if (event === 'ConfigurationModified' || event.match(/^configChange/i))
+      }
+      if (event === 'ConfigurationModified' || event.match(/^configChange/i)) {
+        data.success = true
         return this._handle(data, 'CONFIGURATION_CHANGE')
+      }
       if (event === 'SecurityEvent' || event.match(/^security/i)) {
         if (typeof data.data === 'object') data.data = JSON.stringify(data.data)
         return this._handle(data, 'SECURITY_EVENT')
