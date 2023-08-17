@@ -459,10 +459,10 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: customer.ID }
         },
         attributes: [
-          { name: 'emailAddress', old: 'null', new: customer.emailAddress },
-          { name: 'firstName', old: 'null', new: customer.firstName },
-          { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', new: customer.emailAddress },
+          { name: 'firstName', new: customer.firstName },
+          { name: 'lastName', new: customer.lastName },
+          { name: 'creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -530,10 +530,10 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject,
         attributes: [
-          { name: 'emailAddress', old: 'null', new: customer.emailAddress },
-          { name: 'firstName', old: 'null', new: customer.firstName },
-          { name: 'lastName', old: 'null', new: customer.lastName },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', new: customer.emailAddress },
+          { name: 'firstName', new: customer.firstName },
+          { name: 'lastName', new: customer.lastName },
+          { name: 'creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -544,8 +544,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: addresses[0].town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: addresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -556,8 +556,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: addresses[1].town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: addresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -568,8 +568,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'null', new: attachments[0].todo }
+          { name: 'description', new: '***' },
+          { name: 'todo', new: attachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -580,8 +580,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'null', new: 'activate' }
+          { name: 'description', new: '***' },
+          { name: 'todo', new: 'activate' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -646,28 +646,26 @@ describe('personal data audit logging in CRUD', () => {
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '123' }
+          id: { ID: 123 }
         },
         data_subject: {
           type: 'CRUD_1.Pages',
           role: 'Page',
-          id: { ID: '123' }
+          id: { ID: 123 }
         },
         attributes: [
-          { name: 'personal', old: 'null', new: '4711' },
-          { name: 'sensitive', old: '***', new: '***' }
+          { name: 'personal', new: 4711 },
+          { name: 'sensitive', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '123' }
+          id: { ID: 123 }
         },
         data_subject: {
-          id: {
-            ID: '123'
-          },
+          id: { ID: 123 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
@@ -727,17 +725,15 @@ describe('personal data audit logging in CRUD', () => {
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '1' }
+          id: { ID: 1 }
         },
         data_subject: {
-          id: {
-            ID: '1'
-          },
+          id: { ID: 1 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
         attributes: [
-          { name: 'personal', old: '222', new: '888' },
+          { name: 'personal', old: 222, new: 888 },
           { name: 'sensitive', old: '***', new: '***' }
         ]
       })
@@ -745,12 +741,10 @@ describe('personal data audit logging in CRUD', () => {
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '1' }
+          id: { ID: 1 }
         },
         data_subject: {
-          id: {
-            ID: '1'
-          },
+          id: { ID: 1 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
@@ -782,8 +776,8 @@ describe('personal data audit logging in CRUD', () => {
           type: 'CRUD_1.Customers'
         },
         attributes: [
-          { name: 'emailAddress', old: 'null', new: newCustomer.emailAddress },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', new: newCustomer.emailAddress },
+          { name: 'creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -815,30 +809,26 @@ describe('personal data audit logging in CRUD', () => {
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '123' }
+          id: { ID: 123 }
         },
         data_subject: {
-          id: {
-            ID: '123'
-          },
+          id: { ID: 123 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
         attributes: [
-          { name: 'personal', old: 'null', new: '888' },
-          { name: 'sensitive', old: '***', new: '***' }
+          { name: 'personal', new: 888 },
+          { name: 'sensitive', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '123' }
+          id: { ID: 123 }
         },
         data_subject: {
-          id: {
-            ID: '123'
-          },
+          id: { ID: 123 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
@@ -892,8 +882,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -904,8 +894,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -916,8 +906,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: newAddresses[0].town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: newAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -928,8 +918,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: newAddresses[1].town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: newAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1055,7 +1045,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachmentNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1064,7 +1054,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldStatusNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1074,8 +1064,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1086,8 +1076,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1115,7 +1105,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: newAttachmentNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', new: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1125,8 +1115,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: 'null', new: newAddresses[1].town }
+          { name: 'street', new: '***' },
+          { name: 'town', new: newAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1241,8 +1231,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1253,8 +1243,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1265,8 +1255,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1277,8 +1267,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1289,8 +1279,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'send reminder', new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: 'send reminder' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1300,7 +1290,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1309,7 +1299,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldLast.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
+        attributes: [{ name: 'lastOneField', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1318,7 +1308,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldStatusNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1327,7 +1317,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachmentNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1358,10 +1348,10 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'emailAddress', old: 'foo@bar.com', new: 'null' },
-          { name: 'firstName', old: 'foo', new: 'null' },
-          { name: 'lastName', old: 'bar', new: 'null' },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', old: 'foo@bar.com' },
+          { name: 'firstName', old: 'foo' },
+          { name: 'lastName', old: 'bar' },
+          { name: 'creditCardNo', old: '***' }
         ]
       })
     })
@@ -1373,18 +1363,16 @@ describe('personal data audit logging in CRUD', () => {
         user: 'alice',
         object: {
           type: 'CRUD_1.Pages',
-          id: { ID: '1' }
+          id: { ID: 1 }
         },
         data_subject: {
-          id: {
-            ID: '1'
-          },
+          id: { ID: 1 },
           role: 'Page',
           type: 'CRUD_1.Pages'
         },
         attributes: [
-          { name: 'personal', old: '222', new: 'null' },
-          { name: 'sensitive', old: '***', new: '***' }
+          { name: 'personal', old: 222 },
+          { name: 'sensitive', old: '***' }
         ]
       })
     })
@@ -1421,10 +1409,10 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'emailAddress', old: 'foo@bar.com', new: 'null' },
-          { name: 'firstName', old: 'foo', new: 'null' },
-          { name: 'lastName', old: 'bar', new: 'null' },
-          { name: 'creditCardNo', old: '***', new: '***' }
+          { name: 'emailAddress', old: 'foo@bar.com' },
+          { name: 'firstName', old: 'foo' },
+          { name: 'lastName', old: 'bar' },
+          { name: 'creditCardNo', old: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1435,8 +1423,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1447,8 +1435,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1459,8 +1447,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1471,8 +1459,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1483,8 +1471,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'send reminder', new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: 'send reminder' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1494,7 +1482,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1503,7 +1491,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldLast.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
+        attributes: [{ name: 'lastOneField', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1512,7 +1500,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldStatusNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1521,7 +1509,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachmentNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
 
       // check only one select used to look up data subject
@@ -1543,8 +1531,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'send reminder', new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: 'send reminder' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1554,7 +1542,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: '59d4a37a-6319-4d52-bb48-02fd06b9fbc2', secondKey: 'some value' }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1563,7 +1551,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: '74d4a37a-6319-4d52-bb48-02fd06b9f3r4' }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
+        attributes: [{ name: 'lastOneField', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1572,7 +1560,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: '35bdc8d0-dcaf-4727-9377-9ae693055555' }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
     })
 
@@ -1632,8 +1620,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[0].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[0].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1644,8 +1632,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[0].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[0].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1656,8 +1644,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: oldAttachments[1].todo, new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1668,8 +1656,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***', new: '***' },
-          { name: 'town', old: oldAddresses[1].town, new: 'null' }
+          { name: 'street', old: '***' },
+          { name: 'town', old: oldAddresses[1].town }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1680,8 +1668,8 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***', new: '***' },
-          { name: 'todo', old: 'send reminder', new: 'null' }
+          { name: 'description', old: '***' },
+          { name: 'todo', old: 'send reminder' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1691,7 +1679,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1700,7 +1688,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldLast.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***', new: '***' }]
+        attributes: [{ name: 'lastOneField', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1709,7 +1697,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachmentNotes[0].ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1718,7 +1706,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldStatusNote.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1904,21 +1892,21 @@ describe('personal data audit logging in CRUD', () => {
     test.skip('structured property', async () => {
       await POST(`/crud-1/Employees`, { name: { first: 'foo', last: 'bar' } }, { auth: ALICE })
       expect(_logs.length).toBe(2)
-      expect(_logs[0].attributes).toEqual([{ name: 'name', old: 'null', new: '???' }])
+      expect(_logs[0].attributes).toEqual([{ name: 'name', new: '???' }])
       expect(_logs[1].attributes).toEqual([{ name: 'notes' }])
     })
 
     test('arrayed property', async () => {
       await POST(`/crud-1/Employees`, { skills: ['foo', 'bar'] }, { auth: ALICE })
       expect(_logs.length).toBe(2)
-      expect(_logs[0].attributes).toEqual([{ name: 'skills', old: 'null', new: ['foo', 'bar'] }])
+      expect(_logs[0].attributes).toEqual([{ name: 'skills', new: '["foo","bar"]' }])
       expect(_logs[1].attributes).toEqual([{ name: 'notes' }])
     })
 
     test('do not log values of sensitive data', async () => {
       await POST(`/crud-1/Employees`, { notes: ['bar', 'baz'] }, { auth: ALICE })
       expect(_logs.length).toBe(2)
-      expect(_logs[0].attributes).toEqual([{ name: 'notes', old: '***', new: '***' }])
+      expect(_logs[0].attributes).toEqual([{ name: 'notes', new: '***' }])
       expect(_logs[1].attributes).toEqual([{ name: 'notes' }])
     })
   })
@@ -1943,10 +1931,10 @@ describe('personal data audit logging in CRUD', () => {
         object,
         data_subject,
         attributes: [
-          { name: 'r1_emailAddress', old: 'null', new: r1.r1_emailAddress },
-          { name: 'r1_firstName', old: 'null', new: r1.r1_firstName },
-          { name: 'r1_lastName', old: 'null', new: r1.r1_lastName },
-          { name: 'r1_creditCardNo', old: '***', new: '***' }
+          { name: 'r1_emailAddress', new: r1.r1_emailAddress },
+          { name: 'r1_firstName', new: r1.r1_firstName },
+          { name: 'r1_lastName', new: r1.r1_lastName },
+          { name: 'r1_creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -1987,10 +1975,10 @@ describe('personal data audit logging in CRUD', () => {
         object,
         data_subject,
         attributes: [
-          { name: 'r1_emailAddress', old: r1.r1_emailAddress, new: 'null' },
-          { name: 'r1_firstName', old: 'moo', new: 'null' },
-          { name: 'r1_lastName', old: 'shu', new: 'null' },
-          { name: 'r1_creditCardNo', old: '***', new: '***' }
+          { name: 'r1_emailAddress', old: r1.r1_emailAddress },
+          { name: 'r1_firstName', old: 'moo' },
+          { name: 'r1_lastName', old: 'shu' },
+          { name: 'r1_creditCardNo', old: '***' }
         ]
       })
     })
@@ -2014,10 +2002,10 @@ describe('personal data audit logging in CRUD', () => {
         object,
         data_subject,
         attributes: [
-          { name: 'r2_emailAddress', old: 'null', new: r2.r2_emailAddress },
-          { name: 'r2_firstName', old: 'null', new: r2.r2_firstName },
-          { name: 'r2_lastName', old: 'null', new: r2.r2_lastName },
-          { name: 'r2_creditCardNo', old: '***', new: '***' }
+          { name: 'r2_emailAddress', new: r2.r2_emailAddress },
+          { name: 'r2_firstName', new: r2.r2_firstName },
+          { name: 'r2_lastName', new: r2.r2_lastName },
+          { name: 'r2_creditCardNo', new: '***' }
         ]
       })
       expect(_logs).toContainMatchObject({
@@ -2058,10 +2046,10 @@ describe('personal data audit logging in CRUD', () => {
         object,
         data_subject,
         attributes: [
-          { name: 'r2_emailAddress', old: r2.r2_emailAddress, new: 'null' },
-          { name: 'r2_firstName', old: 'moo', new: 'null' },
-          { name: 'r2_lastName', old: 'shu', new: 'null' },
-          { name: 'r2_creditCardNo', old: '***', new: '***' }
+          { name: 'r2_emailAddress', old: r2.r2_emailAddress },
+          { name: 'r2_firstName', old: 'moo' },
+          { name: 'r2_lastName', old: 'shu' },
+          { name: 'r2_creditCardNo', old: '***' }
         ]
       })
     })
