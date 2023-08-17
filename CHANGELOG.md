@@ -13,12 +13,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - `await audit.logSync('<event>', <data>)` for synchronous logs (cf. `send`)
 - New REST API-based schema with auto-filled `LogEntry` aspect
 - New events `SensitiveDataRead`, `PersonalDataModified`, `ConfigurationModified`, and `SecurityEvent`
+- Full support for OAuth2 plan of SAP Audit Log Service
 
 ### Changed
 
 - Whether reading sensitive data and modifying personal data is logged is determined by `cds.requires['audit-log'].handle: [...]`.
   Possible values in the array are `READ` and/ or `WRITE`, with `WRITE` as the sole default entry.
   Hence, accessing sensitive data is not logged by default.
+- Integration with SAP Audit Log Service via REST API instead of client library (`@sap/audit-logging`)
+
+### Fixed
+
+- Various glitches in log calculation
 
 ### Removed
 
