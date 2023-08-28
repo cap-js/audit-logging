@@ -1,4 +1,4 @@
-const { AuditLogService } = require('@cap-js/audit-logging')
+const { AuditLogService } = require('../../') //> package root
 
 class MyAuditLogService extends AuditLogService {
   async init() {
