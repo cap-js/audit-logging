@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- Export class `AuditLogService` for use in custom implementations
+- Export class `AuditLogService` for extending in custom implementations
 
 ### Changed
 
