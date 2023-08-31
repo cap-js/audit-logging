@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Export class `AuditLogService` for extending in custom implementations as follows:
   ```js
-  const { AuditLogService } = require('../../') //> package root
+  const { AuditLogService } = require('@cap-js/audit-logging')
   class MyAuditLogService extends AuditLogService {
     async init() {
       [...]
