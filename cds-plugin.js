@@ -46,3 +46,10 @@ cds.on('served', services => {
     }
   }
 })
+
+/*
+ * Export base class for extending in custom implementations
+ */
+module.exports = {
+  AuditLogService: require('./srv/service')
+}
