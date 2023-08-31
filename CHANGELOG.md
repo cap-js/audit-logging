@@ -8,7 +8,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- Export class `AuditLogService` for extending in custom implementations
+- Export class `AuditLogService` for extending in custom implementations as follows:
+  ```js
+  const { AuditLogService } = require('../../') //> package root
+  class MyAuditLogService extends AuditLogService {
+    async init() {
+      [...]
+      // call AuditLogService's init
+      await super.init()
+    }
+  }
+  module.exports = MyAuditLogService
+  ```
 
 ## Version 0.1.0 - 2023-08-18
 
