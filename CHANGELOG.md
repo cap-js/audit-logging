@@ -10,12 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Export class `AuditLogService` for extending in custom implementations
 
-### Changed
-
-### Fixed
-
-### Removed
-
 ## Version 0.1.0 - 2023-08-18
 
 ### Added
