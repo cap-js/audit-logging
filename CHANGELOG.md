@@ -4,17 +4,22 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 0.2.0 - tbd
+## Version 0.2.0 - 2023-09-01
 
 ### Added
 
-- Export class `AuditLogService` for extending in custom implementations
-
-### Changed
-
-### Fixed
-
-### Removed
+- Export class `AuditLogService` for extending in custom implementations as follows:
+  ```js
+  const { AuditLogService } = require('@cap-js/audit-logging')
+  class MyAuditLogService extends AuditLogService {
+    async init() {
+      [...]
+      // call AuditLogService's init
+      await super.init()
+    }
+  }
+  module.exports = MyAuditLogService
+  ```
 
 ## Version 0.1.0 - 2023-08-18
 
