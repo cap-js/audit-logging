@@ -26,7 +26,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 - New API:
-  - `audit.log('<event>', <data>)` for asynchronous logs (cf. `emit`)
+  - `await audit.log('<event>', <data>)` for asynchronous logs (cf. `emit`)
   - `await audit.logSync('<event>', <data>)` for synchronous logs (cf. `send`)
 - New REST API-based schema with auto-filled `LogEntry` aspect
 - New events `SensitiveDataRead`, `PersonalDataModified`, `ConfigurationModified`, and `SecurityEvent`
