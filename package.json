@@ -28,20 +28,19 @@
   },
   "cds": {
     "requires": {
-      "audit-log": true,
-      "kinds": {
-        "audit-log": {
-          "handle": [
-            "READ",
-            "WRITE"
-          ],
-          "[development]": {
-            "kind": "audit-log-to-console"
-          },
-          "[production]": {
-            "kind": "audit-log-to-restv2"
-          }
+      "audit-log": {
+        "handle": [
+          "READ",
+          "WRITE"
+        ],
+        "[development]": {
+          "kind": "audit-log-to-console"
         },
+        "[production]": {
+          "kind": "audit-log-to-restv2"
+        }
+      },
+      "kinds": {
         "audit-log-to-console": {
           "impl": "@cap-js/audit-logging/srv/log2console",
           "outbox": false
