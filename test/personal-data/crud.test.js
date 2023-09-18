@@ -342,7 +342,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 1 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         }
       })
@@ -649,7 +649,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           type: 'CRUD_1.Pages',
-          role: 'Page',
+          role: 'Pages',
           id: { ID: 123 }
         },
         attributes: [
@@ -665,7 +665,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 123 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [{ name: 'sensitive' }]
@@ -728,7 +728,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 1 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [
@@ -744,7 +744,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 1 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [{ name: 'sensitive' }]
@@ -812,7 +812,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 123 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [
@@ -828,7 +828,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 123 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [{ name: 'sensitive' }]
@@ -1366,7 +1366,7 @@ describe('personal data audit logging in CRUD', () => {
         },
         data_subject: {
           id: { ID: 1 },
-          role: 'Page',
+          role: 'Pages',
           type: 'CRUD_1.Pages'
         },
         attributes: [
