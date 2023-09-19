@@ -26,29 +26,26 @@ service Fiori_1 {
   }
 
   annotate Orders with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'Other'
   } {
     misc @PersonalData.IsPotentiallySensitive;
   }
 
   annotate OrderHeader with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'Other'
   } {
     description @PersonalData.IsPotentiallySensitive;
   }
 
   annotate OrderHeader.sensitiveData with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'Other'
   } {
     note @PersonalData.IsPotentiallySensitive;
   }
 
   annotate Pages with @PersonalData       : {
-    DataSubjectRole: 'Page',
     EntitySemantics: 'DataSubject'
+    // no DataSubjectRole for testing purposes
   } {
     ID        @PersonalData.FieldSemantics: 'DataSubjectID';
     sensitive @PersonalData.IsPotentiallySensitive;
@@ -56,8 +53,8 @@ service Fiori_1 {
   }
 
   annotate Customers with @PersonalData       : {
-    DataSubjectRole: 'Customer',
-    EntitySemantics: 'DataSubject'
+    EntitySemantics: 'DataSubject',
+    DataSubjectRole: 'Customer'
   } {
     ID            @PersonalData.FieldSemantics: 'DataSubjectID';
     emailAddress  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
@@ -67,7 +64,6 @@ service Fiori_1 {
   }
 
   annotate CustomerPostalAddress with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'DataSubjectDetails'
   } {
     customer @PersonalData.FieldSemantics          : 'DataSubjectID';
@@ -76,7 +72,6 @@ service Fiori_1 {
   }
 
   annotate CustomerStatus with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'DataSubjectDetails'
   } {
     description @PersonalData.IsPotentiallySensitive;
@@ -84,7 +79,6 @@ service Fiori_1 {
   }
 
   annotate StatusChange with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'DataSubjectDetails'
   } {
     description @PersonalData.IsPotentiallySensitive;
@@ -92,14 +86,12 @@ service Fiori_1 {
   }
 
   annotate LastOne with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'DataSubjectDetails'
   } {
     lastOneField @PersonalData.IsPotentiallySensitive;
   }
 
   annotate AddressAttachment with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'DataSubjectDetails'
   } {
     customer    @PersonalData.FieldSemantics   : 'DataSubjectID';
@@ -108,7 +100,6 @@ service Fiori_1 {
   }
 
   annotate Notes with @PersonalData: {
-    DataSubjectRole: 'Customer',
     EntitySemantics: 'Other'
   } {
     note       @PersonalData.IsPotentiallySensitive;
@@ -130,15 +121,14 @@ service Fiori_2 {
   }
 
   annotate Customers with @PersonalData   : {
-    DataSubjectRole: 'Address',
     EntitySemantics: 'Other'
   } {
     addresses @PersonalData.FieldSemantics: 'DataSubjectID';
   }
 
   annotate CustomerPostalAddress with @PersonalData: {
-    DataSubjectRole: 'Address',
-    EntitySemantics: 'DataSubject'
+    EntitySemantics: 'DataSubject',
+    DataSubjectRole: 'Address'
   } {
     ID             @PersonalData.FieldSemantics    : 'DataSubjectID';
     street         @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
