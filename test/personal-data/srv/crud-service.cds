@@ -143,11 +143,10 @@ service CRUD_2 {
     someOtherField @PersonalData.IsPotentiallySensitive;
   }
 
-  // invalid modeling, must have no effect
-  annotate CustomerStatus with @PersonalData: {EntitySemantics: 'Other'} {
-    description @PersonalData.IsPotentiallySensitive;
-    todo        @PersonalData.IsPotentiallyPersonal;
-  }
+  // invalid modeling (nothing personal/ sensitive), must have no effect
+  annotate CustomerStatus with @PersonalData: {
+    EntitySemantics: 'DataSubjectDetails'
+  };
 }
 
 @path    : '/crud-3'
