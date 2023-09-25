@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.3.1 - 2023-09-25
+
+### Fixed
+
+- Defaulting of `@PersonalData.DataSubjectRole` to entity name
+- Overriding service configuration
+
 ## Version 0.3.0 - 2023-09-05
 
 ### Changed
