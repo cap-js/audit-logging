@@ -9,7 +9,9 @@
   "main": "cds-plugin.js",
   "files": [
     "lib",
-    "srv"
+    "srv",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "lint": "npx eslint .",
