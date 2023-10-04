@@ -10,8 +10,7 @@
   "files": [
     "lib",
     "srv",
-    "CHANGELOG.md",
-    "LICENSE"
+    "CHANGELOG.md"
   ],
   "scripts": {
     "lint": "npx eslint .",
