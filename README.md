@@ -3,7 +3,7 @@
 
 ## About this project
 
-`@cap-js/audit-logging` is a CDS plugin providing integration to the SAP BTP Audit Logging Service as well as out-of-the-box personal data-related audit logging based on annotations.
+`@cap-js/audit-logging` is a CDS plugin providing integration to the SAP Audit Log service as well as out-of-the-box personal data-related audit logging based on annotations.
 
 Documentation can be found at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy).
 
