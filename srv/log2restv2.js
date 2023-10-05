@@ -92,6 +92,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
     }
+    if (LOG._trace) LOG.trace('sending audit log to', url, 'with payload', data, 'and headers', headers)
     try {
       await _post(url, data, headers)
     } catch (err) {
