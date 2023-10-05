@@ -69,6 +69,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000)
       return access_token
     } catch (err) {
+      if (LOG._trace) LOG.trace('error during get token:', err)
       // 401 could also mean x-zid is not valid
       if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
@@ -96,6 +97,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     try {
       await _post(url, data, headers)
     } catch (err) {
+      if (LOG._trace) LOG.trace('error during send:', err)
       // 429 (rate limit) is not unrecoverable
       if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
         err.unrecoverable = true
