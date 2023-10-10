@@ -69,7 +69,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000)
       return access_token
     } catch (err) {
-      if (LOG._trace) LOG.trace('error during get token:', err)
+      LOG._trace && LOG.trace('error during get token:', err)
       // 401 could also mean x-zid is not valid
       if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
@@ -93,11 +93,14 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
     }
-    if (LOG._trace) LOG.trace('sending audit log to', url, 'with payload', data, 'and headers', headers)
+    if (LOG._debug) {
+      const _headers = Object.assign({}, headers, { authorization: headers.authorization.split(' ')[0] + ' ***' })
+      LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers "${_headers}"`)
+    }
     try {
       await _post(url, data, headers)
     } catch (err) {
-      if (LOG._trace) LOG.trace('error during send:', err)
+      LOG._trace && LOG.trace('error during send:', err)
       // 429 (rate limit) is not unrecoverable
       if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
         err.unrecoverable = true
