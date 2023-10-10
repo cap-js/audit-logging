@@ -1,5 +1,11 @@
 const cds = require('@sap/cds')
 
+const { POST, PATCH, GET, DELETE, data } = cds.test().in(__dirname)
+
+cds.env.plugins['@cap-js/audit-logging'] = {
+  impl: require('path').join(__dirname, '../../cds-plugin.js')
+}
+
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
@@ -12,8 +18,6 @@ cds.env.requires['audit-log'] = {
 
 const _logger = require('../utils/logger')({ debug: true })
 cds.log.Logger = _logger
-
-const { POST, PATCH, GET, DELETE, data } = cds.test(__dirname)
 
 describe('personal data audit logging in CRUD', () => {
   let __log, _logs

@@ -1,12 +1,16 @@
 const cds = require('@sap/cds')
 
+const { GET } = cds.test().in(__dirname)
+
+cds.env.plugins['@cap-js/audit-logging'] = {
+  impl: require('path').join(__dirname, '../../cds-plugin.js')
+}
+
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
   handle: ['WRITE']
 }
-
-const { GET } = cds.test(__dirname)
 
 describe('handle', () => {
   let __log, _logs

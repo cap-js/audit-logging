@@ -1,6 +1,12 @@
 const cds = require('@sap/cds')
 
-const { POST, GET } = cds.test(__dirname)
+const { POST, GET } = cds.test().in(__dirname)
+
+cds.env.requires['audit-log'] = {
+  kind: 'audit-log-to-console',
+  impl: '../../srv/log2console',
+  outbox: true
+}
 
 const wait = require('util').promisify(setTimeout)
 

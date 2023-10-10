@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 
-const { POST } = cds.test(__dirname)
+const { POST } = cds.test().in(__dirname)
 
 const object = { type: 'foo.bar', id: { foo: 'bar' } }
 const data_subject = Object.assign({ role: 'foo.bar' }, object)
