@@ -2,6 +2,9 @@ const cds = require('@sap/cds')
 
 const { POST } = cds.test().in(__dirname)
 
+cds.env.log.levels['audit-log'] = 'debug'
+const log = cds.test.log()
+
 const object = { type: 'foo.bar', id: { foo: 'bar' } }
 const data_subject = Object.assign({ role: 'foo.bar' }, object)
 const create_attributes = [{ name: 'foo', new: 'baz' }]
@@ -66,4 +69,5 @@ test('no tenant is handled correctly', async () => {
   const data = JSON.stringify({ data: { foo: 'bar' } })
   const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
   expect(res).toMatchObject({ status: 204 })
+  expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
 })

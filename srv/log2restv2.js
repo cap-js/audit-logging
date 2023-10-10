@@ -95,7 +95,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     }
     if (LOG._debug) {
       const _headers = Object.assign({}, headers, { authorization: headers.authorization.split(' ')[0] + ' ***' })
-      LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers "${_headers}"`)
+      LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers`, _headers)
     }
     try {
       await _post(url, data, headers)
