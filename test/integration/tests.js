@@ -61,3 +61,9 @@ test('security event', async () => {
   const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data }, { auth: ALICE })
   expect(res).toMatchObject({ status: 204 })
 })
+
+test('no tenant is handled correctly', async () => {
+  const data = JSON.stringify({ data: { foo: 'bar' } })
+  const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
+  expect(res).toMatchObject({ status: 204 })
+})
