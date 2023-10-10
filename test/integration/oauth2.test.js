@@ -1,5 +1,11 @@
 const cds = require('@sap/cds')
 
+const { POST } = cds.test().in(__dirname)
+
+cds.env.log.levels['audit-log'] = 'debug'
+
+const log = cds.test.log()
+
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-restv2',
   impl: '../../srv/log2restv2',
@@ -16,5 +22,12 @@ describe('Log to Audit Log Service with oauth2 plan', () => {
   // required for tests to exit correctly (cf. token expiration timeouts)
   jest.useFakeTimers()
 
-  require('./tests')
+  require('./tests')(POST)
+
+  test('no tenant is handled correctly', async () => {
+    const data = JSON.stringify({ data: { foo: 'bar' } })
+    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
+    expect(res).toMatchObject({ status: 204 })
+    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
+  })
 })
