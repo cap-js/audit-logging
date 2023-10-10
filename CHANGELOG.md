@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.3.2 - 2023-10-10
+
+### Fixed
+
+- If the request has no tenant (e.g., Unauthorized), log to provider account
+
 ## Version 0.3.1 - 2023-09-25
 
 ### Fixed
