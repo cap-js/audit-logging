@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 
-const { POST } = cds.test(__dirname)
+const { POST } = cds.test().in(__dirname)
 
 const object = { type: 'foo.bar', id: { foo: 'bar' } }
 const data_subject = Object.assign({ role: 'foo.bar' }, object)
@@ -59,5 +59,11 @@ describe('configuration modified', () => {
 test('security event', async () => {
   const data = JSON.stringify({ data: { foo: 'bar' } })
   const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data }, { auth: ALICE })
+  expect(res).toMatchObject({ status: 204 })
+})
+
+test('no tenant is handled correctly', async () => {
+  const data = JSON.stringify({ data: { foo: 'bar' } })
+  const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
   expect(res).toMatchObject({ status: 204 })
 })
