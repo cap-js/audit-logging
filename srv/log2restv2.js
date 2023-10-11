@@ -69,6 +69,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000)
       return access_token
     } catch (err) {
+      LOG._trace && LOG.trace('error during token fetch:', err)
       // 401 could also mean x-zid is not valid
       if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true
       throw err
@@ -76,25 +77,30 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
   }
 
   async _send(data, path) {
-    let url
     const headers = { 'content-type': 'application/json' }
-    // TODO: what are these for?
     if (this._vcap) {
       headers.XS_AUDIT_ORG = this._vcap.organization_name
       headers.XS_AUDIT_SPACE = this._vcap.space_name
       headers.XS_AUDIT_APP = this._vcap.application_name
     }
+    let url
     if (this._oauth2) {
       url = this.options.credentials.url + PATHS.OAUTH2[path]
+      data.tenant ??= this._providerTenant //> if request has no tenant, stay in provider account
       headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
       data.tenant = data.tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
     } else {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
     }
+    if (LOG._debug) {
+      const _headers = Object.assign({}, headers, { authorization: headers.authorization.split(' ')[0] + ' ***' })
+      LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers`, _headers)
+    }
     try {
       await _post(url, data, headers)
     } catch (err) {
+      LOG._trace && LOG.trace('error during log send:', err)
       // 429 (rate limit) is not unrecoverable
       if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
         err.unrecoverable = true

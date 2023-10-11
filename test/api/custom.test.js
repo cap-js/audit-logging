@@ -1,11 +1,11 @@
 const cds = require('@sap/cds')
 
+// set cwd for resolving impl
+cds.test().in(__dirname)
+
 cds.env.requires['audit-log'] = {
   impl: 'MyAuditLogService.js'
 }
-
-// set cwd for resolving impl
-cds.test(__dirname)
 
 describe('Custom Implementation', () => {
   let __log, _logs
