@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@cap-js/audit-logging": "*"
+  },
+  "cds": {
+    "requires": {
+      "audit-log": "audit-log-to-restv2"
+    }
+  }
+}

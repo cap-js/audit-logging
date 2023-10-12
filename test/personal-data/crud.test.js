@@ -2,16 +2,6 @@ const cds = require('@sap/cds')
 
 const { POST, PATCH, GET, DELETE, data } = cds.test().in(__dirname)
 
-cds.env.plugins['@cap-js/audit-logging'] = {
-  impl: require('path').join(__dirname, '../../cds-plugin.js')
-}
-
-cds.env.requires['audit-log'] = {
-  kind: 'audit-log-to-console',
-  impl: '../../srv/log2console',
-  handle: ['READ', 'WRITE']
-}
-
 // TODO: @cap-js/sqlite doesn't support structured properties
 // // needed for testing structured properties
 // cds.env.odata.flavor = 'x4'
