@@ -23,7 +23,9 @@ cds.on('served', services => {
       /*
        * data access
        */
-      service.after('READ', entity, auditAccess)
+      if (Object.values(entity.elements).some(e => e['@PersonalData.IsPotentiallySensitive'])) {
+        service.after('READ', entity, auditAccess)
+      }
 
       /*
        * data modification
