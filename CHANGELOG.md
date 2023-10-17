@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Fixed
 
-- Avoid dangling SELECTs to resolve data subject IDs
+- Avoid dangling SELECTs to resolve data subject IDs, which resulted in "Transaction already closed" errors
 
 ## Version 0.3.2 - 2023-10-11
 
