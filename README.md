@@ -1,4 +1,5 @@
 # Welcome to @cap-js/audit-logging
+
 [![REUSE status](https://api.reuse.software/badge/github.com/cap-js/audit-logging)](https://api.reuse.software/info/github.com/cap-js/audit-logging)
 
 ## About this project
