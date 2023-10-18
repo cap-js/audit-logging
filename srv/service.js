@@ -5,6 +5,8 @@ const OutboxService = require('@sap/cds/libx/_runtime/messaging/Outbox')
 
 module.exports = class AuditLogService extends OutboxService {
   async init() {
+    const outboxed = this.immediate instanceof cds.Service
+
     // add common audit log entry fields
     this.before('*', req => {
       const { tenant, user, timestamp: time } = cds.context
@@ -16,6 +18,10 @@ module.exports = class AuditLogService extends OutboxService {
 
     // add self-explanatory api (await audit.log/logSync(event, data))
     this.log = this.emit
-    this.logSync = this.send
+    // NOTE: logSync is not a public API!
+    this.logSync = (...args) => {
+      if (outboxed) return this.immediate.send(...args)
+      this.send(...args)
+    }
   }
 }

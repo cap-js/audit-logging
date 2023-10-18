@@ -1,12 +1,14 @@
 module.exports = async function () {
   const audit = await cds.connect.to('audit-log')
+  const outboxed = audit.immediate instanceof cds.Service
 
   this.on('testEmit', async function () {
     await audit.emit('foo', { bar: 'baz' })
   })
 
   this.on('testSend', async function () {
-    await audit.send('foo', { bar: 'baz' })
+    if (outboxed) await audit.immediate.send('foo', { bar: 'baz' })
+    else await audit.send('foo', { bar: 'baz' })
   })
 
   this.on('testLog', async function () {
