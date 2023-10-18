@@ -1,9 +1,8 @@
 const cds = require('@sap/cds')
 
-// REVISIT: cds.OutboxService or technique to avoid extending OutboxService
-const OutboxService = require('@sap/cds/libx/_runtime/messaging/Outbox')
+const Base = cds.outboxed ? cds.Service : require('@sap/cds/libx/_runtime/messaging/Outbox')
 
-module.exports = class AuditLogService extends OutboxService {
+module.exports = class AuditLogService extends Base {
   async init() {
     const outboxed = this.immediate instanceof cds.Service
 
@@ -21,7 +20,7 @@ module.exports = class AuditLogService extends OutboxService {
     // NOTE: logSync is not a public API!
     this.logSync = (...args) => {
       if (outboxed) return this.immediate.send(...args)
-      this.send(...args)
+      return this.send(...args)
     }
   }
 }
