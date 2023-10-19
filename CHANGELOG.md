@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Support for generic outbox
 
+### Changed
+
+- Always use outbox (as configured in project)
+
 ### Fixed
 
 - Avoid dangling SELECTs to resolve data subject IDs, which resulted in "Transaction already closed" errors

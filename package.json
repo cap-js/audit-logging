@@ -34,6 +34,7 @@
           "READ",
           "WRITE"
         ],
+        "outbox": true,
         "[development]": {
           "kind": "audit-log-to-console"
         },
@@ -43,15 +44,13 @@
       },
       "kinds": {
         "audit-log-to-console": {
-          "impl": "@cap-js/audit-logging/srv/log2console",
-          "outbox": false
+          "impl": "@cap-js/audit-logging/srv/log2console"
         },
         "audit-log-to-restv2": {
           "impl": "@cap-js/audit-logging/srv/log2restv2",
           "vcap": {
             "label": "auditlog"
-          },
-          "outbox": true
+          }
         }
       }
     }
