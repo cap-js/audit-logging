@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Version 0.4.0 - TBD
 
+### Added
+
+- Support for generic outbox
+
 ### Changed
 
 - Always use outbox (as configured in project)
