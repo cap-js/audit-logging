@@ -54,9 +54,6 @@
           "outbox": {
             "kind": "persistent-outbox",
             "model": "@sap/cds/srv/outbox",
-            "_maxAttempts": 20,
-            "_chunkSize": 100,
-            "_storeLastError": true,
             "parallel": true
           }
         }
