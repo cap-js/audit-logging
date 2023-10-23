@@ -9,12 +9,13 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     // credentials stuff
     const { credentials } = this.options
     if (!credentials) throw new Error('No or malformed credentials for "audit-log"')
-    if (credentials.uaa) {
-      this._oauth2 = true
-      this._tokens = new Map()
-      this._providerTenant = credentials.uaa.tenantid
-    } else {
+    if (!credentials.uaa) {
+      this._plan = 'standard'
       this._auth = 'Basic ' + Buffer.from(credentials.user + ':' + credentials.password).toString('base64')
+    } else {
+      this._plan = credentials.url.match(/6081/) ? 'premium' : 'oauth2'
+      this._tokens = new Map()
+      this._provider = credentials.uaa.tenantid
     }
     this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : null
 
@@ -49,19 +50,25 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     const { _tokens: tokens } = this
     if (tokens.has(tenant)) return tokens.get(tenant)
 
-    const url = this.options.credentials.uaa.url + '/oauth/token'
+    const { uaa } = this.options.credentials
+    let url
     const data = {
       grant_type: 'client_credentials',
       response_type: 'token',
-      client_id: this.options.credentials.uaa.clientid,
-      client_secret: this.options.credentials.uaa.clientsecret
+      client_id: uaa.clientid
+    }
+    const headers = { 'content-type': 'application/x-www-form-urlencoded' }
+    if (uaa['credential-type'] === 'x509') {
+      url = uaa.certurl + '/oauth/token'
+    } else {
+      url = uaa.url + '/oauth/token'
+      data.client_secret = uaa.clientsecret
+      if (tenant !== this._provider) headers['x-zid'] = tenant
     }
     const urlencoded = Object.keys(data).reduce((acc, cur) => {
       acc += (acc ? '&' : '') + cur + '=' + data[cur]
       return acc
     }, '')
-    const headers = { 'content-type': 'application/x-www-form-urlencoded' }
-    if (tenant !== this._providerTenant) headers['x-zid'] = tenant
     try {
       const { access_token, expires_in } = await _post(url, urlencoded, headers)
       tokens.set(tenant, access_token)
@@ -84,14 +91,15 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       headers.XS_AUDIT_APP = this._vcap.application_name
     }
     let url
-    if (this._oauth2) {
-      url = this.options.credentials.url + PATHS.OAUTH2[path]
-      data.tenant ??= this._providerTenant //> if request has no tenant, stay in provider account
-      headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
-      data.tenant = data.tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
-    } else {
+    if (this._plan === 'standard') {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
+    } else {
+      url = this.options.credentials.url + PATHS.OAUTH2[path]
+      data.tenant ??= this._provider //> if request has no tenant, stay in provider account
+      headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
+      // TODO: $PROVIDER for premium?
+      data.tenant = data.tenant === this._provider ? '$PROVIDER' : '$SUBSCRIBER'
     }
     if (LOG._debug) {
       const _headers = Object.assign({}, headers, { authorization: headers.authorization.split(' ')[0] + ' ***' })
