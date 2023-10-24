@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+- Support for Premium plan of SAP Audit Log Service
+- Support for XSUAA credential type `x509`
 - Support for generic outbox
 
 ### Changed
@@ -16,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Fixed
 
-- Avoid dangling SELECTs to resolve data subject IDs, which resulted in "Transaction already closed" errors
+- Avoid dangling `SELECT`s to resolve data subject IDs, which resulted in "Transaction already closed" errors
 
 ## Version 0.3.2 - 2023-10-11
 
