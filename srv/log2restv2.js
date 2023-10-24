@@ -51,26 +51,22 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     if (tokens.has(tenant)) return tokens.get(tenant)
 
     const { uaa } = this.options.credentials
-    let url
-    const data = {
-      grant_type: 'client_credentials',
-      response_type: 'token',
-      client_id: uaa.clientid
-    }
-    const headers = { 'content-type': 'application/x-www-form-urlencoded' }
+    const url = (uaa.certurl || uaa.url) + '/oauth/token'
+    const data = { grant_type: 'client_credentials', response_type: 'token', client_id: uaa.clientid }
+    const options = { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+    if (tenant !== this._provider) options.headers['x-zid'] = tenant
+    // certificate or secret?
     if (uaa['credential-type'] === 'x509') {
-      url = uaa.certurl + '/oauth/token'
+      options.agent = new https.Agent({ cert: uaa.certificate, key: uaa.key })
     } else {
-      url = uaa.url + '/oauth/token'
       data.client_secret = uaa.clientsecret
-      if (tenant !== this._provider) headers['x-zid'] = tenant
     }
-    const urlencoded = Object.keys(data).reduce((acc, cur) => {
-      acc += (acc ? '&' : '') + cur + '=' + data[cur]
-      return acc
-    }, '')
     try {
-      const { access_token, expires_in } = await _post(url, urlencoded, headers)
+      const urlencoded = Object.keys(data).reduce((acc, cur) => {
+        acc += (acc ? '&' : '') + cur + '=' + data[cur]
+        return acc
+      }, '')
+      const { access_token, expires_in } = await _post(url, urlencoded, options)
       tokens.set(tenant, access_token)
       // remove token from cache 60 seconds before it expires
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000)
@@ -106,7 +102,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers`, _headers)
     }
     try {
-      await _post(url, data, headers)
+      await _post(url, data, { headers })
     } catch (err) {
       LOG._trace && LOG.trace('error during log send:', err)
       // 429 (rate limit) is not unrecoverable
@@ -151,9 +147,10 @@ const PATHS = {
 
 const https = require('https')
 
-async function _post(url, data, headers) {
+async function _post(url, data, options) {
+  options.method ??= 'POST'
   return new Promise((resolve, reject) => {
-    const req = https.request(url, { method: 'POST', headers }, res => {
+    const req = https.request(url, options, res => {
       const chunks = []
       res.on('data', chunk => chunks.push(chunk))
       res.on('end', () => {
