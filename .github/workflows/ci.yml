@@ -28,3 +28,4 @@ jobs:
       env:
         ALS_CREDS_OAUTH2: ${{ secrets.ALS_CREDS_OAUTH2 }}
         ALS_CREDS_STANDARD: ${{ secrets.ALS_CREDS_STANDARD }}
+        ALS_CREDS_PREMIUM: ${{ secrets.ALS_CREDS_PREMIUM }}
