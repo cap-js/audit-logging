@@ -94,7 +94,6 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       url = this.options.credentials.url + PATHS.OAUTH2[path]
       data.tenant ??= this._provider //> if request has no tenant, stay in provider account
       headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
-      // TODO: $PROVIDER for premium?
       data.tenant = data.tenant === this._provider ? '$PROVIDER' : '$SUBSCRIBER'
     }
     if (LOG._debug) {
