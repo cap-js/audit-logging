@@ -61,11 +61,11 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     } else {
       data.client_secret = uaa.clientsecret
     }
+    const urlencoded = Object.keys(data).reduce((acc, cur) => {
+      acc += (acc ? '&' : '') + cur + '=' + data[cur]
+      return acc
+    }, '')
     try {
-      const urlencoded = Object.keys(data).reduce((acc, cur) => {
-        acc += (acc ? '&' : '') + cur + '=' + data[cur]
-        return acc
-      }, '')
       const { access_token, expires_in } = await _post(url, urlencoded, options)
       tokens.set(tenant, access_token)
       // remove token from cache 60 seconds before it expires
