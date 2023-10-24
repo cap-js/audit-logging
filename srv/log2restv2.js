@@ -9,12 +9,13 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     // credentials stuff
     const { credentials } = this.options
     if (!credentials) throw new Error('No or malformed credentials for "audit-log"')
-    if (credentials.uaa) {
-      this._oauth2 = true
-      this._tokens = new Map()
-      this._providerTenant = credentials.uaa.tenantid
-    } else {
+    if (!credentials.uaa) {
+      this._plan = 'standard'
       this._auth = 'Basic ' + Buffer.from(credentials.user + ':' + credentials.password).toString('base64')
+    } else {
+      this._plan = credentials.url.match(/6081/) ? 'premium' : 'oauth2'
+      this._tokens = new Map()
+      this._provider = credentials.uaa.tenantid
     }
     this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : null
 
@@ -49,21 +50,23 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     const { _tokens: tokens } = this
     if (tokens.has(tenant)) return tokens.get(tenant)
 
-    const url = this.options.credentials.uaa.url + '/oauth/token'
-    const data = {
-      grant_type: 'client_credentials',
-      response_type: 'token',
-      client_id: this.options.credentials.uaa.clientid,
-      client_secret: this.options.credentials.uaa.clientsecret
+    const { uaa } = this.options.credentials
+    const url = (uaa.certurl || uaa.url) + '/oauth/token'
+    const data = { grant_type: 'client_credentials', response_type: 'token', client_id: uaa.clientid }
+    const options = { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+    if (tenant !== this._provider) options.headers['x-zid'] = tenant
+    // certificate or secret?
+    if (uaa['credential-type'] === 'x509') {
+      options.agent = new https.Agent({ cert: uaa.certificate, key: uaa.key })
+    } else {
+      data.client_secret = uaa.clientsecret
     }
     const urlencoded = Object.keys(data).reduce((acc, cur) => {
       acc += (acc ? '&' : '') + cur + '=' + data[cur]
       return acc
     }, '')
-    const headers = { 'content-type': 'application/x-www-form-urlencoded' }
-    if (tenant !== this._providerTenant) headers['x-zid'] = tenant
     try {
-      const { access_token, expires_in } = await _post(url, urlencoded, headers)
+      const { access_token, expires_in } = await _post(url, urlencoded, options)
       tokens.set(tenant, access_token)
       // remove token from cache 60 seconds before it expires
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000)
@@ -84,21 +87,21 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       headers.XS_AUDIT_APP = this._vcap.application_name
     }
     let url
-    if (this._oauth2) {
-      url = this.options.credentials.url + PATHS.OAUTH2[path]
-      data.tenant ??= this._providerTenant //> if request has no tenant, stay in provider account
-      headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
-      data.tenant = data.tenant === this._providerTenant ? '$PROVIDER' : '$SUBSCRIBER'
-    } else {
+    if (this._plan === 'standard') {
       url = this.options.credentials.url + PATHS.STANDARD[path]
       headers.authorization = this._auth
+    } else {
+      url = this.options.credentials.url + PATHS.OAUTH2[path]
+      data.tenant ??= this._provider //> if request has no tenant, stay in provider account
+      headers.authorization = 'Bearer ' + (await this._getToken(data.tenant))
+      data.tenant = data.tenant === this._provider ? '$PROVIDER' : '$SUBSCRIBER'
     }
     if (LOG._debug) {
       const _headers = Object.assign({}, headers, { authorization: headers.authorization.split(' ')[0] + ' ***' })
       LOG.debug(`sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers`, _headers)
     }
     try {
-      await _post(url, data, headers)
+      await _post(url, data, { headers })
     } catch (err) {
       LOG._trace && LOG.trace('error during log send:', err)
       // 429 (rate limit) is not unrecoverable
@@ -143,9 +146,10 @@ const PATHS = {
 
 const https = require('https')
 
-async function _post(url, data, headers) {
+async function _post(url, data, options) {
+  options.method ??= 'POST'
   return new Promise((resolve, reject) => {
-    const req = https.request(url, { method: 'POST', headers }, res => {
+    const req = https.request(url, options, res => {
       const chunks = []
       res.on('data', chunk => chunks.push(chunk))
       res.on('end', () => {
