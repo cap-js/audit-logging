@@ -109,15 +109,15 @@ describe('AuditLogService API', () => {
       })
     })
 
-    test('user and time can be provided manually', async () => {
+    test('can be provided manually', async () => {
       const time = new Date('2021-01-01T00:00:00.000Z')
       await cds.tx({ tenant: 'bar' }, async () => {
         const audit = await cds.connect.to('audit-log')
         await audit.log('foo', { uuid: 'baz', tenant: 'baz', user: 'bar', time })
       })
       expect(_logs).toContainMatchObject({
-        uuid: expect.not.stringMatching('baz'),
-        tenant: 'bar',
+        uuid: 'baz',
+        tenant: 'baz',
         user: 'bar',
         time
       })
