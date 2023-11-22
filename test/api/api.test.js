@@ -94,4 +94,33 @@ describe('AuditLogService API', () => {
     await audit.log('foo', { data_subject: { ID: { bar: 'baz' } } })
     expect(_logs).toContainMatchObject({ data_subject: { ID: { bar: 'baz' } } })
   })
+
+  describe('common log entry fields', () => {
+    test('are automatically filled', async () => {
+      await cds.tx({ tenant: 'bar' }, async () => {
+        const audit = await cds.connect.to('audit-log')
+        await audit.log('foo', {})
+      })
+      expect(_logs).toContainMatchObject({
+        uuid: expect.any(String),
+        tenant: 'bar',
+        user: 'anonymous',
+        time: expect.any(Date)
+      })
+    })
+
+    test('can be provided manually', async () => {
+      const time = new Date('2021-01-01T00:00:00.000Z')
+      await cds.tx({ tenant: 'bar' }, async () => {
+        const audit = await cds.connect.to('audit-log')
+        await audit.log('foo', { uuid: 'baz', tenant: 'baz', user: 'baz', time })
+      })
+      expect(_logs).toContainMatchObject({
+        uuid: 'baz',
+        tenant: 'baz',
+        user: 'baz',
+        time
+      })
+    })
+  })
 })

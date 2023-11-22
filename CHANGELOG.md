@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.5.0 - 2023-11-22
+
+### Added
+
+- Common log entry fields `uuid`, `tenant`, `user` and `time` can be provided manually
+
 ## Version 0.4.0 - 2023-10-24
 
 ### Added
