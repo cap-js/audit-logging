@@ -38,8 +38,8 @@ service AuditLogService {
 }
 
 type LogEntry {
-  uuid   : UUID   @Core.Computed;
-  tenant : String @Core.Computed;
+  uuid   : UUID;
+  tenant : String;
   user   : String;
   time   : Timestamp;
 }
