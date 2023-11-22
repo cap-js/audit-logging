@@ -113,12 +113,12 @@ describe('AuditLogService API', () => {
       const time = new Date('2021-01-01T00:00:00.000Z')
       await cds.tx({ tenant: 'bar' }, async () => {
         const audit = await cds.connect.to('audit-log')
-        await audit.log('foo', { uuid: 'baz', tenant: 'baz', user: 'bar', time })
+        await audit.log('foo', { uuid: 'baz', tenant: 'baz', user: 'baz', time })
       })
       expect(_logs).toContainMatchObject({
         uuid: 'baz',
         tenant: 'baz',
-        user: 'bar',
+        user: 'baz',
         time
       })
     })
