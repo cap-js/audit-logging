@@ -17,7 +17,7 @@ cds.on('served', services => {
 
     const relevantEntities = []
     for (const entity of service.entities) if (hasPersonalData(entity)) relevantEntities.push(entity)
-    if (!relevantEntities.length) return
+    if (!relevantEntities.length) continue
 
     for (const entity of relevantEntities) {
       /*
