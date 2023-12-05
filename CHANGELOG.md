@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.5.2 - tbd
+
+### Fixed
+
+- Automatic personal data modification logging for deep data structures with renamings
+
 ## Version 0.5.1 - 2023-11-30
 
 ### Fixed

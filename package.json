@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/audit-logging",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "CDS plugin providing integration to the SAP Audit Log service as well as out-of-the-box personal data-related audit logging based on annotations.",
   "repository": "cap-js/audit-logging",
   "author": "SAP SE (https://www.sap.com)",
@@ -14,7 +14,9 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "npx jest --silent"
+    "test": "npm run test-new-db && npm run test-old-db",
+    "test-new-db": "CDS_ENV='better-sqlite' npx jest --silent",
+    "test-old-db": "npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": "^7"
@@ -25,7 +27,8 @@
     "axios": "^1",
     "eslint": "^8",
     "express": "^4",
-    "jest": "^29"
+    "jest": "^29",
+    "sqlite3": "^5.1.6"
   },
   "cds": {
     "requires": {
