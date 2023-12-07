@@ -1,6 +1,13 @@
 const cds = require('@sap/cds')
 
-const { POST, PATCH, GET, DELETE, data } = cds.test().in(__dirname)
+const { POST: _POST, PATCH: _PATCH, GET: _GET, DELETE: _DELETE, data } = cds.test().in(__dirname)
+
+// with old db, the persistent outbox adds a delay
+const wait = require('util').promisify(setTimeout)
+const POST = (...args) => _POST(...args).then(async res => (await wait(7), res))
+const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(7), res))
+const GET = (...args) => _GET(...args).then(async res => (await wait(7), res))
+const DELETE = (...args) => _DELETE(...args).then(async res => (await wait(7), res))
 
 const _logger = require('../utils/logger')({ debug: true })
 cds.log.Logger = _logger

@@ -32,6 +32,7 @@
   },
   "cds": {
     "requires": {
+      "outbox": true,
       "audit-log": {
         "handle": [
           "READ",
