@@ -16,33 +16,27 @@ service CRUD_1 {
   entity LastOne               as projection on db.LastOne;
   entity Notes                 as projection on db.Notes;
 
-  entity AddressAttachment     as projection on db.AddressAttachment {
-    *,
-    address.customer as customer
-  }
+  entity AddressAttachment     as
+    projection on db.AddressAttachment {
+      *,
+      address.customer as customer
+    }
 
-  annotate Orders with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate Orders with @PersonalData: {EntitySemantics: 'Other'} {
     misc @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate OrderHeader with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate OrderHeader with @PersonalData: {EntitySemantics: 'Other'} {
     description @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate OrderHeader.sensitiveData with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate OrderHeader.sensitiveData with @PersonalData: {EntitySemantics: 'Other'} {
     note @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate Pages with @PersonalData       : {
-    EntitySemantics: 'DataSubject'
-    // no DataSubjectRole for testing purposes
-  } {
+  annotate Pages with @PersonalData       : {EntitySemantics: 'DataSubject'
+                                                                           // no DataSubjectRole for testing purposes
+                                                              } {
     ID        @PersonalData.FieldSemantics: 'DataSubjectID';
     sensitive @PersonalData.IsPotentiallySensitive;
     personal  @PersonalData.IsPotentiallyPersonal;
@@ -59,45 +53,33 @@ service CRUD_1 {
     creditCardNo @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate CustomerPostalAddress with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate CustomerPostalAddress with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     customer @PersonalData.FieldSemantics          : 'DataSubjectID';
     street   @PersonalData.IsPotentiallySensitive;
     town     @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate CustomerStatus with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate StatusChange with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate StatusChange with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
     secondKey   @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate LastOne with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate LastOne with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     lastOneField @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate AddressAttachment with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate AddressAttachment with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     customer    @PersonalData.FieldSemantics   : 'DataSubjectID';
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate Notes with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate Notes with @PersonalData: {EntitySemantics: 'Other'} {
     note       @PersonalData.IsPotentiallySensitive;
     dummyArray @PersonalData.IsPotentiallyPersonal;
   }
@@ -122,14 +104,13 @@ service CRUD_2 {
   entity CustomerPostalAddress as projection on db.CustomerPostalAddress;
   entity CustomerStatus        as projection on db.CustomerStatus;
 
-  entity AddressAttachment     as projection on db.AddressAttachment {
-    *,
-    address.customer as customer
-  }
+  entity AddressAttachment     as
+    projection on db.AddressAttachment {
+      *,
+      address.customer as customer
+    }
 
-  annotate Customers with @PersonalData   : {
-    EntitySemantics: 'Other'
-  } {
+  annotate Customers with @PersonalData   : {EntitySemantics: 'Other'} {
     addresses @PersonalData.FieldSemantics: 'DataSubjectID';
   }
 
@@ -144,38 +125,61 @@ service CRUD_2 {
   }
 
   // invalid modeling (nothing personal/ sensitive), must have no effect
-  annotate CustomerStatus with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  };
+  annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'};
 }
 
 @path    : '/crud-3'
 @requires: 'admin'
 service CRUD_3 {
 
-  entity R1                    as projection on db.RBase {
-    key ID           as r1_ID,
-        emailAddress as r1_emailAddress,
-        firstName    as r1_firstName,
-        lastName     as r1_lastName,
-        creditCardNo as r1_creditCardNo
-  }
+  entity R1                    as
+    projection on db.RBase {
+      key ID           as r1_ID,
+          emailAddress as r1_emailAddress,
+          firstName    as r1_firstName,
+          lastName     as r1_lastName,
+          creditCardNo as r1_creditCardNo
+    }
 
   annotate R1 with @PersonalData: {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Renamed Customer'
   };
 
-  entity R2                    as projection on R1 {
-    key r1_ID           as r2_ID,
-        r1_emailAddress as r2_emailAddress,
-        r1_firstName    as r2_firstName,
-        r1_lastName     as r2_lastName,
-        r1_creditCardNo as r2_creditCardNo
-  }
+  entity R2                    as
+    projection on R1 {
+      key r1_ID           as r2_ID,
+          r1_emailAddress as r2_emailAddress,
+          r1_firstName    as r2_firstName,
+          r1_lastName     as r2_lastName,
+          r1_creditCardNo as r2_creditCardNo
+    }
 
   annotate R2 with @PersonalData: {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Twice Renamed Customer'
   };
+
+  entity C                     as
+    projection on CRUD_1.Customers {
+      key ID           as c_id,
+          emailAddress as c_emailAddress,
+          addresses    as c_addresses
+    };
+
+
+  entity CPA                   as
+    projection on CRUD_1.CustomerPostalAddress {
+      key ID          as cpa_id,
+          town        as cpa_town,
+          customer    as cpa_customer,
+          attachments as cpa_attachments
+    };
+
+  entity AA                    as
+    projection on CRUD_1.AddressAttachment {
+      key ID      as aa_id,
+          todo    as aa_todo,
+          address as aa_address
+    };
 }

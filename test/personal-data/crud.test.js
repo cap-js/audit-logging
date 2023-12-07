@@ -2046,5 +2046,63 @@ describe('personal data audit logging in CRUD', () => {
         ]
       })
     })
+
+    test('deep', async () => {
+      const c1 = {
+        c_emailAddress: 'foo@bar.baz',
+        c_addresses: [
+          {
+            cpa_town: 'moo',
+            cpa_attachments: [
+              {
+                aa_todo: 'boo'
+              },
+              {
+                aa_todo: 'who'
+              }
+            ]
+          },
+          {
+            cpa_town: 'shu'
+          }
+        ]
+      }
+      const { data: r1 } = await POST('/crud-3/C', c1, { auth: ALICE })
+      Object.assign(c1, r1)
+      expect(_logs.length).toBe(5)
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'c_emailAddress', new: 'foo@bar.baz' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'cpa_town', new: 'moo' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'cpa_town', new: 'shu' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', new: 'boo' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', new: 'who' }] })
+
+      // reset logs
+      _logs = []
+
+      const c2 = {
+        c_emailAddress: 'foo@bar.bas',
+        c_addresses: [
+          {
+            cpa_id: c1.c_addresses[0].cpa_id,
+            cpa_town: 'voo',
+            cpa_attachments: [
+              {
+                aa_id: c1.c_addresses[0].cpa_attachments[0].aa_id,
+                aa_todo: 'doo'
+              }
+            ]
+          }
+        ]
+      }
+      await PATCH(`/crud-3/C/${c1.c_id}`, c2, { auth: ALICE })
+      expect(_logs.length).toBe(5)
+      expect(_logs).toContainMatchObject({
+        attributes: [{ name: 'c_emailAddress', old: 'foo@bar.baz', new: 'foo@bar.bas' }]
+      })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'cpa_town', old: 'moo', new: 'voo' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'cpa_town', old: 'shu' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', old: 'boo', new: 'doo' }] })
+      expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', old: 'who' }] })
+    })
   })
 })
