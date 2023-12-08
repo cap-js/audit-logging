@@ -32,6 +32,9 @@
   },
   "cds": {
     "requires": {
+      "[test]": {
+        "outbox": "persistent-outbox"
+      },
       "audit-log": {
         "handle": [
           "READ",
