@@ -183,23 +183,18 @@ service CRUD_3 {
           address as aa_address
     };
 }
+
 @path    : '/crud-4'
 @requires: 'admin'
 service CRUD_4 {
 
-    entity RenamedMainEntities as projection on db.MainEntities;
+  entity RenamedMainEntities   as projection on db.MainEntities;
 
-    entity RenamedSubEntities as projection on db.SubEntities {
-        key ID as renamedID,
-        name,
-        mainEntity
+  entity RenamedSubEntities    as
+    projection on db.SubEntities {
+      key ID as renamedID,
+          name,
+          mainEntity
     };
 
 }
-
-annotate CRUD_4 with @(AuditLog.Operation: {
-    Read  : false,
-    Insert: true,
-    Update: true,
-    Delete: true
-});

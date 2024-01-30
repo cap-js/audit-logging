@@ -113,7 +113,7 @@ entity RBase : cuid {
   creditCardNo : String(16);
 }
 
-annotate RBase with @PersonalData             : {
+annotate RBase with @PersonalData          : {
   EntitySemantics: 'DataSubject',
   DataSubjectRole: 'RBase'
 } {
@@ -125,31 +125,31 @@ annotate RBase with @PersonalData             : {
 }
 
 entity MainEntities {
-    key ID          : UUID;
-        name        : String;
-        subEntities : Composition of many SubEntities
-                          on subEntities.mainEntity = $self;
+  key ID          : UUID;
+      name        : String;
+      subEntities : Composition of many SubEntities
+                      on subEntities.mainEntity = $self;
 }
 
 entity SubEntities {
-    key ID         : UUID;
-        name       : String;
-        mainEntity : Association to MainEntities;
+  key ID         : UUID;
+      name       : String;
+      mainEntity : Association to MainEntities;
 }
 
 
 annotate MainEntities with @PersonalData: {
-    EntitySemantics: 'DataSubject',
-    DataSubjectRole: 'MainEntity',
+  EntitySemantics: 'DataSubject',
+  DataSubjectRole: 'MainEntity',
 } {
-    ID   @PersonalData.FieldSemantics   : 'DataSubjectID';
-    name @PersonalData.IsPotentiallyPersonal;
+  ID   @PersonalData.FieldSemantics     : 'DataSubjectID';
+  name @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate SubEntities with @PersonalData    : {
-    EntitySemantics: 'DataSubjectDetails',
-    DataSubjectRole: 'MainEntity'
+annotate SubEntities with @PersonalData  : {
+  EntitySemantics: 'DataSubjectDetails',
+  DataSubjectRole: 'MainEntity'
 } {
-    mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
-    name       @PersonalData.IsPotentiallyPersonal;
+  mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
+  name       @PersonalData.IsPotentiallyPersonal;
 }

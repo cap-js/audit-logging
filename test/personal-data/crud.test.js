@@ -2111,7 +2111,8 @@ describe('personal data audit logging in CRUD', () => {
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', old: 'boo', new: 'doo' }] })
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'aa_todo', old: 'who' }] })
     })
-    test('rename child key', async () => {
+
+    test('child key', async () => {
       const parentID = 'bcd4a37a-6319-4d52-bb48-02fd06b9aaaa'
       const childID = 'c49fe764-75aa-49f1-9475-cf67cf0b03f7'
       const data = {
@@ -2131,10 +2132,10 @@ describe('personal data audit logging in CRUD', () => {
 
       await DELETE(`/crud-4/RenamedSubEntities(${childID})`, { auth: ALICE })
       const object = { type: 'CRUD_4.RenamedSubEntities', id: { renamedID: childID } }
-      const data_subject = { id: { ID: parentID}, role: 'MainEntity', type: 'CRUD_4.RenamedMainEntities'}
+      const data_subject = { id: { ID: parentID }, role: 'MainEntity', type: 'CRUD_4.RenamedMainEntities' }
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({
-        user: 'alice', 
+        user: 'alice',
         object,
         data_subject
       })
