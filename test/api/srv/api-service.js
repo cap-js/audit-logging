@@ -6,6 +6,7 @@ module.exports = async function () {
   })
 
   this.on('testSend', async function () {
+    // only works with cds^7.5, but we don't execute the tests with prior cds versions
     await cds.unboxed(audit).send('foo', { bar: 'baz' })
   })
 
