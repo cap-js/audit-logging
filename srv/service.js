@@ -4,7 +4,8 @@ const Base = cds.outboxed ? cds.Service : require('@sap/cds/libx/_runtime/messag
 
 module.exports = class AuditLogService extends Base {
   async init() {
-    const outboxed = this.immediate instanceof cds.Service
+    // get the not-outboxed service for any @sap/cds version
+    const unboxed_this = cds.unboxed ? cds.unboxed(this) : this.immediate instanceof cds.Service ? this.immediate : this
 
     // add common audit log entry fields
     this.before('*', req => {
@@ -21,10 +22,6 @@ module.exports = class AuditLogService extends Base {
     // add self-explanatory api (await audit.log/logSync(event, data))
     this.log = this.emit
     // NOTE: logSync is not a public API!
-    this.logSync = (...args) => {
-      if (cds.unboxed) return cds.unboxed(this).send(...args) // for cds >= 7.5.0
-      if (outboxed) return this.immediate.send(...args)
-      return this.send(...args)
-    }
+    this.logSync = (...args) => unboxed_this.send(...args)
   }
 }
