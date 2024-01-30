@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.6.0 - tbd
+
+### Added
+
+- Support for @sap/cds^7.5
+
 ## Version 0.5.2 - 2023-12-08
 
 ### Fixed
