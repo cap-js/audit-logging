@@ -1,14 +1,13 @@
 module.exports = async function () {
   const audit = await cds.connect.to('audit-log')
-  const outboxed = audit.immediate instanceof cds.Service
 
   this.on('testEmit', async function () {
     await audit.emit('foo', { bar: 'baz' })
   })
 
   this.on('testSend', async function () {
-    if (outboxed) await audit.immediate.send('foo', { bar: 'baz' })
-    else await audit.send('foo', { bar: 'baz' })
+    // only works with cds^7.5, but we don't execute the tests with prior cds versions
+    await cds.unboxed(audit).send('foo', { bar: 'baz' })
   })
 
   this.on('testLog', async function () {
