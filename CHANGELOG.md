@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Support for @sap/cds^7.5
 
+### Fixed
+
+- Automatic personal data modification logging for data subject details with renamed keys
+
 ## Version 0.5.2 - 2023-12-08
 
 ### Fixed
