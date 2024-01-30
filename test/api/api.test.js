@@ -57,7 +57,7 @@ describe('AuditLogService API', () => {
       const {
         data: { value: sequence }
       } = await GET('/api/getSequence()', { auth: ALICE })
-      expect(sequence).toEqual(['request succeeded', 'audit log logged'])
+      expect(sequence).toEqual(['audit log logged', 'request succeeded'])
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({ user: 'alice', bar: 'baz' })
     })
