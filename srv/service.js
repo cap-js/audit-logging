@@ -20,9 +20,9 @@ module.exports = class AuditLogService extends Base {
     this.log = this.emit
     // NOTE: logSync is not a public API!
     this.logSync = (...args) => {
-      // this._unboxed: the not-outboxed service for any @sap/cds version
-      this._unboxed ??= cds.unboxed ? cds.unboxed(this) : this.immediate instanceof cds.Service ? this.immediate : this
-      return this._unboxed.send(...args)
+      if (cds.unboxed) return cds.unboxed(this).send(...args) //> cds >= 7.5
+      if (this.immediate instanceof cds.Service) return this.immediate.send(...args) //> cds ~ 7.4
+      return this.send(...args) //> cds <= 7.3
     }
   }
 }
