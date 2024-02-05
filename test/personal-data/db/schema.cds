@@ -137,19 +137,49 @@ entity SubEntities {
       mainEntity : Association to MainEntities;
 }
 
-
 annotate MainEntities with @PersonalData: {
   EntitySemantics: 'DataSubject',
-  DataSubjectRole: 'MainEntity',
+  DataSubjectRole: 'MainEntity'
 } {
   ID   @PersonalData.FieldSemantics     : 'DataSubjectID';
   name @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate SubEntities with @PersonalData  : {
-  EntitySemantics: 'DataSubjectDetails',
-  DataSubjectRole: 'MainEntity'
-} {
+annotate SubEntities with @PersonalData  : {EntitySemantics: 'DataSubjectDetails'} {
   mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
   name       @PersonalData.IsPotentiallyPersonal;
+}
+
+entity A {
+  key ID   : UUID;
+      text : String;
+      b    : Association to B;
+      c    : Association to C;
+}
+
+entity B {
+  key ID   : UUID;
+      text : String;
+      a    : Association to A;
+      c    : Association to C;
+}
+
+entity C {
+  key ID   : UUID;
+      text : String;
+}
+
+annotate A with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
+  c    @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate B with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
+  c    @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
+  ID   @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
 }

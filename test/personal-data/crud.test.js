@@ -2141,4 +2141,9 @@ describe('personal data audit logging in CRUD', () => {
       })
     })
   })
+
+  test('with cycles', async () => {
+    await POST('/crud-5/A', { text: 'foo' }, { auth: ALICE })
+    expect(_logs.length).toBe(1)
+  })
 })
