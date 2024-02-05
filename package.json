@@ -10,6 +10,7 @@
   "files": [
     "lib",
     "srv",
+    "index.cds",
     "CHANGELOG.md"
   ],
   "scripts": {
