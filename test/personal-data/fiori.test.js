@@ -497,13 +497,13 @@ describe('personal data audit logging in Fiori', () => {
       // reset logs
       _logs = []
 
-      // draft data is never logged. however, the read of the active data is logged.
+      // draft data is never logged and since cds^7.6, we only read actives for which no draft exists -> now 0 logs
       response = await GET(
         '/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)',
         { auth: ALICE }
       )
       expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
+      expect(_logs.length).toBe(0)
 
       // reset logs
       _logs = []

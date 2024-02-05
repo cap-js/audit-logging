@@ -198,3 +198,13 @@ service CRUD_4 {
     };
 
 }
+
+@path    : '/crud-5'
+@requires: 'admin'
+service CRUD_5 {
+
+  entity A                     as projection on db.A;
+  entity B                     as projection on db.B;
+  entity C                     as projection on db.C;
+
+}

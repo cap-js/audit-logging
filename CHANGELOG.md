@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 - Automatic personal data modification logging for data subject details with renamed keys
+- Data subject resolution in circular models
 
 ## Version 0.5.2 - 2023-12-08
 
