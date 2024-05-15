@@ -21,15 +21,13 @@ cds.on('served', services => {
 
     // automatically promote entities that are associated with data subjects
     for (const entity of relevantEntities) {
+      if (entity['@PersonalData.EntitySemantics'] !== 'DataSubject') continue
       for (const e of service.entities) {
         for (const k in e.associations) {
           if (e.associations[k].target === entity.name && k !== 'SiblingEntity') {
-            const t = service.model.definitions[e.associations[k].target]
-            if (t['@PersonalData.EntitySemantics'] === 'DataSubject') {
-              e['@PersonalData.EntitySemantics'] ??= 'Other'
-              e.associations[k]['@PersonalData.FieldSemantics'] ??= 'DataSubjectID'
-              if (!relevantEntities.includes(e)) relevantEntities.push(e)
-            }
+            e['@PersonalData.EntitySemantics'] ??= 'Other'
+            e.associations[k]['@PersonalData.FieldSemantics'] ??= 'DataSubjectID'
+            if (!relevantEntities.includes(e)) relevantEntities.push(e)
           }
         }
       }
