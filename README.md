@@ -6,7 +6,7 @@
 Documentation can be found at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy). 
 
 > [!IMPORTANT]
-> The information in this file is by no means complete but enable you to get started quickly. Make sure to read the provided documentation at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy) to get the full picture. 
+> The information in this file is by no means complete but enables you to get started quickly. Make sure to read the provided documentation at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy) to get the full picture. 
 
 
 ## Preliminaries
