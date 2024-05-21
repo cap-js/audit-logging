@@ -122,5 +122,17 @@ describe('AuditLogService API', () => {
         time
       })
     })
+
+    test('tenant can cleared', async () => {
+      await cds.tx({ tenant: 'bar' }, async () => {
+        const audit = await cds.connect.to('audit-log')
+        await audit.log('foo', { uuid: 'baz', tenant: undefined, user: 'baz' })
+      })
+      expect(_logs).toContainMatchObject({
+        uuid: 'baz',
+        tenant: undefined,
+        user: 'baz'
+      })
+    })
   })
 })

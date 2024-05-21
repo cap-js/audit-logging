@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.8.0 - tbd
+
+### Added
+
+- Allow to clear the tenant in order to log to provider account in multi-tenant scenarios
+
 ## Version 0.7.0 - tbd
 
 ### Added
