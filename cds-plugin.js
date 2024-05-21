@@ -6,6 +6,18 @@ const { hasPersonalData } = require('./lib/utils')
 
 const WRITE = ['CREATE', 'UPDATE', 'DELETE']
 
+const _get_ancestry_of = (entity, service, ancestors = []) => {
+  for (const each of service.entities) {
+    for (const k in each.compositions) {
+      if (each.compositions[k].target === entity.name && k !== 'SiblingEntity') {
+        ancestors.push(each)
+        _get_ancestry_of(each, service, ancestors)
+      }
+    }
+  }
+  return ancestors
+}
+
 /*
  * Add generic audit logging handlers
  */
@@ -15,23 +27,18 @@ cds.on('served', services => {
   for (const service of services) {
     if (!(service instanceof cds.ApplicationService)) continue
 
+    // automatically promote entities that are associated with data subjects
+    for (const entity of service.entities) {
+      if (entity['@PersonalData.EntitySemantics'] !== 'DataSubject') continue
+      const ancestors = _get_ancestry_of(entity, service)
+      for (const each of ancestors) {
+        each['@PersonalData.EntitySemantics'] ??= 'Other'
+      }
+    }
+
     const relevantEntities = []
     for (const entity of service.entities) if (hasPersonalData(entity)) relevantEntities.push(entity)
     if (!relevantEntities.length) continue
-
-    // automatically promote entities that are associated with data subjects
-    for (const entity of relevantEntities) {
-      if (entity['@PersonalData.EntitySemantics'] !== 'DataSubject') continue
-      for (const e of service.entities) {
-        for (const k in e.associations) {
-          if (e.associations[k].target === entity.name && k !== 'SiblingEntity') {
-            e['@PersonalData.EntitySemantics'] ??= 'Other'
-            e.associations[k]['@PersonalData.FieldSemantics'] ??= 'DataSubjectID'
-            if (!relevantEntities.includes(e)) relevantEntities.push(e)
-          }
-        }
-      }
-    }
 
     for (const entity of relevantEntities) {
       /*
