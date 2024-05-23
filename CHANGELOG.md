@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 0.7.0 - tbd
+## Version 0.8.0 - TBD
+
+### Added
+
+- Allow to specify undefined tenant in order to log to provider account in multi-tenant scenarios
+
+### Changed
+
+- Use kind `audit-log-to-restv2` in profile `hybrid`
+
+## Version 0.7.0 - 2024-05-15
 
 ### Added
 
