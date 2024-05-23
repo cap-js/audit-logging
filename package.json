@@ -19,7 +19,7 @@
     "test-old-db": "npx jest --silent"
   },
   "peerDependencies": {
-    "@sap/cds": ">=7"
+    "@sap/cds": ">=7 || ^8.0.0-beta"
   },
   "devDependencies": {
     "@cap-js/audit-logging": "file:.",
