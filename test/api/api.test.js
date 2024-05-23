@@ -123,7 +123,7 @@ describe('AuditLogService API', () => {
       })
     })
 
-    test('tenant can cleared', async () => {
+    test('tenant can be undefined', async () => {
       await cds.tx({ tenant: 'bar' }, async () => {
         const audit = await cds.connect.to('audit-log')
         await audit.log('foo', { uuid: 'baz', tenant: undefined, user: 'baz' })
