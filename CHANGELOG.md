@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Allow to specify undefined tenant in order to log to provider account in multi-tenant scenarios
 
+### Changed
+
+- Use kind `audit-log-to-restv2` in profile `hybrid`
+
 ## Version 0.7.0 - 2024-05-15
 
 ### Added
