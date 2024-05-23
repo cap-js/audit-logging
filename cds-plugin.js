@@ -19,6 +19,20 @@ cds.on('served', services => {
     for (const entity of service.entities) if (hasPersonalData(entity)) relevantEntities.push(entity)
     if (!relevantEntities.length) continue
 
+    // automatically promote entities that are associated with data subjects
+    for (const entity of relevantEntities) {
+      if (entity['@PersonalData.EntitySemantics'] !== 'DataSubject') continue
+      for (const e of service.entities) {
+        for (const k in e.associations) {
+          if (e.associations[k].target === entity.name && k !== 'SiblingEntity') {
+            e['@PersonalData.EntitySemantics'] ??= 'Other'
+            e.associations[k]['@PersonalData.FieldSemantics'] ??= 'DataSubjectID'
+            if (!relevantEntities.includes(e)) relevantEntities.push(e)
+          }
+        }
+      }
+    }
+
     for (const entity of relevantEntities) {
       /*
        * data access
