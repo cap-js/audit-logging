@@ -25,4 +25,12 @@ describe('Log to Audit Log Service with premium plan', () => {
     expect(res).toMatchObject({ status: 204 })
     expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
   })
+
+  // NOTE: unoffcial feature
+  test('tenant $PROVIDER is handled correctly', async () => {
+    const data = JSON.stringify({ data: { foo: 'bar' }, tenant: '$PROVIDER' })
+    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
+    expect(res).toMatchObject({ status: 204 })
+    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
+  })
 })
