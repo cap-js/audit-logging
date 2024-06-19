@@ -30,7 +30,7 @@ npm add @cap-js/audit-logging
 Identify entities and elements (potentially) holding personal data using `@PersonalData` annotations. Create a `db/data-privacy.cds` file and add the following:
 
 ```cds
-using { sap.capire.incidents as my } from '../db/extensions';
+using { sap.capire.incidents as my } from './schema';
 
 annotate my.Customers with @PersonalData : {
   DataSubjectRole : 'Customer',
