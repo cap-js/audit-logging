@@ -200,11 +200,16 @@ service CRUD_4 {
 }
 
 @path    : '/crud-5'
+@impl    : './crud-5.js'
 @requires: 'admin'
 service CRUD_5 {
 
   entity A                     as projection on db.A;
   entity B                     as projection on db.B;
   entity C                     as projection on db.C;
+
+  entity House                 as projection on db.House;
+  entity Window                as projection on db.Window;
+  entity Door                  as projection on db.Door;
 
 }

@@ -2146,4 +2146,19 @@ describe('personal data audit logging in CRUD', () => {
     await POST('/crud-5/A', { text: 'foo' }, { auth: ALICE })
     expect(_logs.length).toBe(1)
   })
+
+  test('triangle', async () => {
+    const { data: door } = await POST('/crud-5/Door', { text: 'door' }, { auth: ALICE })
+    try {
+      const { data: house } = await POST(
+        '/crud-5/House',
+        { text: 'house', doorID: door.ID, windows: [{ text: 'window' /* , doorID: door.ID */ }] },
+        { auth: ALICE }
+      )
+      expect(_logs.length).toBeGreaterThan(0) //> TODO
+    } catch (error) {
+      // current modeling leads to error during data subject lookup starting at Window
+      expect(error.response.status).toBe(500)
+    }
+  })
 })
