@@ -1,3 +1,5 @@
+const cds = require('@sap/cds')
+
 module.exports = async function () {
   const audit = await cds.connect.to('audit-log')
 

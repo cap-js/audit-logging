@@ -5,6 +5,7 @@ class MyAuditLogService extends AuditLogService {
     this.on('*', function (req) {
       const { event, data } = req
 
+      // eslint-disable-next-line no-console
       console.log(`[my-audit-log] - ${event}:`, data)
     })
 
