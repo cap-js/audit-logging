@@ -5,6 +5,7 @@ module.exports = class AuditLog2Console extends AuditLogService {
     this.on('*', function (req) {
       const { event, data } = req
 
+      // eslint-disable-next-line no-console
       console.log(`[audit-log] - ${event}:`, data)
     })
 
