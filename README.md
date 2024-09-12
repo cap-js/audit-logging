@@ -78,36 +78,36 @@ cds watch
 
 Send an update request that changes personal data:
 ```http
-PATCH http://localhost:4004/admin/Customers(8e2f2640-6866-4dcf-8f4d-3027aa831cad) HTTP/1.1
+PATCH http://localhost:4004/admin/Customers(1004155) HTTP/1.1
 Authorization: Basic alice:in-wonderland
 Content-Type: application/json
 
 {
-  "firstName": "Johnny",
-  "lastName": "Doey"
+  "firstName": "Danny",
+  "lastName": "Joules"
 }
 ```
 
 See the audit logs in the server's console output:
 ```sh
-{
+[audit-log] - PersonalDataModified: {
   data_subject: {
-    type: 'AdminService.Customers',
-    id: { ID: '8e2f2640-6866-4dcf-8f4d-3027aa831cad' },
+    id: { ID: '1004155' },
     role: 'Customer',
+    type: 'AdminService.Customers'
   },
   object: {
    type: 'AdminService.Customers',
-   id: { ID: '8e2f2640-6866-4dcf-8f4d-3027aa831cad' }
+   id: { ID: '1004155' }
   },
   attributes: [
-    { name: 'firstName', old: 'John', new: 'Johnny' },
-    { name: 'lastName', old: 'Doe', new: 'Doey' }
+    { name: 'firstName', old: 'Daniel', new: 'Danny' },
+    { name: 'lastName', old: 'Watts', new: 'Joules' }
   ],
   user: 'alice',
   tenant: 't1',
-  uuid: '1391A703E2CBE52E817269EC7527368C',
-  time: '2023-02-26T08:13:48.287Z'
+  uuid: '71fa93d9-c993-405f-ba1b-a9ef42668199',
+  time: 2023-02-26T08:13:48.287Z
 }
 ```
 
