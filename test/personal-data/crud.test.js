@@ -376,7 +376,8 @@ describe('personal data audit logging in CRUD', () => {
         { auth: ALICE }
       )
       expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(3)
+      // NOTE: cds^8 only returns root on update requests -> no data access logs for children
+      expect(_logs.length).toBeGreaterThanOrEqual(1)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -396,40 +397,6 @@ describe('personal data audit logging in CRUD', () => {
           { name: 'street', new: 'updated', old: 'moo' },
           { name: 'town', new: 'updated town', old: 'shu' }
         ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_2.CustomerPostalAddress',
-          id: { ID: '1ab71292-ef69-4571-8cfb-10b9d5d1459e' }
-        },
-        data_subject: {
-          type: 'CRUD_2.CustomerPostalAddress',
-          role: 'Address',
-          id: {
-            ID: '1ab71292-ef69-4571-8cfb-10b9d5d1459e',
-            street: 'updated',
-            town: 'updated town'
-          }
-        },
-        attributes: [{ name: 'someOtherField' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_2.CustomerPostalAddress',
-          id: { ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82' }
-        },
-        data_subject: {
-          type: 'CRUD_2.CustomerPostalAddress',
-          role: 'Address',
-          id: {
-            ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82',
-            street: 'sue',
-            town: 'lou'
-          }
-        },
-        attributes: [{ name: 'someOtherField' }]
       })
     })
 
@@ -867,9 +834,19 @@ describe('personal data audit logging in CRUD', () => {
       }
 
       response = await PATCH(`/crud-1/Customers(${CUSTOMER_ID})`, customer, { auth: ALICE })
-
       expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(12)
+
+      // NOTE: cds^8 only returns root on update requests -> no data access logs for children
+      expect(_logs.length).toBeGreaterThanOrEqual(9)
+
+      // augment response with data (specifically keys in children) not returned in cds^8
+      if (!response.data.addresses) {
+        const {
+          data: { addresses, status }
+        } = await GET(`/crud-1/Customers(${CUSTOMER_ID})?$select=ID&$expand=addresses,status`, { auth: ALICE })
+        response.data.addresses = addresses
+        response.data.status = status
+      }
 
       const newAddresses = response.data.addresses
       const newStatus = response.data.status
@@ -943,33 +920,6 @@ describe('personal data audit logging in CRUD', () => {
         data_subject: DATA_SUBJECT,
         attributes: [{ name: 'creditCardNo' }]
       })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerPostalAddress',
-          id: { ID: newAddresses[0].ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerPostalAddress',
-          id: { ID: newAddresses[1].ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerStatus',
-          id: { ID: newStatus.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
     })
 
     test('update Customer - deep with reusing notes', async () => {
@@ -1028,15 +978,26 @@ describe('personal data audit logging in CRUD', () => {
       _logs = []
 
       response = await PATCH(`/crud-1/Customers(${CUSTOMER_ID})`, customer, { auth: ALICE })
-
       expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(16)
+
+      // NOTE: cds^8 only returns root on update requests -> no data access logs for children
+      expect(_logs.length).toBeGreaterThanOrEqual(10)
+
+      // augment response with data (specifically keys in children) not returned in cds^8
+      if (!response.data.addresses) {
+        const {
+          data: { addresses, status }
+        } = await GET(
+          `/crud-1/Customers(${CUSTOMER_ID})?$select=ID&$expand=addresses($expand=attachments($expand=notes)),status`,
+          { auth: ALICE }
+        )
+        response.data.addresses = addresses
+        response.data.status = status
+      }
 
       const newAddresses = response.data.addresses
       const newStatus = response.data.status
-      const newAttachments = response.data.addresses[0].attachments
       const newAttachmentNote = response.data.addresses[0].attachments[0].notes[0]
-      const newStatusNote = response.data.status.notes[0]
 
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1134,65 +1095,11 @@ describe('personal data audit logging in CRUD', () => {
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
-          type: 'CRUD_1.AddressAttachment',
-          id: { ID: newAttachments[0].ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
           type: 'CRUD_1.Customers',
           id: { ID: 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9' }
         },
         data_subject: DATA_SUBJECT,
         attributes: [{ name: 'creditCardNo' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerPostalAddress',
-          id: { ID: newAddresses[0].ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerPostalAddress',
-          id: { ID: newAddresses[1].ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.CustomerStatus',
-          id: { ID: newStatus.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.Notes',
-          id: { ID: newStatusNote.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.Notes',
-          id: { ID: newAttachmentNote.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note' }]
       })
     })
 
@@ -1745,8 +1652,7 @@ describe('personal data audit logging in CRUD', () => {
         ],
         misc: 'abc'
       }
-      const r1 = await POST(`/crud-1/Orders`, order, { auth: ALICE })
-      expect(r1)
+      await POST(`/crud-1/Orders`, order, { auth: ALICE })
       const {
         data: {
           header_ID,
@@ -1772,9 +1678,12 @@ describe('personal data audit logging in CRUD', () => {
         },
         items
       }
+
       _logs = []
+
       await PATCH(`/crud-1/Orders(${order.ID})`, updatedOrder, { auth: ALICE })
-      expect(_logs.length).toBe(6)
+      // NOTE: cds^8 only returns root on update requests -> no data access logs for children
+      expect(_logs.length).toBeGreaterThanOrEqual(4)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -1811,27 +1720,11 @@ describe('personal data audit logging in CRUD', () => {
         data_subject: DATA_SUBJECT,
         attributes: [{ name: 'misc' }]
       })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.OrderHeader',
-          id: { ID: header_ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.OrderHeader.sensitiveData',
-          id: { ID: sensitiveData.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note' }]
-      })
-      const r2 = await DELETE(`/crud-1/Orders(${order.ID})`, { auth: ALICE })
-      expect(r2).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(9)
+
+      _logs = []
+
+      await DELETE(`/crud-1/Orders(${order.ID})`, { auth: ALICE })
+      expect(_logs.length).toBe(3)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object: {
@@ -1839,7 +1732,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: order.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'misc', old: '***', new: '***' }]
+        attributes: [{ name: 'misc', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1848,7 +1741,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: header_ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
+        attributes: [{ name: 'description', old: '***' }]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
@@ -1857,34 +1750,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: sensitiveData.ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.Orders',
-          id: { ID: order.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'misc', old: '***', new: '***' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.OrderHeader',
-          id: { ID: header_ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***', new: '***' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'CRUD_1.OrderHeader.sensitiveData',
-          id: { ID: sensitiveData.ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***', new: '***' }]
+        attributes: [{ name: 'note', old: '***' }]
       })
     })
 
