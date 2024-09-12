@@ -78,7 +78,7 @@ cds watch
 
 Send an update request that changes personal data:
 ```http
-PATCH http://localhost:4004/admin/Customers('1004155') HTTP/1.1
+PATCH http://localhost:4004/odata/v4/admin/Customers('1004155')
 Authorization: Basic alice:in-wonderland
 Content-Type: application/json
 
@@ -104,9 +104,9 @@ See the audit logs in the server's console output:
     { name: 'firstName', old: 'Daniel', new: 'Danny' },
     { name: 'lastName', old: 'Watts', new: 'Joules' }
   ],
-  user: 'alice',
-  tenant: 't1',
   uuid: '71fa93d9-c993-405f-ba1b-a9ef42668199',
+  tenant: 't1',
+  user: 'alice',
   time: 2023-02-26T08:13:48.287Z
 }
 ```
