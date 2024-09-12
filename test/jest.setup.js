@@ -4,7 +4,7 @@ function toContainMatchObject(received, expected) {
     try {
       expect(each).toMatchObject(expected)
       pass = true
-    } catch (e) {
+    } catch {
       // ignore
     }
 
