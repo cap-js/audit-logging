@@ -20,6 +20,7 @@ npm i
 ```
 
 ## Setup
+
 To enable audit logging, simply add this self-configuring plugin package to your project:
 
 ```sh
@@ -27,6 +28,7 @@ npm add @cap-js/audit-logging
 ```
 
 ## Annotate Personal Data
+
 Identify entities and elements (potentially) holding personal data using `@PersonalData` annotations. Create a `db/data-privacy.cds` file and add the following:
 
 ```cds
@@ -69,6 +71,7 @@ Learn more about the annotations in capire:
 
 
 ## Test-Drive Locally
+
 You've prepared everything to log personal data-related events. Let's see that in action.
 
 Start the server as usual:
