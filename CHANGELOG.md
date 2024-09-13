@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 0.8.1 - 2024-09-12
+## Version 0.8.1 - 2024-09-13
 
 ### Fixed
 
 - Support for @sap/cds^8.2
+- Reduce clutter in error raised for outbound requests
 
 ## Version 0.8.0 - 2024-05-24
 

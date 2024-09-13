@@ -1,4 +1,5 @@
 # Welcome to @cap-js/audit-logging
+
 [![REUSE status](https://api.reuse.software/badge/github.com/cap-js/audit-logging)](https://api.reuse.software/info/github.com/cap-js/audit-logging)
 
 `@cap-js/audit-logging` is a CDS plugin providing integration to the SAP Audit Log service as well as out-of-the-box personal data-related audit logging based on annotations.
@@ -19,14 +20,18 @@ cd incidents-app
 npm i
 ```
 
+
 ## Setup
+
 To enable audit logging, simply add this self-configuring plugin package to your project:
 
 ```sh
 npm add @cap-js/audit-logging
 ```
 
+
 ## Annotate Personal Data
+
 Identify entities and elements (potentially) holding personal data using `@PersonalData` annotations. Create a `db/data-privacy.cds` file and add the following:
 
 ```cds
@@ -69,6 +74,7 @@ Learn more about the annotations in capire:
 
 
 ## Test-Drive Locally
+
 You've prepared everything to log personal data-related events. Let's see that in action.
 
 Start the server as usual:
@@ -120,13 +126,16 @@ The end-to-end out-of-the-box functionality provided by this plugin requires a p
 
 [_Learn more about custom audit logging._](https://cap.cloud.sap/docs/guides/data-privacy/audit-logging#custom-audit-logging)
 
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js/audit-logging/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
 
+
 ## Code of Conduct
 
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](CODE_OF_CONDUCT.md) at all times.
+
 
 ## Licensing
 

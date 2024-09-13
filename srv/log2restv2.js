@@ -154,12 +154,16 @@ async function _post(url, data, options) {
       const chunks = []
       res.on('data', chunk => chunks.push(chunk))
       res.on('end', () => {
+        const { statusCode, statusMessage } = res
         let body = Buffer.concat(chunks).toString()
         if (res.headers['content-type']?.match(/json/)) body = JSON.parse(body)
         if (res.statusCode >= 400) {
-          const err = new Error(res.statusMessage)
-          err.response = res
-          err.body = body
+          // prettier-ignore
+          const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`)
+          err.request = { method: options.method, url, headers: options.headers, body: data }
+          if (err.request.headers.authorization)
+            err.request.headers.authorization = err.request.headers.authorization.split(' ')[0] + ' ***'
+          err.response = { statusCode, statusMessage, headers: res.headers, body }
           reject(err)
         } else {
           resolve(body)
