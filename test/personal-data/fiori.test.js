@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 
 const { POST: _POST, PATCH: _PATCH, GET: _GET, DELETE: _DELETE, data } = cds.test().in(__dirname)
 
-// with old db, the persistent outbox adds a delay
+// the persistent outbox adds a delay
 const wait = require('util').promisify(setTimeout)
 const POST = (...args) => _POST(...args).then(async res => (await wait(42), res))
 const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(42), res))
