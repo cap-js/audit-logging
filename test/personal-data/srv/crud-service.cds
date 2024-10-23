@@ -15,6 +15,8 @@ service CRUD_1 {
   entity StatusChange          as projection on db.StatusChange;
   entity LastOne               as projection on db.LastOne;
   entity Notes                 as projection on db.Notes;
+  entity MainEntities            as projection on db.MainEntities;
+  entity SubEntities           as projection on db.SubEntities;
 
   entity AddressAttachment     as
     projection on db.AddressAttachment {
@@ -94,6 +96,12 @@ service CRUD_1 {
     name   @PersonalData.IsPotentiallyPersonal;
     notes  @PersonalData.IsPotentiallySensitive  @PersonalData.IsPotentiallyPersonal;
     skills @PersonalData.IsPotentiallyPersonal;
+  }
+
+  annotate SubEntities with @PersonalData : { EntitySemantics: 'DataSubjectDetails' } {
+    mainEntity      @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID            @PersonalData.IsPotentiallyPersonal;
+    name            @PersonalData.IsPotentiallyPersonal;
   }
 }
 

@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Support for @sap/cds^8.2
 - Reduce clutter in error raised for outbound requests
+- Logging of keys marked as personal data by update
 
 ## Version 0.8.0 - 2024-05-24
 
