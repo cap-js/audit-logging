@@ -998,8 +998,7 @@ describe('personal data audit logging in CRUD', () => {
               note: 'status note'
             }
           ]
-        },
-        lastName : 'mm'
+        }
       }
 
       // reset logs
