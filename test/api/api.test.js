@@ -1,6 +1,9 @@
 const cds = require('@sap/cds')
 
-const { POST, GET } = cds.test().in(__dirname)
+const { axios, POST, GET } = cds.test().in(__dirname)
+
+// do not throw for 4xx responses
+axios.defaults.validateStatus = () => true
 
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
@@ -22,6 +25,7 @@ describe('AuditLogService API', () => {
   }
 
   const ALICE = { username: 'alice', password: 'password' }
+  const BOB = { username: 'bob', password: 'password' }
 
   beforeAll(() => {
     __log = global.console.log
@@ -133,6 +137,34 @@ describe('AuditLogService API', () => {
         tenant: undefined,
         user: 'baz'
       })
+    })
+  })
+
+  describe('custom log 403', () => {
+    test('early reject', async () => {
+      const response = await GET('/api/Books', { auth: BOB })
+      expect(response).toMatchObject({ status: 403 })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({ user: 'bob', ip: '::1' })
+    })
+
+    test('late reject', async () => {
+      const response = await GET('/api/Books', { auth: ALICE })
+      expect(response).toMatchObject({ status: 403 })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({ user: 'alice', ip: '::1' })
+    })
+
+    test('batch', async () => {
+      const response = await POST(
+        '/api/$batch',
+        { requests: [{ method: 'GET', url: '/Books', id: 'r1' }] },
+        { auth: ALICE }
+      )
+      expect(response).toMatchObject({ status: 200 })
+      expect(response.data.responses[0]).toMatchObject({ status: 403 })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({ user: 'alice', ip: '::1' })
     })
   })
 })
