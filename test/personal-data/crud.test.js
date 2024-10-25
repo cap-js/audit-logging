@@ -678,6 +678,35 @@ describe('personal data audit logging in CRUD', () => {
       })
     })
 
+    test('update entity with key as personal data', async () => {
+      const idMain = 'daac72b5-5b4a-4831-b559-d0e68baa3b22'
+      const idSub = 'f6407ee1-3af5-423a-9b18-83a004306524'
+      const DATA_SUBJECT_M = {
+        type: 'CRUD_1.MainEntities',
+        role: 'MainEntity',
+        id: { ID: idMain }
+      }
+      const responseMain = await POST(
+        '/crud-1/MainEntities',
+        { ID: idMain, subEntities: [{ ID: idSub, name: 'myName' }] },
+        { auth: ALICE }
+      )
+      expect(responseMain).toMatchObject({ status: 201 })
+
+      const response = await PATCH(`/crud-1/SubEntities(${idSub})`, { name: 'newName' }, { auth: ALICE })
+
+      expect(response).toMatchObject({ status: 200 })
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object: {
+          type: 'CRUD_1.SubEntities',
+          id: { ID: idSub }
+        },
+        data_subject: DATA_SUBJECT_M,
+        attributes: [{ name: 'name', old: 'myName', new: 'newName' }]
+      })
+    })
+
     test('update Pages with integers', async () => {
       const page = {
         sensitive: 999,
@@ -1260,6 +1289,18 @@ describe('personal data audit logging in CRUD', () => {
           { name: 'lastName', old: 'bar' },
           { name: 'creditCardNo', old: '***' }
         ]
+      })
+    })
+
+    test('delete non existing entity does not cause any logs', async () => {
+      const { Pages } = cds.entities('CRUD_1')
+      await cds.delete(Pages).where(`ID = 123456789`)
+
+      expect(_logs).not.toContainMatchObject({
+        object: {
+          type: 'CRUD_1.Pages',
+          id: { ID: 123456789 }
+        }
       })
     })
 
