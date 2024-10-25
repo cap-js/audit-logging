@@ -1263,6 +1263,18 @@ describe('personal data audit logging in CRUD', () => {
       })
     })
 
+    test('delete non existing entity does not cause any logs', async () => {
+      const { Pages } = cds.entities('CRUD_1')
+      await cds.delete(Pages).where(`ID = 123456789`)
+
+      expect(_logs).not.toContainMatchObject({
+        object: {
+          type: 'CRUD_1.Pages',
+          id: { ID: 123456789 }
+        }
+      })
+    })
+
     test('delete Pages with integers - flat', async () => {
       await DELETE('/crud-1/Pages(1)', { auth: ALICE })
 
