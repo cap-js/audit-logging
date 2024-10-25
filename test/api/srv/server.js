@@ -19,7 +19,7 @@ const audit_log_403 = (resource, ip) => {
   })
 }
 
-// log for non-batch requests
+// log for requests that are rejected with 403
 cds.on('bootstrap', app => {
   app.use((req, res, next) => {
     req.on('close', () => {
@@ -32,7 +32,7 @@ cds.on('bootstrap', app => {
   })
 })
 
-// log for batch subrequests
+// log for batch subrequests that are rejected with 403 (but the batch request itself is successful)
 cds.on('serving', srv => {
   if (srv instanceof cds.ApplicationService) {
     srv.on('error', (err, req) => {

@@ -155,7 +155,18 @@ describe('AuditLogService API', () => {
       expect(_logs).toContainMatchObject({ user: 'alice', ip: '::1' })
     })
 
-    test('batch', async () => {
+    test('early reject in batch', async () => {
+      const response = await POST(
+        '/api/$batch',
+        { requests: [{ method: 'GET', url: '/Books', id: 'r1' }] },
+        { auth: BOB }
+      )
+      expect(response).toMatchObject({ status: 403 })
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({ user: 'bob', ip: '::1' })
+    })
+
+    test('late reject in batch', async () => {
       const response = await POST(
         '/api/$batch',
         { requests: [{ method: 'GET', url: '/Books', id: 'r1' }] },
