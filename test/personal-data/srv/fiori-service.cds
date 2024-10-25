@@ -20,33 +20,27 @@ service Fiori_1 {
   entity LastOne               as projection on db.LastOne;
   entity Notes                 as projection on db.Notes;
 
-  entity AddressAttachment     as projection on db.AddressAttachment {
-    *,
-    address.customer as customer
-  }
+  entity AddressAttachment     as
+    projection on db.AddressAttachment {
+      *,
+      address.customer as customer
+    }
 
-  annotate Orders with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate Orders with @PersonalData: {EntitySemantics: 'Other'} {
     misc @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate OrderHeader with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate OrderHeader with @PersonalData: {EntitySemantics: 'Other'} {
     description @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate OrderHeader.sensitiveData with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate OrderHeader.sensitiveData with @PersonalData: {EntitySemantics: 'Other'} {
     note @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate Pages with @PersonalData       : {
-    EntitySemantics: 'DataSubject'
-    // no DataSubjectRole for testing purposes
-  } {
+  annotate Pages with @PersonalData       : {EntitySemantics: 'DataSubject'
+                                                                           // no DataSubjectRole for testing purposes
+                                                              } {
     ID        @PersonalData.FieldSemantics: 'DataSubjectID';
     sensitive @PersonalData.IsPotentiallySensitive;
     personal  @PersonalData.IsPotentiallyPersonal;
@@ -63,45 +57,33 @@ service Fiori_1 {
     creditCardNo  @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate CustomerPostalAddress with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate CustomerPostalAddress with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     customer @PersonalData.FieldSemantics          : 'DataSubjectID';
     street   @PersonalData.IsPotentiallySensitive;
     town     @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate CustomerStatus with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate StatusChange with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate StatusChange with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
     secondKey   @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate LastOne with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate LastOne with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     lastOneField @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate AddressAttachment with @PersonalData: {
-    EntitySemantics: 'DataSubjectDetails'
-  } {
+  annotate AddressAttachment with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     customer    @PersonalData.FieldSemantics   : 'DataSubjectID';
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate Notes with @PersonalData: {
-    EntitySemantics: 'Other'
-  } {
+  annotate Notes with @PersonalData: {EntitySemantics: 'Other'} {
     note       @PersonalData.IsPotentiallySensitive;
     dummyArray @PersonalData.IsPotentiallyPersonal;
   }
@@ -115,14 +97,13 @@ service Fiori_2 {
 
   entity CustomerPostalAddress as projection on db.CustomerPostalAddress;
 
-  entity AddressAttachment     as projection on db.AddressAttachment {
-    *,
-    address.customer as customer
-  }
+  entity AddressAttachment     as
+    projection on db.AddressAttachment {
+      *,
+      address.customer as customer
+    }
 
-  annotate Customers with @PersonalData   : {
-    EntitySemantics: 'Other'
-  } {
+  annotate Customers with @PersonalData   : {EntitySemantics: 'Other'} {
     addresses @PersonalData.FieldSemantics: 'DataSubjectID';
   }
 
