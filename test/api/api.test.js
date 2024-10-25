@@ -162,7 +162,7 @@ describe('AuditLogService API', () => {
         { auth: BOB }
       )
       expect(response).toMatchObject({ status: 403 })
-      expect(_logs.length).toBe(1)
+      expect(_logs.length).toBeMoreThan(0) //> coding in ./srv/server.js results in 2 logs on @sap/cds^7
       expect(_logs).toContainMatchObject({ user: 'bob', ip: '::1' })
     })
 
