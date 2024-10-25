@@ -685,11 +685,15 @@ describe('personal data audit logging in CRUD', () => {
         type: 'CRUD_1.MainEntities',
         role: 'MainEntity',
         id: { ID: idMain }
-      } 
-      const responseMain = await POST('/crud-1/MainEntities', {ID: idMain, subEntities: [{ID: idSub, name: 'myName'}]}, { auth: ALICE })
+      }
+      const responseMain = await POST(
+        '/crud-1/MainEntities',
+        { ID: idMain, subEntities: [{ ID: idSub, name: 'myName' }] },
+        { auth: ALICE }
+      )
       expect(responseMain).toMatchObject({ status: 201 })
 
-      const response = await PATCH(`/crud-1/SubEntities(${idSub})`, {name: 'newName'}, { auth: ALICE })
+      const response = await PATCH(`/crud-1/SubEntities(${idSub})`, { name: 'newName' }, { auth: ALICE })
 
       expect(response).toMatchObject({ status: 200 })
       expect(_logs).toContainMatchObject({
@@ -699,9 +703,7 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: idSub }
         },
         data_subject: DATA_SUBJECT_M,
-        attributes: [
-          { name: 'name', old: 'myName', new: 'newName' },
-        ]
+        attributes: [{ name: 'name', old: 'myName', new: 'newName' }]
       })
     })
 
