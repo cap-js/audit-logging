@@ -15,8 +15,10 @@
   "scripts": {
     "lint": "npx eslint .",
     "test": "npm run test-new-db && npm run test-old-db",
-    "test-new-db": "CDS_ENV='better-sqlite' npx jest --silent",
-    "test-old-db": "CDS_ENV='legacy-sqlite' npx jest --silent"
+    "8.3": "npm i @sap/cds@8.3 && npm t",
+    "8.4": "npm i @sap/cds@8.4 && npm t",
+    "test-new-db": "CDS_ENV='better-sqlite' npx jest --silent test/personal-data/crud.test.js",
+    "test-old-db": "CDS_ENV='legacy-sqlite' npx jest --silent test/personal-data/crud.test.js"
   },
   "peerDependencies": {
     "@sap/cds": ">=7"

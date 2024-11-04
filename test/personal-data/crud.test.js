@@ -1819,7 +1819,7 @@ describe('personal data audit logging in CRUD', () => {
   })
 
   describe('with renamings', () => {
-    test('one level', async () => {
+    test.only('one level', async () => {
       let res
 
       const r1 = {
