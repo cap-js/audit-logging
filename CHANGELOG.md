@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Erroneous modification log for non-updated key properties
 - Error during non-modifying queries on database level
+- Specify charset UTF-8 for requests to SAP Audit Log Service
 
 ## Version 0.8.1 - 2024-09-13
 

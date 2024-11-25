@@ -80,7 +80,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
   }
 
   async _send(data, path) {
-    const headers = { 'content-type': 'application/json' }
+    const headers = { 'content-type': 'application/json;charset=utf-8' }
     if (this._vcap) {
       headers.XS_AUDIT_ORG = this._vcap.organization_name
       headers.XS_AUDIT_SPACE = this._vcap.space_name
