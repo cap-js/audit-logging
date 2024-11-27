@@ -4,10 +4,10 @@ const { POST: _POST, PATCH: _PATCH, GET: _GET, DELETE: _DELETE, data } = cds.tes
 
 // the persistent outbox adds a delay
 const wait = require('util').promisify(setTimeout)
-const POST = (...args) => _POST(...args).then(async res => (await wait(7), res))
-const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(7), res))
-const GET = (...args) => _GET(...args).then(async res => (await wait(7), res))
-const DELETE = (...args) => _DELETE(...args).then(async res => (await wait(7), res))
+const POST = (...args) => _POST(...args).then(async res => (await wait(11), res))
+const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(11), res))
+const GET = (...args) => _GET(...args).then(async res => (await wait(11), res))
+const DELETE = (...args) => _DELETE(...args).then(async res => (await wait(11), res))
 
 // TODO: @cap-js/sqlite doesn't support structured properties
 // // needed for testing structured properties
