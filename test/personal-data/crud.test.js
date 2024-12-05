@@ -952,8 +952,7 @@ describe('personal data audit logging in CRUD', () => {
       })
     })
 
-    // FIXME
-    xtest('update Customer - deep with reusing notes', async () => {
+    test('update Customer - deep with reusing notes', async () => {
       let response
 
       response = await GET(
