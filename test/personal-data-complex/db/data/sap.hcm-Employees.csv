@@ -1,0 +1,3 @@
+userID;displayName;firstName;lastName;initials;email;mobilePhone;officePhone;manager_userID
+alice;Alice;Alice;;A;alice@sap.com;123;456;I123456
+I123456;Bettina;Bettina;;B;bettina@sap.com;789;101112;
