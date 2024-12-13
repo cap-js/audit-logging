@@ -80,6 +80,7 @@ service CollaborationsService @(path: '/collaborations') {
       employeeNav,
       validTo,
       eventAssignments,
+      collaborations
     };
 
   @cds.redirection.target
