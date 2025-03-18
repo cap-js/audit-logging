@@ -3,7 +3,7 @@ const cds = require('@sap/cds')
 let { GET: _GET } = cds.test().in(__dirname)
 
 // the persistent outbox adds a delay
-const wait = require('util').promisify(setTimeout)
+const wait = require('node:timers/promises').setTimeout
 const GET = (...args) => _GET(...args).then(async res => (await wait(42), res))
 
 cds.env.requires['audit-log'].handle = ['WRITE']
