@@ -3,7 +3,7 @@ const cds = require('@sap/cds')
 const { POST: _POST, PATCH: _PATCH, GET: _GET, DELETE: _DELETE, data } = cds.test().in(__dirname)
 
 // the persistent outbox adds a delay
-const wait = require('util').promisify(setTimeout)
+const wait = require('node:timers/promises').setTimeout
 const DELAY = process.env.CI ? 42 : 7
 const POST = (...args) => _POST(...args).then(async res => (await wait(DELAY), res))
 const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(DELAY), res))

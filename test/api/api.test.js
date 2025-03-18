@@ -11,7 +11,7 @@ cds.env.requires['audit-log'] = {
   outbox: true
 }
 
-const wait = require('util').promisify(setTimeout)
+const wait = require('node:timers/promises').setTimeout
 
 describe('AuditLogService API', () => {
   let __log, _logs
