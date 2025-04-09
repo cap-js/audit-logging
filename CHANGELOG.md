@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Version 0.8.3 - 2025-04-09
 
-- Prep for `@sap/cds^9`
+- Preperation for `@sap/cds^9`
 
 ## Version 0.8.2 - 2024-11-27
 
@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Fixed
 
-- Support for @sap/cds^8.2
+- Support for `@sap/cds^8.2`
 - Reduce clutter in error raised for outbound requests
 
 ## Version 0.8.0 - 2024-05-24
@@ -43,7 +43,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- Support for @sap/cds^7.5
+- Support for `@sap/cds^7.5`
 
 ### Fixed
 
