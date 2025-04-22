@@ -14,6 +14,13 @@ module.exports = class AuditLogService extends Base {
       req.data.time ??= timestamp
     })
 
+    // add handler for payload validation if in strict mode (and not in production)
+    if (this.options.strict && process.env.NODE_ENV !== 'production') {
+      this.before('*', req => {
+        // TODO
+      })
+    }
+
     // call OutboxService's init
     await super.init()
 
