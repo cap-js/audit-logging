@@ -14,9 +14,7 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "npm run test-new-db && npm run test-old-db",
-    "test-new-db": "CDS_ENV='better-sqlite' npx jest --silent",
-    "test-old-db": "CDS_ENV='legacy-sqlite' npx jest --silent"
+    "test": "npx jest --silent"
   },
   "peerDependencies": {
     "@sap/cds": ">=8"
@@ -27,8 +25,7 @@
     "axios": "^1",
     "eslint": "^9",
     "express": "^4",
-    "jest": "^29",
-    "sqlite3": "^5.1.6"
+    "jest": "^29"
   },
   "cds": {
     "requires": {
