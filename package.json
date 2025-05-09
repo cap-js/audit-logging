@@ -25,8 +25,7 @@
     "axios": "^1",
     "eslint": "^9",
     "express": "^4",
-    "jest": "^29",
-    "sqlite3": "^5.1.6"
+    "jest": "^29"
   },
   "cds": {
     "requires": {
