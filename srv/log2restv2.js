@@ -20,6 +20,8 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : null
 
     this.on('*', function (req) {
+      if (AuditLogService._is_callback.test(req.event)) return
+
       const { event, data } = req
 
       // event.match() is used to support the old event names

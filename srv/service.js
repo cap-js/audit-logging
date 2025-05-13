@@ -25,3 +25,5 @@ module.exports = class AuditLogService extends cds.Service {
     }
   }
 }
+
+module.exports._is_callback = /\w+\/#\w+/
