@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 
-module.exports = class AuditLogService extends cds.Service {
+class AuditLogService extends cds.Service {
   async init() {
     // add common audit log entry fields
     this.before('*', req => {
@@ -25,3 +25,7 @@ module.exports = class AuditLogService extends cds.Service {
     }
   }
 }
+
+AuditLogService.prototype._is_queueable = true
+
+module.exports = AuditLogService
