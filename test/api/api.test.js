@@ -8,7 +8,7 @@ axios.defaults.validateStatus = () => true
 cds.env.requires['audit-log'] = {
   kind: 'audit-log-to-console',
   impl: '../../srv/log2console',
-  outboxed: true
+  outbox: true
 }
 
 const wait = require('node:timers/promises').setTimeout

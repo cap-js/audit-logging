@@ -30,14 +30,14 @@
   "cds": {
     "requires": {
       "[test]": {
-        "outboxed": "persistent-outbox"
+        "outbox": "persistent-outbox"
       },
       "audit-log": {
         "handle": [
           "READ",
           "WRITE"
         ],
-        "outboxed": true,
+        "outbox": true,
         "[development]": {
           "kind": "audit-log-to-console"
         },
