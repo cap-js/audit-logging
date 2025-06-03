@@ -1,8 +1,6 @@
 const cds = require('@sap/cds')
 
-const Base = cds.outboxed ? cds.Service : require('@sap/cds/libx/_runtime/messaging/Outbox')
-
-module.exports = class AuditLogService extends Base {
+class AuditLogService extends cds.Service {
   async init() {
     // add common audit log entry fields
     this.before('*', req => {
@@ -27,3 +25,7 @@ module.exports = class AuditLogService extends Base {
     }
   }
 }
+
+AuditLogService.prototype._is_queueable = true
+
+module.exports = AuditLogService
