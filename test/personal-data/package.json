@@ -1,5 +1,10 @@
 {
   "dependencies": {
     "@cap-js/audit-logging": "*"
+  },
+  "cds": {
+    "requires": {
+      "outbox": false
+    }
   }
 }
