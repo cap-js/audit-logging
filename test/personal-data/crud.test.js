@@ -1462,6 +1462,9 @@ describe('personal data audit logging in CRUD', () => {
       })
 
       // check only one select used to look up data subject
+
+      const _selects = _logger._logs.debug.filter(l => typeof l === 'string' && l.match(/^SELECT/))
+
       const selects = _logger._logs.debug.filter(
         l => typeof l === 'string' && l.match(/^SELECT/) && l.match(/SELECT [Customers.]*ID FROM CRUD_1_Customers/)
       )
