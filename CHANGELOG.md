@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Support for `@sap/cds^9`
 
+## Version 0.8.3 - 2025-04-09
+
+### Fixed
+
+- Preperation for `@sap/cds^9`
+
 ## Version 0.8.2 - 2024-11-27
 
 ### Fixed
