@@ -1,5 +1,11 @@
 {
   "dependencies": {
     "@cap-js/audit-logging": "*"
+  },
+  "cds": {
+    "runtime": {
+      "patch_as_upsert": true,
+      "_put_as_replace": true
+    }
   }
 }

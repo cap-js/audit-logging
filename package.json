@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/audit-logging",
-  "version": "0.8.3",
+  "version": "0.9.0",
   "description": "CDS plugin providing integration to the SAP Audit Log service as well as out-of-the-box personal data-related audit logging based on annotations.",
   "repository": "cap-js/audit-logging",
   "author": "SAP SE (https://www.sap.com)",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@cap-js/audit-logging": "file:.",
+    "@cap-js/cds-test": ">=0",
     "@cap-js/sqlite": ">=1",
     "axios": "^1",
     "eslint": "^9",
