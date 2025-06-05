@@ -1061,11 +1061,16 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachments[1].ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes: [
-          { name: 'description', old: '***' }
-          // REVISIT: not there in cds^9
-          // { name: 'todo', old: oldAttachments[1].todo }
-        ]
+        attributes:
+          cds.version.split('.')[0] < 9
+            ? [
+                { name: 'description', old: '***' },
+                { name: 'todo', old: oldAttachments[1].todo }
+              ]
+            : [
+                { name: 'description', old: '***' }
+                // REVISIT: entry for "todo" missing in cds^9
+              ]
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
