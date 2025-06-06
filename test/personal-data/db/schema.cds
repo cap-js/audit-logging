@@ -183,3 +183,39 @@ annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
   ID   @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
+
+entity House {
+  key ID      : UUID;
+      text    : String;
+      windows : Composition of many Window on windows.house = $self;
+      doorID  : UUID;
+      door    : Association to one Door on door.ID = doorID;
+}
+
+entity Window {
+  key ID     : UUID;
+      text   : String;
+      house  : Association to one House;
+      // doorID : UUID;
+      // door   : Association to one Door on door.ID = doorID;
+}
+
+entity Door {
+  key ID       : UUID;
+      text     : String;
+}
+
+annotate House with @PersonalData  : {EntitySemantics: 'Other'} {
+  door @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate Window with @PersonalData : {EntitySemantics: 'Other'} {
+  // door @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate Door with @PersonalData   : {EntitySemantics: 'DataSubject'} {
+  ID   @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
