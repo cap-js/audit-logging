@@ -216,3 +216,11 @@ service CRUD_5 {
   entity C as projection on db.C;
 
 }
+
+@path    : '/crud-6'
+@requires: 'admin'
+service CRUD_6 {
+
+  entity CustomersWithTwoDataSubjectIDs                     as projection on db.CustomersWithTwoDataSubjectIDs;
+
+}
