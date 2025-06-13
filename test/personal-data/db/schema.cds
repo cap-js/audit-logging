@@ -183,3 +183,21 @@ annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
   ID   @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
+
+
+entity CustomersWithTwoDataSubjectIDs {
+      key ID          : UUID;
+      firstName       : String(10)    @mandatory;
+      lastName        : String(25)    @mandatory;
+      title           : String(16);
+      phone           : String(16);
+}
+
+annotate CustomersWithTwoDataSubjectIDs with @PersonalData: {
+  EntitySemantics: 'DataSubject',
+  DataSubjectRole: 'Customer'
+} {
+    firstName     @PersonalData.IsPotentiallyPersonal @PersonalData.FieldSemantics: 'DataSubjectID';
+    lastName      @PersonalData.FieldSemantics: 'DataSubjectID';
+    phone         @PersonalData.IsPotentiallyPersonal;
+}

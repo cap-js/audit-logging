@@ -2012,4 +2012,17 @@ describe('personal data audit logging in CRUD', () => {
     await POST('/crud-5/A', { text: 'foo' }, { auth: ALICE })
     expect(_logs.length).toBe(1)
   })
+
+  test('two data subject IDs', async () => {
+    await PATCH('/crud-6/CustomersWithTwoDataSubjectIDs(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9)', { phone: '12345' }, { auth: ALICE })
+    expect(_logs.length).toBe(1)
+    const object = { type: 'CRUD_6.CustomersWithTwoDataSubjectIDs', id: {  ID: 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9' } }
+      const data_subject = { id: { firstName: 'foo', lastName: 'bar' }, role: 'Customer', type: 'CRUD_6.CustomersWithTwoDataSubjectIDs' }
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject
+      })
+  })
 })
