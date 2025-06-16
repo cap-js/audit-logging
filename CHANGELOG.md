@@ -4,11 +4,31 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 0.9.0 - 2025-06-05
+
+### Added
+
+- Support for `@sap/cds^9`
+
+## Version 0.8.3 - 2025-04-09
+
+### Fixed
+
+- Preperation for `@sap/cds^9`
+
+## Version 0.8.2 - 2024-11-27
+
+### Fixed
+
+- Erroneous modification log for non-updated key properties
+- Error during non-modifying queries on database level
+- Specify charset UTF-8 for requests to SAP Audit Log Service
+
 ## Version 0.8.1 - 2024-09-13
 
 ### Fixed
 
-- Support for @sap/cds^8.2
+- Support for `@sap/cds^8.2`
 - Reduce clutter in error raised for outbound requests
 
 ## Version 0.8.0 - 2024-05-24
@@ -31,7 +51,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- Support for @sap/cds^7.5
+- Support for `@sap/cds^7.5`
 
 ### Fixed
 

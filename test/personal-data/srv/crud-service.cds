@@ -15,6 +15,8 @@ service CRUD_1 {
   entity StatusChange          as projection on db.StatusChange;
   entity LastOne               as projection on db.LastOne;
   entity Notes                 as projection on db.Notes;
+  entity MainEntities          as projection on db.MainEntities;
+  entity SubEntities           as projection on db.SubEntities;
 
   entity AddressAttachment     as
     projection on db.AddressAttachment {
@@ -95,6 +97,12 @@ service CRUD_1 {
     notes  @PersonalData.IsPotentiallySensitive  @PersonalData.IsPotentiallyPersonal;
     skills @PersonalData.IsPotentiallyPersonal;
   }
+
+  annotate SubEntities with @PersonalData  : {EntitySemantics: 'DataSubjectDetails'} {
+    mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID         @PersonalData.IsPotentiallyPersonal;
+    name       @PersonalData.IsPotentiallyPersonal;
+  }
 }
 
 @path    : '/crud-2'
@@ -132,7 +140,7 @@ service CRUD_2 {
 @requires: 'admin'
 service CRUD_3 {
 
-  entity R1                    as
+  entity R1  as
     projection on db.RBase {
       key ID           as r1_ID,
           emailAddress as r1_emailAddress,
@@ -146,7 +154,7 @@ service CRUD_3 {
     DataSubjectRole: 'Renamed Customer'
   };
 
-  entity R2                    as
+  entity R2  as
     projection on R1 {
       key r1_ID           as r2_ID,
           r1_emailAddress as r2_emailAddress,
@@ -160,7 +168,7 @@ service CRUD_3 {
     DataSubjectRole: 'Twice Renamed Customer'
   };
 
-  entity C                     as
+  entity C   as
     projection on CRUD_1.Customers {
       key ID           as c_id,
           emailAddress as c_emailAddress,
@@ -168,7 +176,7 @@ service CRUD_3 {
     };
 
 
-  entity CPA                   as
+  entity CPA as
     projection on CRUD_1.CustomerPostalAddress {
       key ID          as cpa_id,
           town        as cpa_town,
@@ -176,7 +184,7 @@ service CRUD_3 {
           attachments as cpa_attachments
     };
 
-  entity AA                    as
+  entity AA  as
     projection on CRUD_1.AddressAttachment {
       key ID      as aa_id,
           todo    as aa_todo,
@@ -188,9 +196,9 @@ service CRUD_3 {
 @requires: 'admin'
 service CRUD_4 {
 
-  entity RenamedMainEntities   as projection on db.MainEntities;
+  entity RenamedMainEntities as projection on db.MainEntities;
 
-  entity RenamedSubEntities    as
+  entity RenamedSubEntities  as
     projection on db.SubEntities {
       key ID as renamedID,
           name,
@@ -203,9 +211,9 @@ service CRUD_4 {
 @requires: 'admin'
 service CRUD_5 {
 
-  entity A                     as projection on db.A;
-  entity B                     as projection on db.B;
-  entity C                     as projection on db.C;
+  entity A as projection on db.A;
+  entity B as projection on db.B;
+  entity C as projection on db.C;
 
 }
 
