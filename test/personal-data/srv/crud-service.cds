@@ -213,6 +213,8 @@ service CRUD_5 {
 @requires: 'admin'
 service CRUD_6 {
 
-  entity CustomersWithTwoDataSubjectIDs                     as projection on db.CustomersWithTwoDataSubjectIDs;
+  entity CustomersWithDSIDnotOnKey                     as projection on db.CustomersWithDSIDnotOnKey;
+  entity OrdersWithDSIDnotonForeignKey                     as projection on db.OrdersWithDSIDnotonForeignKey;
+  entity A                     as projection on db.A;
 
 }

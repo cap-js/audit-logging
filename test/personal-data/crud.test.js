@@ -2013,16 +2013,33 @@ describe('personal data audit logging in CRUD', () => {
     expect(_logs.length).toBe(1)
   })
 
-  test('two data subject IDs', async () => {
-    await PATCH('/crud-6/CustomersWithTwoDataSubjectIDs(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9)', { phone: '12345' }, { auth: ALICE })
-    expect(_logs.length).toBe(1)
-    const object = { type: 'CRUD_6.CustomersWithTwoDataSubjectIDs', id: {  ID: 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9' } }
-      const data_subject = { id: { firstName: 'foo', lastName: 'bar' }, role: 'Customer', type: 'CRUD_6.CustomersWithTwoDataSubjectIDs' }
+  describe('DataSubjectID not on primary / foreign key pair', () => {
+    test('Updating data subject', async () => {
+      await PATCH('/crud-6/CustomersWithDSIDnotOnKey(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9)', { phone: '12345' }, { auth: ALICE })
+      expect(_logs.length).toBe(1)
+      const object = { type: 'CRUD_6.CustomersWithDSIDnotOnKey', id: {  ID: 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9' } }
+      const data_subject = { id: { globalID: '1' }, role: 'Customer', type: 'CRUD_6.CustomersWithDSIDnotOnKey' }
       expect(_logs.length).toBe(1)
       expect(_logs).toContainMatchObject({
         user: 'alice',
         object,
         data_subject
       })
+    })
+
+    test('Updating transactional data', async () => {
+      await PATCH('/crud-6/OrdersWithDSIDnotonForeignKey(ID=ed7dd239-f418-44e0-b68e-4b88bad77f01)', { address: '12345' }, { auth: ALICE })
+      expect(_logs.length).toBe(1)
+      const object = { type: 'CRUD_6.OrdersWithDSIDnotonForeignKey', id: {  ID: 'ed7dd239-f418-44e0-b68e-4b88bad77f01' } }
+      const data_subject = { id: { globalID: '1' }, role: 'Customer', type: 'CRUD_6.CustomersWithDSIDnotOnKey' }
+      expect(_logs.length).toBe(1)
+      expect(_logs).toContainMatchObject({
+        user: 'alice',
+        object,
+        data_subject
+      })
+    })
+
   })
+
 })

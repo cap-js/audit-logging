@@ -184,20 +184,37 @@ annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
   text @PersonalData.IsPotentiallyPersonal;
 }
 
-
-entity CustomersWithTwoDataSubjectIDs {
+entity CustomersWithDSIDnotOnKey {
       key ID          : UUID;
+      globalID        : String;
       firstName       : String(10)    @mandatory;
       lastName        : String(25)    @mandatory;
       title           : String(16);
       phone           : String(16);
 }
 
-annotate CustomersWithTwoDataSubjectIDs with @PersonalData: {
+annotate CustomersWithDSIDnotOnKey with @PersonalData: {
   EntitySemantics: 'DataSubject',
   DataSubjectRole: 'Customer'
 } {
-    firstName     @PersonalData.IsPotentiallyPersonal @PersonalData.FieldSemantics: 'DataSubjectID';
-    lastName      @PersonalData.FieldSemantics: 'DataSubjectID';
+    globalID     @PersonalData.IsPotentiallyPersonal @PersonalData.FieldSemantics: 'DataSubjectID';
+    lastName      @PersonalData.IsPotentiallyPersonal;
     phone         @PersonalData.IsPotentiallyPersonal;
+}
+
+entity OrdersWithDSIDnotonForeignKey {
+      key ID          : UUID;
+      amount          : Decimal;
+      address         : String;
+      customer_globalID : String;
+      abc: Association to one A;
+      customer : Association to one CustomersWithDSIDnotOnKey on customer.globalID = customer_globalID;
+}
+
+annotate OrdersWithDSIDnotonForeignKey with @PersonalData: {
+  EntitySemantics: 'Other',
+  DataSubjectRole: 'Customer'
+} {
+    customer_globalID      @PersonalData.FieldSemantics: 'DataSubjectID';
+    address         @PersonalData.IsPotentiallyPersonal;
 }
