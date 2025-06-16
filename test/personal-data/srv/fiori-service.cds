@@ -51,7 +51,7 @@ service Fiori_1 {
     DataSubjectRole: 'Customer'
   } {
     ID            @PersonalData.FieldSemantics: 'DataSubjectID';
-    emailAddress  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
+    emailAddress  @PersonalData.IsPotentiallyPersonal;
     firstName     @PersonalData.IsPotentiallyPersonal;
     lastName      @PersonalData.IsPotentiallyPersonal;
     creditCardNo  @PersonalData.IsPotentiallySensitive;
