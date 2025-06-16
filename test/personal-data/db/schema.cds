@@ -204,10 +204,8 @@ annotate CustomersWithDSIDnotOnKey with @PersonalData: {
 
 entity OrdersWithDSIDnotonForeignKey {
       key ID          : UUID;
-      amount          : Decimal;
       address         : String;
       customer_globalID : String;
-      abc: Association to one A;
       customer : Association to one CustomersWithDSIDnotOnKey on customer.globalID = customer_globalID;
 }
 
