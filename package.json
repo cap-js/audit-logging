@@ -39,7 +39,7 @@
         ],
         "outbox": true,
         "[development]": {
-          "kind": "audit-log-to-console"
+          "kind": "audit-log-to-als"
         },
         "[hybrid]": {
           "kind": "audit-log-to-restv2"
@@ -50,13 +50,19 @@
       },
       "kinds": {
         "audit-log-to-console": {
-          "impl": "@cap-js/audit-logging/srv/log2console"
+          "impl": "@cap-js/audit-logging/srv/log2restv3"
+        },
+        "audit-log-to-als": {
+          "impl": "@cap-js/audit-logging/srv/log2als"
         },
         "audit-log-to-restv2": {
           "impl": "@cap-js/audit-logging/srv/log2restv2",
           "vcap": {
             "label": "auditlog"
           }
+        },
+        "audit-log-to-restv3": {
+          "impl": "@cap-js/audit-logging/srv/log2restv3"
         }
       }
     }
