@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 
-const AuditLog2Console = require('./log2console')
+const AuditLog2RESTv2 = require('./log2restv2')
 const AuditLog2RESTv3 = require('./log2restv3')
 
 // for local development, use vcap.json to set VCAP_SERVICES
@@ -13,5 +13,5 @@ const isV3 = JSON.parse(credentials)["VCAP_SERVICES"]["user-provided"].some(obj 
 if(isV3) {
     module.exports = AuditLog2RESTv3
 } else {
-    module.exports = AuditLog2Console
+    module.exports = AuditLog2RESTv2
 }
