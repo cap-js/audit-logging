@@ -137,3 +137,6 @@ package-lock.json
 .npmrc
 .babelrc
 .prettierrc.js
+/srv/vcap.json
+.vscode/
+.vscode-test/
