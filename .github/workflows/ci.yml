@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   push:
@@ -20,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [22.x, 20.x]
-        cds-version: [8]
+        cds-version: [9, 8]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -29,10 +32,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
-      - run: npm i @sap/cds@${{ matrix.cds-version }}
+      - run: if [ ${{ matrix.cds-version }} -eq 8 ]; then npm i -f @sap/cds@8 @cap-js/sqlite@1; fi
       - run: cds v
+      - run: echo "$VCAP_SERVICES"
+        env:
+          ALS_CREDS_OAUTH2: ${{ secrets.ALS_CREDS_OAUTH2 }}
+          ALS_CREDS_STANDARD: ${{ secrets.ALS_CREDS_STANDARD }}
+          ALS_CREDS_PREMIUM: ${{ secrets.ALS_CREDS_PREMIUM }}
+          VCAP_SERVICES: ${{ secrets.VCAP_SERVICES }}
       - run: npm run test
         env:
           ALS_CREDS_OAUTH2: ${{ secrets.ALS_CREDS_OAUTH2 }}
           ALS_CREDS_STANDARD: ${{ secrets.ALS_CREDS_STANDARD }}
           ALS_CREDS_PREMIUM: ${{ secrets.ALS_CREDS_PREMIUM }}
+          VCAP_SERVICES: ${{ secrets.VCAP_SERVICES }}
