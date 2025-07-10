@@ -7,7 +7,7 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
   constructor() {
     super();
     this._vcap = JSON.parse(process.env.VCAP_SERVICES || '{}')
-    this._userProvided = this._vcap["VCAP_SERVICES"]["user-provided"].find(obj => obj.tags.includes('auditlog-ng')) || {}
+    this._userProvided = this._vcap["user-provided"].find(obj => obj.tags.includes('auditlog-ng')) || {}
     this._vcapApplication = this._vcap["VCAP_APPLICATION"] || {}
   }
 
