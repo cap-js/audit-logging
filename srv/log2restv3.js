@@ -24,15 +24,16 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
         "PersonalDataModified": () => this.logEvent("dppDataModification", data),
         "SensitiveDataRead": () => this.logEvent("dppDataAccess", data),
         "ConfigurationModified": () => this.logEvent("configurationChange", data),
-        "SecurityEvent": () => this.logEvent("LEGACY_SECURITY_WRAPPER", data),
+        "SecurityEvent": () => this.logEvent("legacySecurityWrapper", data),
     }[event]()
   }
 
   eventDataPayload(event, data){
-    const subject = data["data_subject"]
-    const object = data["object"]
+    // const subject = data["data_subject"]
+    const object = data["object"] || { "type": "not specified", "id": { "ID": "not specified" } }
     const channel = data["channel"] || { "type": "not specified", "id": "not specified" }
-    const attributes = data["attributes"] || "not specified"
+    const subject = data["data_subject"] || { "type": "not specified", "id": { "ID": "not specified" } }
+    const attributes = data["attributes"] || [{ "name": "not specified", "old": "not specified", "new": "not specified" }]
       return {
           "dppDataModification": {
             "objectType": object["type"],
@@ -59,12 +60,12 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
             "objectType": object["type"],
             "objectId": object["id"]["ID"],
           },
-          "LEGACY_SECURITY_WRAPPER": JSON.stringify(data)
+          "legacySecurityWrapper": JSON.stringify(data)
       }[event]
   }
 
   eventPayload(event, data) {
-    const tenant = cds.context?.tenant || 'default-tenant'
+    const tenant = cds.context?.tenant || null
     const timestamp = new Date().toISOString()
 
     const eventData = {
@@ -104,15 +105,21 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
 
     const passphrase = this._userProvided.credentials?.keyPassphrase
     const url = new URL(`${this._userProvided.credentials?.url}/ingestion/v1/events`)
+    let eventData = []
 
-    let eventData = data["attributes"].map(attr => {
-      return this.eventPayload(event, {
-        ...data,
-        attributes: [attr]
+    if(event === "legacySecurityWrapper") {
+      eventData = JSON.stringify([this.eventPayload(event, data)]);
+    } else {
+      eventData = data["attributes"].map(attr => {
+        return this.eventPayload(event, {
+          ...data,
+          attributes: [attr]
+        });
       });
-    });
+      eventData = JSON.stringify(eventData)
+    } 
 
-    eventData = JSON.stringify(eventData)
+    // console.log(eventData)
 
     const options = {
       method: 'POST',
@@ -124,26 +131,40 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
       cert: this._userProvided.credentials?.cert,
       ...(passphrase !== undefined && { passphrase })
     };
-
-    const req = https.request(url, options, res => {
-      let responseData = '';
-      console.log('🛰️ Status Code:', res.statusCode);
-      
-      res.on('data', chunk => {
-        responseData += chunk;
-      });
     
-      res.on('end', () => {
-        console.log('Response:', responseData);
+    return new Promise((resolve, reject) => {
+      const req = https.request(url, options, res => {
+        console.log('🛰️ Status Code:', res.statusCode);
+        
+        const chunks = []
+        res.on('data', chunk => chunks.push(chunk))
+      
+        res.on('end', () => {
+          const { statusCode, statusMessage } = res
+          let body = Buffer.concat(chunks).toString()
+          if (res.headers['content-type']?.match(/json/)) body = JSON.parse(body)
+          if (res.statusCode >= 400) {
+          // prettier-ignore
+          const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`)
+          err.request = { method: options.method, url, headers: options.headers, body: data }
+          if (err.request.headers.authorization)
+            err.request.headers.authorization = err.request.headers.authorization.split(' ')[0] + ' ***'
+          err.response = { statusCode, statusMessage, headers: res.headers, body }
+          reject(err)
+        } else {
+          resolve(body)
+        }
+        });
       });
+  
+      req.on('error', (e) => {
+          // reject(e.message)
+          console.error(`Problem with request: ${e.message}`);
+      });
+  
+      req.write(eventData);
+      req.end();
     });
-
-    req.on('error', (e) => {
-        console.error(`Problem with request: ${e.message}`);
-    });
-
-    req.write(eventData);
-    req.end();
   }
 }
 
