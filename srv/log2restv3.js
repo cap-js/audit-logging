@@ -78,7 +78,6 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
               "metadata": {
                     "ts": timestamp,
                     "appId": this._vcapApplication.application_id || 'default app',
-                    "tenantId": tenant,
                     "infrastructure": {
                       "other": {
                             "runtimeType": "Node.js"
