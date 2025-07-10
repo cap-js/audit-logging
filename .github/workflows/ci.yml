@@ -40,3 +40,4 @@ jobs:
           ALS_CREDS_STANDARD: ${{ secrets.ALS_CREDS_STANDARD }}
           ALS_CREDS_PREMIUM: ${{ secrets.ALS_CREDS_PREMIUM }}
           VCAP_SERVICES: ${{ secrets.VCAP_SERVICES }}
+      - run: echo "$VCAP_SERVICES"
