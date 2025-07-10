@@ -60,7 +60,7 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
             "objectType": object["type"],
             "objectId": object["id"]["ID"],
           },
-          "legacySecurityWrapper": JSON.stringify(data)
+          "legacySecurityWrapper": { origEvent: JSON.stringify(data) }
       }[event]
   }
 
@@ -157,7 +157,7 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
       });
   
       req.on('error', (e) => {
-          // reject(e.message)
+          reject(e.message)
           console.error(`Problem with request: ${e.message}`);
       });
   
