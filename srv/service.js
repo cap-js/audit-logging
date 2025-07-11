@@ -10,7 +10,6 @@ module.exports = class AuditLogService extends cds.Service {
       if (!('tenant' in req.data)) req.data.tenant = tenant
       req.data.user ??= user.id
       req.data.time ??= timestamp
-      // console.log(req.data)
     })
 
     // call OutboxService's init
