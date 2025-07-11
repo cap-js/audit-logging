@@ -5,7 +5,7 @@ module.exports = class AuditLog2Console extends AuditLogService {
   async init() {
     this.on('*', function (req) {
       const { event, data } = req
-      console.log(`[audit-log] - V2 - ${event}:`, data)
+      console.log(`[audit-log] - ${event}:`, data)
     })
 
     // call AuditLogService's init

@@ -29,38 +29,48 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
   }
 
   eventDataPayload(event, data){
-    // const subject = data["data_subject"]
-    const object = data["object"] || { "type": "not specified", "id": { "ID": "not specified" } }
+    const object = data["object"] || { "type": "not provided", "id": { "ID": "not provided" } }
     const channel = data["channel"] || { "type": "not specified", "id": "not specified" }
-    const subject = data["data_subject"] || { "type": "not specified", "id": { "ID": "not specified" } }
-    const attributes = data["attributes"] || [{ "name": "not specified", "old": "not specified", "new": "not specified" }]
+    const subject = data["data_subject"] || { "type": "not provided", "id": { "ID": "not provided" } }
+    const attributes = data["attributes"] || [{ "name": "not provided", "old": "not provided", "new": "not provided" }]
+    const objectId = object["id"]?.["ID"] || "not provided";
+    const oldValue = attributes[0]["old"] ?? "";
+    const newValue = attributes[0]["new"] ?? "";
+    const dataSubjectId = subject["id"]?.["ID"] || "not provided";
       return {
           "dppDataModification": {
             "objectType": object["type"],
-            "objectId": object["id"]["ID"],
+            "objectId": objectId,
             "attribute": attributes[0]["name"],
-            "oldValue": attributes[0]["old"],
-            "newValue": attributes[0]["new"],
+            "oldValue": oldValue,
+            "newValue": newValue,
             "dataSubjectType": subject["type"],
-            "dataSubjectId": subject["id"]["ID"]
+            "dataSubjectId": dataSubjectId
           },
           "dppDataAccess": {
             "channelType": channel["type"],
             "channelId": channel["id"],
             "dataSubjectType": subject["type"],
-            "dataSubjectId": subject["id"]["ID"],
+            "dataSubjectId": dataSubjectId,
             "objectType": object["type"],
-            "objectId": object["id"]["ID"],
+            "objectId": objectId,
             "attribute": attributes[0]["name"],
           },
           "configurationChange": {
             "propertyName": attributes[0]["name"],
-            "oldValue": attributes[0]["old"],
-            "newValue": attributes[0]["new"],
+            "oldValue": oldValue,
+            "newValue": newValue,
             "objectType": object["type"],
-            "objectId": object["id"]["ID"],
+            "objectId": objectId,
           },
-          "legacySecurityWrapper": { origEvent: JSON.stringify(data) }
+        "legacySecurityWrapper": {
+          origEvent: JSON.stringify({
+            ...data,
+            data: typeof data.data === 'object' && data.data !== null && !Array.isArray(data.data)
+              ? JSON.stringify(data.data)
+              : data.data
+          })
+        }
       }[event]
   }
 
@@ -95,8 +105,6 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
         }
     }
 
-    //Debug for local purposes
-    // console.dir(eventData, { depth: null });
     return eventData
   }
 
@@ -117,8 +125,6 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
       });
       eventData = JSON.stringify(eventData)
     } 
-
-    // console.log(eventData)
 
     const options = {
       method: 'POST',

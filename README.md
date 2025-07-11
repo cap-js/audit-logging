@@ -213,6 +213,12 @@ This file simulates the Cloud Foundry environment variables required for your ap
 "impl": "@cap-js/audit-logging/srv/log2restv3"
 ```
 
+**Note:** For testing purposes in your `ng.test.js` or `log2als.js`, you must provide the following environment variable setup:
+```js
+const vcap = require('../../vcap.json')
+process.env.VCAP_SERVICES = JSON.stringify(vcap)
+```
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js/audit-logging/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).

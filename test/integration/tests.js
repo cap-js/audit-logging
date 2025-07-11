@@ -1,9 +1,9 @@
 module.exports = POST => {
-  const object = { type: 'foo.bar', id: { ID: 'bar' } }
-  const data_subject = Object.assign({ id: 'foo.id', role: 'foo.bar' }, object)
-  const create_attributes = [{ name: 'foo', new: 'baz', old: ''}]
+  const object = { type: 'foo.bar', id: { foo: 'bar' } }
+  const data_subject = Object.assign({ role: 'foo.bar' }, object)
+  const create_attributes = [{ name: 'foo', new: 'baz' }]
   const update_attributes = [{ name: 'foo', old: 'bar', new: 'baz' }]
-  const delete_attributes = [{ name: 'foo', old: 'bar', new: ''}]
+  const delete_attributes = [{ name: 'foo', old: 'bar' }]
 
   const ALICE = { username: 'alice', password: 'password' }
 
@@ -54,7 +54,7 @@ module.exports = POST => {
   })
 
   test('security event', async () => {
-    const data = JSON.stringify({ data: 'foo: bar' })
+    const data = JSON.stringify({ data: { foo: 'bar' } })
     const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data }, { auth: ALICE })
     expect(res).toMatchObject({ status: 204 })
   })
