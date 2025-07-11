@@ -4,7 +4,6 @@ const { POST } = cds.test().in(__dirname)
 
 cds.env.requires['audit-log'].kind = 'audit-log-to-alsng'
 cds.env.requires['audit-log'].impl = '@cap-js/audit-logging/srv/log2alsng'
-
 const VCAP_SERVICES = {
   'user-provided': [
     {
