@@ -18,7 +18,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   async init() {
     this.on('*', function (req) {
       const { event, data } = req
-      this.eventMapper(event, data)
+      return this.eventMapper(event, data)
     })
     await super.init()
   }
