@@ -8,7 +8,7 @@ const AuditLog2RESTv3 = require('./log2restv3')
 // process.env.VCAP_SERVICES = JSON.stringify(vcap)
 
 const credentials = process.env.VCAP_SERVICES || {}
-const isV3 = JSON.parse(credentials)["VCAP_SERVICES"]["user-provided"].some(obj => obj.tags.includes('auditlog-ng')) || {}
+const isV3 = JSON.parse(credentials)["user-provided"].some(obj => obj.tags.includes('auditlog-ng')) || {}
 
 if(isV3) {
     module.exports = AuditLog2RESTv3

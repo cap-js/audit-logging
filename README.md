@@ -179,72 +179,40 @@ For local testing, make sure to create a vcap.json file in the srv directory. Th
 
 ```json
 {
-  "VCAP_SERVICES": {
-    "application-logs": [
-      {
-        "binding_guid": "binding_guid",
-        "binding_name": null,
-        "credentials": {},
-        "instance_guid": "instance_guid",
-        "instance_name": "cf-logging",
-        "label": "application-logs",
-        "name": "cf-logging",
-        "plan": "lite",
-        "provider": null,
-        "syslog_drain_url": null,
-        "tags": [],
-        "volume_mounts": []
-      }
-    ],
-    "user-provided": [
-      {
-        "binding_guid": "binding_guid",
-        "binding_name": null,
-        "credentials": {
-          "url": "als-endpoint",
-          "region": "als-region",
-          "namespace": "registered namespace",
-          "cert": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
-          "key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
-          "passphrase": "private key pass phrase"
-        },
-        "instance_guid": "instance_guid",
-        "instance_name": "auditlog-ng",
-        "label": "user-provided",
-        "name": "auditlog-ng",
-        "syslog_drain_url": null,
-        "tags": [
-          "auditlog-ng"
-        ],
-        "volume_mounts": []
-      }
-    ]
-  },
-  "VCAP_APPLICATION": {
-    "application_id": "application_id",
-    "application_name": "bookshop-srv",
-    "application_uris": [
-      "application_uris"
-    ],
-    "cf_api": "cf_api",
-    "limits": {
-      "fds": 32768
-    },
-    "name": "bookshop-srv",
-    "organization_id": "organization_id",
-    "organization_name": "organization_name",
-    "space_id": "space_id",
-    "space_name": "space_name",
-    "uris": [
-      "application_uris"
-    ],
-    "users": null
-  }
+  "user-provided": [
+    {
+      "binding_guid": "binding_guid",
+      "binding_name": null,
+      "credentials": {
+        "url": "als-endpoint",
+        "region": "als-region",
+        "namespace": "registered namespace",
+        "cert": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+        "key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
+        "passphrase": "private key pass phrase"
+      },
+      "instance_guid": "instance_guid",
+      "instance_name": "auditlog-ng",
+      "label": "user-provided",
+      "name": "auditlog-ng",
+      "syslog_drain_url": null,
+      "tags": [
+        "auditlog-ng"
+      ],
+      "volume_mounts": []
+    }
+  ]
 }
 ```
 
 This file simulates the Cloud Foundry environment variables required for your application to run locally.
- 
+
+**Note:** In your `package.json` under the `cds` section, set the following properties:
+```json
+"kind": "audit-log-to-restv3",
+"impl": "@cap-js/audit-logging/srv/log2restv3"
+```
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js/audit-logging/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
