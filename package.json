@@ -62,8 +62,8 @@
             "label": "auditlog"
           }
         },
-        "audit-log-to-restv3": {
-          "impl": "@cap-js/audit-logging/srv/log2restv3"
+        "audit-log-to-alsng": {
+          "impl": "@cap-js/audit-logging/srv/log2alsng"
         }
       }
     }

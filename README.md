@@ -209,8 +209,8 @@ This file simulates the Cloud Foundry environment variables required for your ap
 
 **Note:** In your `package.json` under the `cds` section, set the following properties:
 ```json
-"kind": "audit-log-to-restv3",
-"impl": "@cap-js/audit-logging/srv/log2restv3"
+"kind": "audit-log-to-alsng",
+"impl": "@cap-js/audit-logging/srv/log2alsng"
 ```
 
 **Note:** For testing purposes in your `ng.test.js` or `log2als.js`, you must provide the following environment variable setup:

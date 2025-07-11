@@ -6,7 +6,7 @@ const https = require('https')
 
 const AuditLogService = require('./service')
 
-module.exports = class AuditLog2RESTv3 extends AuditLogService {
+module.exports = class AuditLog2ALSNG extends AuditLogService {
   constructor() {
     super()
     this._vcap = JSON.parse(process.env.VCAP_SERVICES || '{}')
