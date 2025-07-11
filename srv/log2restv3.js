@@ -6,7 +6,8 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
   constructor() {
     super()
     this._vcap = JSON.parse(process.env.VCAP_SERVICES || '{}')
-    this._userProvided = this._vcap['user-provided'].find(obj => obj.tags.includes('auditlog-ng')) || {}
+    this._userProvided = this._vcap['user-provided']?.find(obj => obj.tags.includes('auditlog-ng')) || {}
+    if (!this._userProvided.credentials) throw new Error('No credentials found for SAP Audit Log Service NG')
     this._vcapApplication = this._vcap['VCAP_APPLICATION'] || {}
   }
 
