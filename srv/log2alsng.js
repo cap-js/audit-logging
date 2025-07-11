@@ -143,7 +143,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
 
     return new Promise((resolve, reject) => {
       const req = https.request(url, options, res => {
-        LOG.info('🛰️ Status Code:', res.statusCode)
+        LOG.trace('🛰️ Status Code:', res.statusCode)
 
         const chunks = []
         res.on('data', chunk => chunks.push(chunk))
@@ -168,7 +168,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
 
       req.on('error', e => {
         reject(e.message)
-        LOG.error(`Problem with request: ${e.message}`)
+        LOG.trace(`Problem with request: ${e.message}`)
       })
 
       req.write(eventData)
