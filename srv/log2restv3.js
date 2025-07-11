@@ -1,6 +1,10 @@
-const AuditLogService = require('./service')
 const cds = require('@sap/cds')
+
+const LOG = cds.log('audit-log')
+
 const https = require('https')
+
+const AuditLogService = require('./service')
 
 module.exports = class AuditLog2RESTv3 extends AuditLogService {
   constructor() {
@@ -139,7 +143,7 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
 
     return new Promise((resolve, reject) => {
       const req = https.request(url, options, res => {
-        console.log('🛰️ Status Code:', res.statusCode)
+        LOG.info('🛰️ Status Code:', res.statusCode)
 
         const chunks = []
         res.on('data', chunk => chunks.push(chunk))
@@ -164,7 +168,7 @@ module.exports = class AuditLog2RESTv3 extends AuditLogService {
 
       req.on('error', e => {
         reject(e.message)
-        console.error(`Problem with request: ${e.message}`)
+        LOG.error(`Problem with request: ${e.message}`)
       })
 
       req.write(eventData)
