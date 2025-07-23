@@ -32,15 +32,24 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
     }[event]()
   }
 
+  flattenAndSortIdObject(id) {
+    if(!id || JSON.stringify(id) === '{}') return 'not provided'
+
+    return Object.entries(id)
+        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        .map(([key, value]) => `${key}:${value}`)
+        .join(' ');
+  }
+
   eventDataPayload(event, data) {
     const object = data['object'] || { type: 'not provided', id: { ID: 'not provided' } }
     const channel = data['channel'] || { type: 'not specified', id: 'not specified' }
     const subject = data['data_subject'] || { type: 'not provided', id: { ID: 'not provided' } }
     const attributes = data['attributes'] || [{ name: 'not provided', old: 'not provided', new: 'not provided' }]
-    const objectId = object['id']?.['ID'] || 'not provided'
+    const objectId = this.flattenAndSortIdObject(object['id'])
     const oldValue = attributes[0]['old'] ?? ''
     const newValue = attributes[0]['new'] ?? ''
-    const dataSubjectId = subject['id']?.['ID'] || 'not provided'
+    const dataSubjectId = this.flattenAndSortIdObject(subject['id'])
     return {
       dppDataModification: {
         objectType: object['type'],
@@ -113,22 +122,25 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
     return eventData
   }
 
+  formatEventData(event, data) {
+    if (event === 'legacySecurityWrapper') {
+      return JSON.stringify([this.eventPayload(event, data)])
+    }
+
+    const eventData = data['attributes']?.map(attr => {
+      return this.eventPayload(event, {
+        ...data,
+        attributes: [attr]
+      })
+    })
+
+    return JSON.stringify(eventData || [])
+  }
+
   logEvent(event, data) {
     const passphrase = this._userProvided.credentials?.keyPassphrase
     const url = new URL(`${this._userProvided.credentials?.url}/ingestion/v1/events`)
-    let eventData = []
-
-    if (event === 'legacySecurityWrapper') {
-      eventData = JSON.stringify([this.eventPayload(event, data)])
-    } else {
-      eventData = data['attributes'].map(attr => {
-        return this.eventPayload(event, {
-          ...data,
-          attributes: [attr]
-        })
-      })
-      eventData = JSON.stringify(eventData)
-    }
+    const eventData = this.formatEventData(event, data)
 
     const options = {
       method: 'POST',
