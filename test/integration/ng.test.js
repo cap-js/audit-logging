@@ -16,8 +16,7 @@ process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES)
 
 describe('Log to Audit Log Service NG ', () => {
   if (!VCAP_SERVICES['user-provided'][0].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => {
-    })
+    return test.skip('Skipping tests due to missing credentials', () => {})
 
   require('./tests')(POST)
 
