@@ -33,12 +33,12 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   flattenAndSortIdObject(id) {
-    if(!id || JSON.stringify(id) === '{}') return 'not provided'
+    if (!id || JSON.stringify(id) === '{}') return 'not provided'
 
     return Object.entries(id)
-        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-        .map(([key, value]) => `${key}:${value}`)
-        .join(' ');
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([key, value]) => `${key}:${value}`)
+      .join(' ')
   }
 
   eventDataPayload(event, data) {
