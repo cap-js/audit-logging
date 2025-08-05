@@ -23,14 +23,19 @@ describe('Log to Audit Log Service NG ', () => {
   const ALICE = { username: 'alice', password: 'password' }
   const update_attributes = [{ name: 'foo', old: 'bar', new: 'baz' }]
 
+  test('id flattening', async () => {
+    expect(
+      cds.services['audit-log'].flattenAndSortIdObject({ foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' })
+    ).toBe('alpha:omega fizz:buzz foo:bar ping:pong')
+  })
+
   test('writes log with multiple id attributes in object and data subject', async () => {
     const object = {
       type: 'foo.bar',
-      id: { alpha: 'omega', fizz: 'buzz', foo: 'bar', ping: 'pong' }
+      id: { foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' }
     }
     const data_subject = { ...object, role: 'foo.bar' }
     const data = JSON.stringify({ object, data_subject, attributes: update_attributes })
-
     const res = await POST('/integration/passthrough', { event: 'PersonalDataModified', data }, { auth: ALICE })
     expect(res).toMatchObject({ status: 204 })
   })
@@ -38,14 +43,8 @@ describe('Log to Audit Log Service NG ', () => {
   test('writes log without id attributes in object and data subject', async () => {
     const object = { type: 'foo.bar', id: {} }
     const data_subject = { ...object, role: 'foo.bar' }
-
-    const payload = JSON.stringify({ object, data_subject, attributes: update_attributes })
-    const res = await POST(
-      '/integration/passthrough',
-      { event: 'PersonalDataModified', data: payload },
-      { auth: ALICE }
-    )
-
+    const data = JSON.stringify({ object, data_subject, attributes: update_attributes })
+    const res = await POST('/integration/passthrough', { event: 'PersonalDataModified', data }, { auth: ALICE })
     expect(res).toMatchObject({ status: 204 })
   })
 
