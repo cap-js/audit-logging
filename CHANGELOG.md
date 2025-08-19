@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.0.1 - 2025-08-05
+
+### Fixed
+
+- `audit-log-to-alsng`: EventDataPayload to Support Multi-Key Object and DataSubject IDs
+
+## Version 1.0.0 - 2025-07-11
+
+### Added
+
+- Beta support for next generation SAP Audit Log Service
+  - Use explicit kind `audit-log-to-alsng` or alpha auto-detect kind `audit-log-to-als`
+
 ## Version 0.9.0 - 2025-06-05
 
 ### Added
