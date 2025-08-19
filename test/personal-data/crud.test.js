@@ -863,13 +863,6 @@ describe('personal data audit logging in CRUD', () => {
         }
       }
 
-      // REVISIT: cds^9 does not replace unmentioned assocs with empty arrays
-      if (cds.version.split('.')[0] >= 9) {
-        customer.addresses[0].attachments = []
-        customer.addresses[1].attachments = []
-        customer.status.notes = []
-      }
-
       response = await PATCH(`/crud-1/Customers(${CUSTOMER_ID})`, customer, { auth: ALICE })
       expect(response).toMatchObject({ status: 200 })
 
@@ -1061,16 +1054,11 @@ describe('personal data audit logging in CRUD', () => {
           id: { ID: oldAttachments[1].ID }
         },
         data_subject: DATA_SUBJECT,
-        attributes:
-          cds.version.split('.')[0] < 9
-            ? [
-                { name: 'description', old: '***' },
-                { name: 'todo', old: oldAttachments[1].todo }
-              ]
-            : [
-                { name: 'description', old: '***' }
-                // REVISIT: entry for "todo" missing in cds^9
-              ]
+        attributes: [
+          { name: 'description', old: '***' },
+          { name: 'todo', old: oldAttachments[1].todo }
+        ]
+            
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
