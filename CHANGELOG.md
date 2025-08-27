@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.0.2 - 2025-XX-XX
+
+### Added
+- Support for loading `VCAP_SERVICES` from a file specified by the `VCAP_SERVICES_FILE_PATH` environment variable.
+
+### Fixed
+- Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable.
+
 ## Version 1.0.1 - 2025-08-05
 
 ### Fixed
