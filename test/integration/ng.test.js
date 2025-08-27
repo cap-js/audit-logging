@@ -25,7 +25,7 @@ describe('Log to Audit Log Service NG ', () => {
 
   test('id flattening', async () => {
     expect(
-        cds.services['audit-log'].flattenAndSortIdObject({ foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' })
+      cds.services['audit-log'].flattenAndSortIdObject({ foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' })
     ).toBe('alpha:omega fizz:buzz foo:bar ping:pong')
   })
 
@@ -50,7 +50,7 @@ describe('Log to Audit Log Service NG ', () => {
 
   test('rejects log with invalid data', async () => {
     await expect(
-        POST('/integration/passthrough', { event: 'PersonalDataModified', data: '{}' }, { auth: ALICE })
+      POST('/integration/passthrough', { event: 'PersonalDataModified', data: '{}' }, { auth: ALICE })
     ).rejects.toThrow('Request failed with: 403 - Forbidden')
   })
 })
