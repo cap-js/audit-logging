@@ -1,13 +1,9 @@
 const cds = require('@sap/cds')
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
 
 const { POST } = cds.test().in(__dirname)
 
 cds.env.requires['audit-log'].kind = 'audit-log-to-alsng'
 cds.env.requires['audit-log'].impl = '@cap-js/audit-logging/srv/log2alsng'
-
 const VCAP_SERVICES = {
   'user-provided': [
     {
@@ -16,15 +12,20 @@ const VCAP_SERVICES = {
     }
   ]
 }
-const ALICE = { username: 'alice', password: 'password' }
-const update_attributes = [{ name: 'foo', old: 'bar', new: 'baz' }]
+process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES)
 
-const runTestSuite = () => {
+describe('Log to Audit Log Service NG ', () => {
+  if (!VCAP_SERVICES['user-provided'][0].credentials)
+    return test.skip('Skipping tests due to missing credentials', () => {})
+
   require('./tests')(POST)
+
+  const ALICE = { username: 'alice', password: 'password' }
+  const update_attributes = [{ name: 'foo', old: 'bar', new: 'baz' }]
 
   test('id flattening', async () => {
     expect(
-      cds.services['audit-log'].flattenAndSortIdObject({ foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' })
+        cds.services['audit-log'].flattenAndSortIdObject({ foo: 'bar', alpha: 'omega', ping: 'pong', fizz: 'buzz' })
     ).toBe('alpha:omega fizz:buzz foo:bar ping:pong')
   })
 
@@ -52,38 +53,4 @@ const runTestSuite = () => {
         POST('/integration/passthrough', { event: 'PersonalDataModified', data: '{}' }, { auth: ALICE })
     ).rejects.toThrow('Request failed with: 403 - Forbidden')
   })
-}
-
-const setupFile = async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vcap-'));
-  const filePath = path.join(dir, 'vcap.json');
-  fs.writeFileSync(filePath, JSON.stringify(VCAP_SERVICES), 'utf8');
-  process.env.VCAP_SERVICES_FILE_PATH = filePath;
-
-  return () => {
-    try {
-      fs.unlinkSync(filePath)
-      fs.rmdirSync(dir)
-    } catch (err) {
-        console.error('Error cleaning up temporary VCAP services file:', err);
-    }
-    delete process.env.VCAP_SERVICES_FILE_PATH;
-  };
-};
-
-describe('Log to Audit Log Service NG with credentials from VCAP_SERVICES env var', () => {
-  if (!VCAP_SERVICES['user-provided'][0].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => {})
-
-  setupFile()
-
-  runTestSuite()
-})
-
-describe('Log to Audit Log Service NG with credentials from VCAP_SERVICES_FILE_PATH', () => {
-  if (!VCAP_SERVICES['user-provided'][0].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => {})
-
-
-  runTestSuite()
 })
