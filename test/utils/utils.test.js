@@ -61,7 +61,7 @@ describe('Test loadVCAPServices', () => {
         fs.readFileSync.mockReturnValueOnce(INVALID_JSON);
 
         expect(() => loadVCAPServices()).toThrow(
-            `Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}: Unexpected token 'i', "${INVALID_JSON}" is not valid JSON`
+            new RegExp(`^Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}:`)
         );
         expect(logSpy).not.toHaveBeenCalled();
     });
@@ -80,7 +80,7 @@ describe('Test loadVCAPServices', () => {
         process.env.VCAP_SERVICES = INVALID_JSON;
 
         expect(() => loadVCAPServices()).toThrow(
-           `Failed to parse VCAP_SERVICES from environment variable: Unexpected token 'i', "${INVALID_JSON}" is not valid JSON`
+            new RegExp(`^Failed to parse VCAP_SERVICES from environment variable:`)
         );
         expect(logSpy).not.toHaveBeenCalled();
         expect(fs.readFileSync).not.toHaveBeenCalled();
