@@ -1,112 +1,110 @@
-const path = require('path');
-const { loadVCAPServices } = require('../../lib/utils');
+const path = require('path')
+const { loadVCAPServices } = require('../../lib/utils')
 
 jest.mock('fs', () => ({
-    readFileSync: jest.fn(),
-}));
+  readFileSync: jest.fn()
+}))
 
-const fs = require('fs');
+const fs = require('fs')
 
 describe('Test loadVCAPServices', () => {
-    const ORIGINAL_ENV = process.env;
-    const FAKE_VCAP = { 'user-provided': [{ name: 'test', credentials: { token: 'abc' } }] };
-    const INVALID_JSON = 'invalid json';
-    const FAKE_PATH = '/path/to/vcap.json';
+  const ORIGINAL_ENV = process.env
+  const FAKE_VCAP = { 'user-provided': [{ name: 'test', credentials: { token: 'abc' } }] }
+  const INVALID_JSON = 'invalid json'
+  const FAKE_PATH = '/path/to/vcap.json'
 
-    let logSpy;
+  let logSpy
 
-    beforeEach(() => {
-        delete process.env.VCAP_SERVICES_FILE_PATH;
-        delete process.env.VCAP_SERVICES;
+  beforeEach(() => {
+    delete process.env.VCAP_SERVICES_FILE_PATH
+    delete process.env.VCAP_SERVICES
 
-        jest.clearAllMocks();
-        logSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-    });
+    jest.clearAllMocks()
+    logSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+  })
 
-    afterAll(() => {
-        process.env = ORIGINAL_ENV;
-    });
+  afterAll(() => {
+    process.env = ORIGINAL_ENV
+  })
 
-    test('loads and parses VCAP_SERVICES from VCAP_SERVICES_FILE_PATH', () => {
-        process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH;
+  test('loads and parses VCAP_SERVICES from VCAP_SERVICES_FILE_PATH', () => {
+    process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH
 
-        fs.readFileSync.mockReturnValueOnce(JSON.stringify(FAKE_VCAP));
+    fs.readFileSync.mockReturnValueOnce(JSON.stringify(FAKE_VCAP))
 
-        const result = loadVCAPServices();
+    const result = loadVCAPServices()
 
-        expect(fs.readFileSync).toHaveBeenCalledWith(path.resolve(FAKE_PATH), 'utf8');
-        expect(result).toEqual(FAKE_VCAP);
-        expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`);
-    });
+    expect(fs.readFileSync).toHaveBeenCalledWith(path.resolve(FAKE_PATH), 'utf8')
+    expect(result).toEqual(FAKE_VCAP)
+    expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`)
+  })
 
-    test('throws error when reading VCAP_SERVICES_FILE_PATH fails', () => {
-        const errorMessage = 'ENOENT: no such file or directory';
-        process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH;
+  test('throws error when reading VCAP_SERVICES_FILE_PATH fails', () => {
+    const errorMessage = 'ENOENT: no such file or directory'
+    process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH
 
-        fs.readFileSync.mockImplementationOnce(() => {
-            const err = new Error(errorMessage);
-            err.code = 'ENOENT';
-            throw err;
-        });
+    fs.readFileSync.mockImplementationOnce(() => {
+      const err = new Error(errorMessage)
+      err.code = 'ENOENT'
+      throw err
+    })
 
-        expect(() => loadVCAPServices()).toThrow(
-            `Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}: ${errorMessage}`
-        );
-        expect(logSpy).not.toHaveBeenCalled();
-    });
+    expect(() => loadVCAPServices()).toThrow(
+      `Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}: ${errorMessage}`
+    )
+    expect(logSpy).not.toHaveBeenCalled()
+  })
 
-    test('throws error when JSON in VCAP_SERVICES_FILE_PATH is invalid', () => {
-        process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH;
+  test('throws error when JSON in VCAP_SERVICES_FILE_PATH is invalid', () => {
+    process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH
 
-        fs.readFileSync.mockReturnValueOnce(INVALID_JSON);
+    fs.readFileSync.mockReturnValueOnce(INVALID_JSON)
 
-        expect(() => loadVCAPServices()).toThrow(
-            new RegExp(`^Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}:`)
-        );
-        expect(logSpy).not.toHaveBeenCalled();
-    });
+    expect(() => loadVCAPServices()).toThrow(
+      new RegExp(`^Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}:`)
+    )
+    expect(logSpy).not.toHaveBeenCalled()
+  })
 
-    test('loads and parses VCAP_SERVICES from environment variable', () => {
-        process.env.VCAP_SERVICES = JSON.stringify(FAKE_VCAP);
+  test('loads and parses VCAP_SERVICES from environment variable', () => {
+    process.env.VCAP_SERVICES = JSON.stringify(FAKE_VCAP)
 
-        const result = loadVCAPServices();
+    const result = loadVCAPServices()
 
-        expect(result).toEqual(FAKE_VCAP);
-        expect(logSpy).toHaveBeenCalledWith('VCAP_SERVICES loaded from environment variable');
-        expect(fs.readFileSync).not.toHaveBeenCalled();
-    });
+    expect(result).toEqual(FAKE_VCAP)
+    expect(logSpy).toHaveBeenCalledWith('VCAP_SERVICES loaded from environment variable')
+    expect(fs.readFileSync).not.toHaveBeenCalled()
+  })
 
-    test('throws error when VCAP_SERVICES env var JSON is invalid', () => {
-        process.env.VCAP_SERVICES = INVALID_JSON;
+  test('throws error when VCAP_SERVICES env var JSON is invalid', () => {
+    process.env.VCAP_SERVICES = INVALID_JSON
 
-        expect(() => loadVCAPServices()).toThrow(
-            new RegExp(`^Failed to parse VCAP_SERVICES from environment variable:`)
-        );
-        expect(logSpy).not.toHaveBeenCalled();
-        expect(fs.readFileSync).not.toHaveBeenCalled();
-    });
+    expect(() => loadVCAPServices()).toThrow(new RegExp(`^Failed to parse VCAP_SERVICES from environment variable:`))
+    expect(logSpy).not.toHaveBeenCalled()
+    expect(fs.readFileSync).not.toHaveBeenCalled()
+  })
 
-    test('returns empty object when neither VCAP_SERVICES_FILE_PATH nor VCAP_SERVICES is set', () => {
-        const result = loadVCAPServices();
+  test('returns empty object when neither VCAP_SERVICES_FILE_PATH nor VCAP_SERVICES is set', () => {
+    const result = loadVCAPServices()
 
-        expect(result).toEqual({});
-        expect(logSpy).not.toHaveBeenCalled();
-        expect(fs.readFileSync).not.toHaveBeenCalled();
-    });
+    expect(result).toEqual({})
+    expect(logSpy).not.toHaveBeenCalled()
+    expect(fs.readFileSync).not.toHaveBeenCalled()
+  })
 
-    test('VCAP_SERVICES_FILE_PATH takes precedence over VCAP_SERVICES', () => {
-        const fromFile = { from: 'file' };
-        const fromEnv = { from: 'env' };
+  test('VCAP_SERVICES_FILE_PATH takes precedence over VCAP_SERVICES', () => {
+    const fromFile = { from: 'file' }
+    const fromEnv = { from: 'env' }
 
-        process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH;
-        process.env.VCAP_SERVICES = JSON.stringify(fromEnv);
+    process.env.VCAP_SERVICES_FILE_PATH = FAKE_PATH
+    process.env.VCAP_SERVICES = JSON.stringify(fromEnv)
 
-        fs.readFileSync.mockReturnValueOnce(JSON.stringify(fromFile));
+    fs.readFileSync.mockReturnValueOnce(JSON.stringify(fromFile))
 
-        const result = loadVCAPServices();
+    const result = loadVCAPServices()
 
-        expect(result).toEqual(fromFile);
-        expect(fs.readFileSync).toHaveBeenCalledTimes(1);
-        expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`);
-    });
-});
+    expect(result).toEqual(fromFile)
+    expect(fs.readFileSync).toHaveBeenCalledTimes(1)
+    expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`)
+  })
+})
