@@ -7,10 +7,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ## Version 1.0.2 - 2025-XX-XX
 
 ### Added
-- Support for loading `VCAP_SERVICES` from a file specified by the `VCAP_SERVICES_FILE_PATH` environment variable.
+
+- Support for loading `VCAP_SERVICES` from a file specified by the `VCAP_SERVICES_FILE_PATH` environment variable
 
 ### Fixed
-- Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable.
+
+- Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable
 
 ## Version 1.0.1 - 2025-08-05
 
