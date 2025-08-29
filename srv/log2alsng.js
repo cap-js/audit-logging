@@ -24,12 +24,13 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   eventMapper(event, data) {
-    return {
+    const map = {
       PersonalDataModified: () => this.logEvent('dppDataModification', data),
       SensitiveDataRead: () => this.logEvent('dppDataAccess', data),
       ConfigurationModified: () => this.logEvent('configurationChange', data),
       SecurityEvent: () => this.logEvent('legacySecurityWrapper', data)
-    }[event]()
+    }
+    return (map[event] || (() => this.logEvent(event, data)))()
   }
 
   flattenAndSortIdObject(id) {
@@ -49,7 +50,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
     const oldValue = attributes[0]['old'] ?? ''
     const newValue = attributes[0]['new'] ?? ''
     const dataSubjectId = this.flattenAndSortIdObject(subject['id'])
-    return {
+    const known = {
       dppDataModification: {
         objectType: object['type'],
         objectId: objectId,
@@ -84,7 +85,20 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
               : data.data
         })
       }
-    }[event]
+    }
+    if (known[event]) return known[event]
+    // For unknown events, remove common audit log entry fields from the event payload
+    if (typeof data === 'object' && data !== null) {
+      const rest = this.removeCommonAuditLogFields(data)
+      return rest
+    }
+    return data
+  }
+
+  removeCommonAuditLogFields(obj) {
+    if (typeof obj !== 'object' || obj === null) return obj;
+    const { uuid, user, time, tenant, ...rest } = obj;
+    return rest;
   }
 
   eventPayload(event, data) {
@@ -122,18 +136,28 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   formatEventData(event, data) {
+    const attributeEvents = [
+      'dppDataModification',
+      'dppDataAccess',
+      'configurationChange'
+    ]
+
     if (event === 'legacySecurityWrapper') {
       return JSON.stringify([this.eventPayload(event, data)])
     }
 
-    const eventData = data['attributes']?.map(attr => {
-      return this.eventPayload(event, {
-        ...data,
-        attributes: [attr]
+    if (attributeEvents.includes(event)) {
+      const eventData = data['attributes']?.map(attr => {
+        return this.eventPayload(event, {
+          ...data,
+          attributes: [attr]
+        })
       })
-    })
-
-    return JSON.stringify(eventData || [])
+      return JSON.stringify(eventData || [])
+    } else {
+      // Always wrap event in an envelope for custom events
+      return JSON.stringify([this.eventPayload(event, data)])
+    }
   }
 
   logEvent(event, data) {
