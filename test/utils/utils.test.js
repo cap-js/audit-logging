@@ -1,5 +1,7 @@
 const path = require('path')
 const { loadVCAPServices } = require('../../lib/utils')
+const cds = require('@sap/cds')
+const LOG = cds.log('audit-log')
 
 jest.mock('fs', () => ({
   readFileSync: jest.fn()
@@ -13,11 +15,14 @@ describe('Test loadVCAPServices', () => {
   const INVALID_JSON = 'invalid json'
   const FAKE_PATH = '/path/to/vcap.json'
 
+  let logSpy
+
   beforeEach(() => {
     delete process.env.VCAP_SERVICES_FILE_PATH
     delete process.env.VCAP_SERVICES
 
     jest.clearAllMocks()
+    logSpy = jest.spyOn(LOG, 'debug').mockImplementation(() => {})
   })
 
   afterAll(() => {
@@ -33,6 +38,7 @@ describe('Test loadVCAPServices', () => {
 
     expect(fs.readFileSync).toHaveBeenCalledWith(path.resolve(FAKE_PATH), 'utf8')
     expect(result).toEqual(FAKE_VCAP)
+    expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`)
   })
 
   test('throws error when reading VCAP_SERVICES_FILE_PATH fails', () => {
@@ -48,6 +54,7 @@ describe('Test loadVCAPServices', () => {
     expect(() => loadVCAPServices()).toThrow(
       `Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}: ${errorMessage}`
     )
+    expect(logSpy).not.toHaveBeenCalled()
   })
 
   test('throws error when JSON in VCAP_SERVICES_FILE_PATH is invalid', () => {
@@ -58,6 +65,7 @@ describe('Test loadVCAPServices', () => {
     expect(() => loadVCAPServices()).toThrow(
       new RegExp(`^Failed to read or parse VCAP_SERVICES from file at ${FAKE_PATH}:`)
     )
+    expect(logSpy).not.toHaveBeenCalled()
   })
 
   test('loads and parses VCAP_SERVICES from environment variable', () => {
@@ -66,6 +74,7 @@ describe('Test loadVCAPServices', () => {
     const result = loadVCAPServices()
 
     expect(result).toEqual(FAKE_VCAP)
+    expect(logSpy).toHaveBeenCalledWith('VCAP_SERVICES loaded from environment variable')
     expect(fs.readFileSync).not.toHaveBeenCalled()
   })
 
@@ -73,6 +82,7 @@ describe('Test loadVCAPServices', () => {
     process.env.VCAP_SERVICES = INVALID_JSON
 
     expect(() => loadVCAPServices()).toThrow(new RegExp(`^Failed to parse VCAP_SERVICES from environment variable:`))
+    expect(logSpy).not.toHaveBeenCalled()
     expect(fs.readFileSync).not.toHaveBeenCalled()
   })
 
@@ -80,6 +90,7 @@ describe('Test loadVCAPServices', () => {
     const result = loadVCAPServices()
 
     expect(result).toEqual({})
+    expect(logSpy).not.toHaveBeenCalled()
     expect(fs.readFileSync).not.toHaveBeenCalled()
   })
 
@@ -96,5 +107,6 @@ describe('Test loadVCAPServices', () => {
 
     expect(result).toEqual(fromFile)
     expect(fs.readFileSync).toHaveBeenCalledTimes(1)
+    expect(logSpy).toHaveBeenCalledWith(`VCAP_SERVICES loaded from file at ${FAKE_PATH}`)
   })
 })
