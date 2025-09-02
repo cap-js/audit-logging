@@ -4,10 +4,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 1.0.2 - 2025-09-02
+## Version 1.0.3 - 2025-09-02
 
 ### Added
+
 - Support for functionality to enable sending every event type from the CPA Event Catalog to ALS NG.
+
+## Version 1.0.2 - tbd
+
+### Fixed
+
+- Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable
 
 ## Version 1.0.1 - 2025-08-05
 
