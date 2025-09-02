@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.0.2 - 2025-09-02
+
+### Added
+- Support for functionality to enable sending every event type from the CPA Event Catalog to ALS NG.
+
 ## Version 1.0.1 - 2025-08-05
 
 ### Fixed
