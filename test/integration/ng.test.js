@@ -16,7 +16,7 @@ process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES)
 
 describe('Log to Audit Log Service NG ', () => {
   if (!VCAP_SERVICES['user-provided'][0].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => { })
+    return test.skip('Skipping tests due to missing credentials', () => {})
 
   require('./tests')(POST)
 
@@ -53,7 +53,7 @@ describe('Log to Audit Log Service NG ', () => {
       POST('/integration/passthrough', { event: 'PersonalDataModified', data: '{}' }, { auth: ALICE })
     ).rejects.toThrow('Request failed with: 403 - Forbidden')
   })
-  
+
   test('writes log for custom event tenantOnboarding', async () => {
     const customEvent = 'tenantOnboarding'
     const data = JSON.stringify({
@@ -63,7 +63,7 @@ describe('Log to Audit Log Service NG ', () => {
     expect(res).toMatchObject({ status: 204 })
   })
 
-    test('writes log for custom event userLogoff', async () => {
+  test('writes log for custom event userLogoff', async () => {
     const customEvent = 'userLogoff'
     const data = JSON.stringify({
       logoffType: 'UNSPECIFIED'
@@ -71,5 +71,4 @@ describe('Log to Audit Log Service NG ', () => {
     const res = await POST('/integration/passthrough', { event: customEvent, data }, { auth: ALICE })
     expect(res).toMatchObject({ status: 204 })
   })
-
 })
