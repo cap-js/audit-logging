@@ -42,18 +42,9 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   eventDataPayload(event, data) {
-    const object = data['object'] || {
-      type: 'not provided',
-      id: { ID: 'not provided' }
-    }
-    const channel = data['channel'] || {
-      type: 'not specified',
-      id: 'not specified'
-    }
-    const subject = data['data_subject'] || {
-      type: 'not provided',
-      id: { ID: 'not provided' }
-    }
+    const object = data['object'] || { type: 'not provided', id: { ID: 'not provided' } }
+    const channel = data['channel'] || { type: 'not specified', id: 'not specified' }
+    const subject = data['data_subject'] || { type: 'not provided', id: { ID: 'not provided' } }
     const attributes = data['attributes'] || [{ name: 'not provided', old: 'not provided', new: 'not provided' }]
     const objectId = this.flattenAndSortIdObject(object['id'])
     const oldValue = attributes[0]['old'] ?? ''
@@ -199,20 +190,10 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
           if (res.statusCode >= 400) {
             // prettier-ignore
             const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`)
-            err.request = {
-              method: options.method,
-              url,
-              headers: options.headers,
-              body: data
-            }
+            err.request = { method: options.method, url, headers: options.headers, body: data }
             if (err.request.headers.authorization)
               err.request.headers.authorization = err.request.headers.authorization.split(' ')[0] + ' ***'
-            err.response = {
-              statusCode,
-              statusMessage,
-              headers: res.headers,
-              body
-            }
+            err.response = { statusCode, statusMessage, headers: res.headers, body }
             reject(err)
           } else {
             resolve(body)
