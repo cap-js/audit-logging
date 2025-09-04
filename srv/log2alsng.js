@@ -1,5 +1,4 @@
 const cds = require('@sap/cds')
-
 const LOG = cds.log('audit-log')
 
 const https = require('https')
@@ -24,13 +23,14 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   eventMapper(event, data) {
-    const map = {
+    const known = {
       PersonalDataModified: () => this.logEvent('dppDataModification', data),
       SensitiveDataRead: () => this.logEvent('dppDataAccess', data),
       ConfigurationModified: () => this.logEvent('configurationChange', data),
       SecurityEvent: () => this.logEvent('legacySecurityWrapper', data)
     }
-    return (map[event] || (() => this.logEvent(event, data)))()
+    const dfault = () => this.logEvent(event, data)
+    return (known[event] ?? dfault)()
   }
 
   flattenAndSortIdObject(id) {
@@ -50,6 +50,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
     const oldValue = attributes[0]['old'] ?? ''
     const newValue = attributes[0]['new'] ?? ''
     const dataSubjectId = this.flattenAndSortIdObject(subject['id'])
+
     const known = {
       dppDataModification: {
         objectType: object['type'],
@@ -86,12 +87,14 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
         })
       }
     }
-    if (known[event]) return known[event]
+    if (event in known) return known[event]
+
     // For unknown events, remove common audit log entry fields from the event payload
     if (typeof data === 'object' && data !== null) {
       const rest = this.removeCommonAuditLogFields(data)
       return rest
     }
+
     return data
   }
 
@@ -140,13 +143,11 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   formatEventData(event, data) {
-    const attributeEvents = ['dppDataModification', 'dppDataAccess', 'configurationChange']
-
     if (event === 'legacySecurityWrapper') {
       return JSON.stringify([this.eventPayload(event, data)])
     }
 
-    if (attributeEvents.includes(event)) {
+    if (event in { dppDataModification: 1, dppDataAccess: 1, configurationChange: 1 }) {
       const eventData = data['attributes']?.map(attr => {
         return this.eventPayload(event, {
           ...data,
@@ -154,10 +155,10 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
         })
       })
       return JSON.stringify(eventData || [])
-    } else {
-      // Always wrap event in an envelope for custom events
-      return JSON.stringify([this.eventPayload(event, data)])
     }
+
+    // Always wrap event in an envelope for custom events
+    return JSON.stringify([this.eventPayload(event, data)])
   }
 
   logEvent(event, data) {
