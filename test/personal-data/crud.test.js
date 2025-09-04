@@ -1058,7 +1058,6 @@ describe('personal data audit logging in CRUD', () => {
           { name: 'description', old: '***' },
           { name: 'todo', old: oldAttachments[1].todo }
         ]
-            
       })
       expect(_logs).toContainMatchObject({
         user: 'alice',
