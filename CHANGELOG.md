@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 1.0.2 - tbd
+## Version 1.1.0 - 2025-09-08
+
+### Added
+
+- `audit-log-to-alsng`: Support for sending generic audit log events
 
 ### Fixed
 
-- Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable
+- `audit-log-to-alsng`: Correctly retrieve `appId` from the `VCAP_APPLICATION` environment variable
 
 ## Version 1.0.1 - 2025-08-05
 
