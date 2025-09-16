@@ -13,6 +13,9 @@ cds.env.requires['audit-log'] = {
 
 const wait = require('node:timers/promises').setTimeout
 
+// Matcher for localhost IPs (handles both IPv6 and IPv4-mapped IPv6)
+const localhostIP = expect.stringMatching(/^(::1|::ffff:127\.0\.0\.1)$/)
+
 describe('AuditLogService API', () => {
   let __log, _logs
   const _log = (...args) => {
@@ -145,14 +148,14 @@ describe('AuditLogService API', () => {
       const response = await GET('/api/Books', { auth: BOB })
       expect(response).toMatchObject({ status: 403 })
       expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({ user: 'bob', ip: '::1' })
+      expect(_logs).toContainMatchObject({ user: 'bob', ip: localhostIP })
     })
 
     test('late reject', async () => {
       const response = await GET('/api/Books', { auth: ALICE })
       expect(response).toMatchObject({ status: 403 })
       expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({ user: 'alice', ip: '::1' })
+      expect(_logs).toContainMatchObject({ user: 'alice', ip: localhostIP })
     })
 
     test('early reject in batch', async () => {
@@ -163,7 +166,7 @@ describe('AuditLogService API', () => {
       )
       expect(response).toMatchObject({ status: 403 })
       expect(_logs.length).toBeGreaterThan(0) //> coding in ./srv/server.js results in 2 logs on @sap/cds^7
-      expect(_logs).toContainMatchObject({ user: 'bob', ip: '::1' })
+      expect(_logs).toContainMatchObject({ user: 'bob', ip: localhostIP })
     })
 
     test('late reject in batch', async () => {
@@ -175,7 +178,7 @@ describe('AuditLogService API', () => {
       expect(response).toMatchObject({ status: 200 })
       expect(response.data.responses[0]).toMatchObject({ status: 403 })
       expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({ user: 'alice', ip: '::1' })
+      expect(_logs).toContainMatchObject({ user: 'alice', ip: localhostIP })
     })
   })
 })
