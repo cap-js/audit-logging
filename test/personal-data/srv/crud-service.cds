@@ -216,3 +216,12 @@ service CRUD_5 {
   entity C as projection on db.C;
 
 }
+
+@path    : '/crud-6'
+@requires: 'admin'
+service CRUD_6 {
+
+  entity CustomersWithDSIDnotOnKey                     as projection on db.CustomersWithDSIDnotOnKey;
+  entity OrdersWithDSIDnotonForeignKey                     as projection on db.OrdersWithDSIDnotonForeignKey;
+
+}
