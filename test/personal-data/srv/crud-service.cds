@@ -214,5 +214,11 @@ service CRUD_5 {
   entity A as projection on db.A;
   entity B as projection on db.B;
   entity C as projection on db.C;
+  entity D as projection on db.D;
+}
 
+@path    : '/crud-6'
+@requires: 'admin'
+service CRUD_6 {
+  entity D as projection on db.D;
 }
