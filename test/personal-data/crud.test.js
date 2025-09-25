@@ -1818,24 +1818,22 @@ describe('personal data audit logging in CRUD', () => {
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'notes' }] })
     })
 
-    test("create a comment where DataSubjectID is an association to Customer with no customer referenced", async () => {
-      await POST("/crud-1/Comments", { text: "foo" }, { auth: ALICE });
-      expect(_logs.length).toBe(0);
-    });
+    test('create an entity that references a data subject without setting a value for that reference', async () =>{
+      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
 
-    test("create and update a comment where DataSubjectID is an association to Customer with no customer referenced", async () => {
-      const res = await POST( "/crud-1/Comments", { text: "foo" }, { auth: ALICE });
-      expect(res.data.ID).toBeDefined();
-      await PATCH(`/crud-1/Comments(${res.data.ID})`, { text: "bar" }, { auth: ALICE });
-      expect(_logs.length).toBe(0);
-    });
+    test('create and update an entity that references a data subject without a set value for that reference', async () => {
+      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      await PATCH('/crud-6/CustomerPostalAddress', { town: 'new-town'}, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
 
-    test("create and delete a comment where DataSubjectID from association to Customer with no customer referenced", async () => {
-      const res = await POST( "/crud-1/Comments", { text: "foo" }, { auth: ALICE });
-      expect(res.data.ID).toBeDefined();
-      await DELETE(`/crud-1/Comments(${res.data.ID})`, { auth: ALICE });
-      expect(_logs.length).toBe(0);
-    });
+    test('create and delete an entity that references a data subject without a set value for that reference', async () => {
+      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      await DELETE('/crud-6/CustomerPostalAddress', { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
   })
 
   describe('with renamings', () => {
