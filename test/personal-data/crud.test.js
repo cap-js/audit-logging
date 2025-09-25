@@ -1817,6 +1817,25 @@ describe('personal data audit logging in CRUD', () => {
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'notes', new: '***' }] })
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'notes' }] })
     })
+
+    test("create a comment where DataSubjectID is an association to Customer with no customer referenced", async () => {
+      await POST("/crud-1/Comments", { text: "foo" }, { auth: ALICE });
+      expect(_logs.length).toBe(0);
+    });
+
+    test("create and update a comment where DataSubjectID is an association to Customer with no customer referenced", async () => {
+      const res = await POST( "/crud-1/Comments", { text: "foo" }, { auth: ALICE });
+      expect(res.data.ID).toBeDefined();
+      await PATCH(`/crud-1/Comments(${res.data.ID})`, { text: "bar" }, { auth: ALICE });
+      expect(_logs.length).toBe(0);
+    });
+
+    test("create and delete a comment where DataSubjectID from association to Customer with no customer referenced", async () => {
+      const res = await POST( "/crud-1/Comments", { text: "foo" }, { auth: ALICE });
+      expect(res.data.ID).toBeDefined();
+      await DELETE(`/crud-1/Comments(${res.data.ID})`, { auth: ALICE });
+      expect(_logs.length).toBe(0);
+    });
   })
 
   describe('with renamings', () => {

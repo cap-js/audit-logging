@@ -61,6 +61,10 @@ service CRUD_1 {
     town     @PersonalData.IsPotentiallyPersonal;
   }
 
+  annotate Comments with @PersonalData   : {EntitySemantics: 'Other'} {
+    customer @PersonalData.FieldSemantics: 'DataSubjectID';
+  }
+
   annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
     todo        @PersonalData.IsPotentiallyPersonal;
