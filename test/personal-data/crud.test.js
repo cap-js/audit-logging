@@ -1817,6 +1817,25 @@ describe('personal data audit logging in CRUD', () => {
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'notes', new: '***' }] })
       expect(_logs).toContainMatchObject({ attributes: [{ name: 'notes' }] })
     })
+
+    test('create an entity that references a data subject without setting a value for that reference', async () =>{
+      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
+
+    test('create and update an entity that references a data subject without a set value for that reference', async () => {
+      const res = await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(res?.data?.ID).toBeDefined()
+      await PATCH(`/crud-6/CustomerPostalAddress(ID=${res.data.ID})`, { town: 'new-town'}, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
+
+    test('create and delete an entity that references a data subject without a set value for that reference', async () => {
+      const res = await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(res?.data?.ID).toBeDefined()
+      await DELETE(`/crud-6/CustomerPostalAddress(ID=${res.data.ID})`, { auth: ALICE })
+      expect(_logs.length).toBe(0)
+    })
   })
 
   describe('with renamings', () => {

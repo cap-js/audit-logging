@@ -216,3 +216,22 @@ service CRUD_5 {
   entity C as projection on db.C;
 
 }
+
+@path    : '/crud-6'
+@requires: 'admin'
+service CRUD_7 {
+  entity Customers             as projection on db.Customers;
+  entity CustomerPostalAddress as projection on db.CustomerPostalAddress;
+
+  annotate Customers with @PersonalData.EntitySemantics: 'DataSubject' {
+    ID        @PersonalData.FieldSemantics             : 'DataSubjectID';
+    firstName @PersonalData.IsPotentiallyPersonal;
+    lastName  @PersonalData.IsPotentiallyPersonal;
+  }
+
+  annotate CustomerPostalAddress with @PersonalData.EntitySemantics: 'Other' {
+    customer @PersonalData.FieldSemantics                          : 'DataSubjectID';
+    street   @PersonalData.IsPotentiallyPersonal;
+    town     @PersonalData.IsPotentiallyPersonal;
+  }
+}
