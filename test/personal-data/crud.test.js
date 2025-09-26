@@ -1824,14 +1824,16 @@ describe('personal data audit logging in CRUD', () => {
     })
 
     test('create and update an entity that references a data subject without a set value for that reference', async () => {
-      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
-      await PATCH('/crud-6/CustomerPostalAddress', { town: 'new-town'}, { auth: ALICE })
+      const res = await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(res?.data?.ID).toBeDefined()
+      await PATCH(`/crud-6/CustomerPostalAddress(ID=${res.data.ID})`, { town: 'new-town'}, { auth: ALICE })
       expect(_logs.length).toBe(0)
     })
 
     test('create and delete an entity that references a data subject without a set value for that reference', async () => {
-      await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
-      await DELETE('/crud-6/CustomerPostalAddress', { auth: ALICE })
+      const res = await POST('/crud-6/CustomerPostalAddress', { street: 'street', town: 'town'}, { auth: ALICE })
+      expect(res?.data?.ID).toBeDefined()
+      await DELETE(`/crud-6/CustomerPostalAddress(ID=${res.data.ID})`, { auth: ALICE })
       expect(_logs.length).toBe(0)
     })
   })
