@@ -190,7 +190,7 @@ annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
   text @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate D with @PersonalData      : {EntitySemantics: 'Other', } {
+annotate D with @PersonalData      : {EntitySemantics: 'Other'} {
   c    @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
