@@ -2056,11 +2056,7 @@ describe('personal data audit logging in CRUD', () => {
   })
 
   test('with data subject not in service', async () => {
-    await POST(
-      '/crud-6/D',
-      { dataSubject_ID: '17609000-3860-415b-b007-1b59dae2a198', text: 'I am personal' },
-      { auth: ALICE }
-    )
+    await POST('/crud-6/D', { c_ID: '17609000-3860-415b-b007-1b59dae2a198', text: 'I am personal' }, { auth: ALICE })
     expect(_logs.length).toBe(1)
     expect(_logs[0]).toMatchObject({
       data_subject: { role: 'C', type: 'sap.auditlog.test.personal_data.db.C' },
