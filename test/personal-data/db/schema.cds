@@ -91,9 +91,9 @@ type dummies {
 }
 
 entity Notes : cuid {
-  note           :      String;
-  attachment     :      Association to AddressAttachment;
-  customerStatus :      Association to CustomerStatus;
+  note           : String;
+  attachment     : Association to AddressAttachment;
+  customerStatus : Association to CustomerStatus;
   dummyArray     : many dummies;
 }
 
@@ -169,6 +169,12 @@ entity C {
       text : String;
 }
 
+entity D {
+  key ID   : UUID;
+      text : String;
+      c    : Association to C;
+}
+
 annotate A with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
   c    @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
@@ -181,5 +187,10 @@ annotate B with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
 
 annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
   ID   @PersonalData.FieldSemantics: 'DataSubjectID';
+  text @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate D with @PersonalData      : {EntitySemantics: 'Other'} {
+  c    @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }

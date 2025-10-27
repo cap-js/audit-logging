@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.1.1 - 2025-10-27
+
+### Fixed
+
+- Data subject lookup when data subject is not exposed in the same service
+
 ## Version 1.1.0 - 2025-09-08
 
 ### Added
