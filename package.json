@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "lint": "npx eslint . --max-warnings=0",
-    "test": "npx jest --silent"
+    "test": "npx jest --silent",
+    "test:btpsdk": "NODE_OPTIONS=\"--experimental-vm-modules\" npx jest --silent test/integration/btpsdk.test.js"
   },
   "peerDependencies": {
     "@sap/cds": ">=8"
@@ -62,6 +63,12 @@
         },
         "audit-log-to-alsng": {
           "impl": "@cap-js/audit-logging/srv/log2alsng"
+        },
+        "audit-log-btp-sdk": {
+          "impl": "@cap-js/audit-logging/srv/log2btpsdk",
+          "vcap": {
+            "label": "auditlog"
+          }
         }
       }
     }
