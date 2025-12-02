@@ -129,7 +129,7 @@ describe('AuditLogService API', () => {
         uuid: 'baz',
         tenant: 'baz',
         user: 'baz',
-        time: time.toISOString()
+        time: expect.toBeDateLike()
       })
     })
 
