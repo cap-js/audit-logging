@@ -6,7 +6,8 @@ module.exports = class AuditLogService extends cds.Service {
     this.before('*', req => {
       const { tenant, user, timestamp } = cds.context
       req.data.uuid ??= cds.utils.uuid()
-      // allows to specify undefined tenant in order to log to provider in multi-tenant scenarios
+      // allows to specify null as tenant in order to log to provider in multi-tenant scenarios
+      // NOTE: tenant: null is not a public API!
       if (!('tenant' in req.data)) req.data.tenant = tenant
       req.data.user ??= user.id
       req.data.time ??= timestamp

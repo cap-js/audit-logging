@@ -133,16 +133,15 @@ describe('AuditLogService API', () => {
       })
     })
 
-    // TODO
-    xtest('tenant can be undefined', async () => {
+    test('tenant can be null', async () => {
       await cds.tx({ tenant: 'bar' }, async () => {
         const audit = await cds.connect.to('audit-log')
-        await audit.log('foo', { uuid: 'baz', tenant: undefined, user: 'baz' })
+        await audit.log('foo', { uuid: 'baz', tenant: null, user: 'baz' })
       })
       await wait(42)
       expect(_logs).toContainMatchObject({
         uuid: 'baz',
-        tenant: undefined,
+        tenant: null,
         user: 'baz'
       })
     })
