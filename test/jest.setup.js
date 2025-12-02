@@ -19,4 +19,11 @@ ${JSON.stringify(expected, null, 2)}`
   return { pass, message }
 }
 
-expect.extend({ toContainMatchObject })
+function toBeDateLike(received) {
+  return {
+    pass: received instanceof Date || typeof received === 'string' && !!Date.parse(received),
+    message: () => `expected ${received} to be date-like`
+  }
+}
+
+expect.extend({ toContainMatchObject, toBeDateLike })
