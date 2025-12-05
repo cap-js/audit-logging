@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.1.2 - tbd
+
+### Changed
+
+- Removed alpha auto-detect kind `audit-log-to-als` to prevent failing lookup from now optional `VCAP_SERVICES`
+
 ## Version 1.1.1 - 2025-10-27
 
 ### Fixed
