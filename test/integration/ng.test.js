@@ -1,9 +1,5 @@
 const cds = require('@sap/cds')
 
-const { POST } = cds.test().in(__dirname)
-
-cds.env.requires['audit-log'].kind = 'audit-log-to-alsng'
-cds.env.requires['audit-log'].impl = '@cap-js/audit-logging/srv/log2alsng'
 const VCAP_SERVICES = {
   'user-provided': [
     {
@@ -13,6 +9,8 @@ const VCAP_SERVICES = {
   ]
 }
 process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES)
+
+const { POST } = cds.test(__dirname, '--with-mocks', '--profile', 'audit-log-to-alsng')
 
 describe('Log to Audit Log Service NG ', () => {
   if (!VCAP_SERVICES['user-provided'][0].credentials)
