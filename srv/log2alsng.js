@@ -8,7 +8,8 @@ const AuditLogService = require('./service')
 module.exports = class AuditLog2ALSNG extends AuditLogService {
   constructor() {
     super()
-    if (!cds.requires['audit-log']?.credentials) throw new Error('No credentials found for SAP Audit Log Service NG')
+    this._userProvided = cds.requires['audit-log']
+    if (!this._userProvided?.credentials) throw new Error('No credentials found for SAP Audit Log Service NG')
     this._vcapApplication = JSON.parse(process.env.VCAP_APPLICATION || '{}')
   }
 
@@ -113,7 +114,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
     const eventData = {
       id: cds.utils.uuid(),
       specversion: 1,
-      source: `/${this.options.credentials?.region}/${this.options.credentials?.namespace}/${tenant}`,
+      source: `/${this._userProvided.credentials?.region}/${this._userProvided.credentials?.namespace}/${tenant}`,
       type: event,
       time: timestamp,
       data: {
@@ -160,8 +161,8 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
   }
 
   logEvent(event, data) {
-    const passphrase = this.options.credentials?.keyPassphrase
-    const url = new URL(`${this.options.credentials?.url}/ingestion/v1/events`)
+    const passphrase = this._userProvided.credentials?.keyPassphrase
+    const url = new URL(`${this._userProvided.credentials?.url}/ingestion/v1/events`)
     const eventData = this.formatEventData(event, data)
 
     const options = {
@@ -170,8 +171,8 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(eventData)
       },
-      key: this.options.credentials?.key,
-      cert: this.options.credentials?.cert,
+      key: this._userProvided.credentials?.key,
+      cert: this._userProvided.credentials?.cert,
       ...(passphrase !== undefined && { passphrase })
     }
 
