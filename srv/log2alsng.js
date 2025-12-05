@@ -8,9 +8,8 @@ const AuditLogService = require('./service')
 module.exports = class AuditLog2ALSNG extends AuditLogService {
   constructor() {
     super()
-    this._vcap = JSON.parse(process.env.VCAP_SERVICES || '{}')
-    this._userProvided = this._vcap['user-provided']?.find(obj => obj.tags.includes('auditlog-ng')) || {}
-    if (!this._userProvided.credentials) throw new Error('No credentials found for SAP Audit Log Service NG')
+    this._userProvided = cds.requires['audit-log']
+    if (!this._userProvided?.credentials) throw new Error('No credentials found for SAP Audit Log Service NG')
     this._vcapApplication = JSON.parse(process.env.VCAP_APPLICATION || '{}')
   }
 
