@@ -52,7 +52,10 @@
           "impl": "@cap-js/audit-logging/srv/log2console"
         },
         "audit-log-to-als": {
-          "impl": "@cap-js/audit-logging/srv/log2als"
+          "impl": "@cap-js/audit-logging/srv/log2als",
+          {
+            "vcap": [{ "label": "user-provided", "tag": "auditlog-ng" }, { "label": "auditlog" }]
+          }
         },
         "audit-log-to-restv2": {
           "impl": "@cap-js/audit-logging/srv/log2restv2",
@@ -61,7 +64,10 @@
           }
         },
         "audit-log-to-alsng": {
-          "impl": "@cap-js/audit-logging/srv/log2alsng"
+          "impl": "@cap-js/audit-logging/srv/log2alsng",
+          {
+            "vcap": { "label": "user-provided", "tag": "auditlog-ng" }
+          }
         }
       }
     }
