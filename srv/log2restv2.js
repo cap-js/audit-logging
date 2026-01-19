@@ -1,4 +1,5 @@
 const cds = require('@sap/cds')
+const { appMetadata } = require("../lib/utils");
 
 const LOG = cds.log('audit-log')
 
@@ -17,7 +18,6 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       this._tokens = new Map()
       this._provider = credentials.uaa.tenantid
     }
-    this._vcap = process.env.VCAP_APPLICATION ? JSON.parse(process.env.VCAP_APPLICATION) : null
 
     this.on('*', function (req) {
       const { event, data } = req
@@ -55,6 +55,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     const data = { grant_type: 'client_credentials', response_type: 'token', client_id: uaa.clientid }
     const options = { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
     if (tenant !== this._provider) options.headers['x-zid'] = tenant
+    
     // certificate or secret?
     if (uaa['credential-type'] === 'x509') {
       options.agent = new https.Agent({ cert: uaa.certificate, key: uaa.key })
@@ -81,11 +82,13 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
 
   async _send(data, path) {
     const headers = { 'content-type': 'application/json;charset=utf-8' }
-    if (this._vcap) {
-      headers.XS_AUDIT_ORG = this._vcap.organization_name
-      headers.XS_AUDIT_SPACE = this._vcap.space_name
-      headers.XS_AUDIT_APP = this._vcap.application_name
+    
+    if (appMetadata.appName) {
+      headers.XS_AUDIT_ORG = appMetadata.organization_name;
+      headers.XS_AUDIT_SPACE = appMetadata.space_name;
+      headers.XS_AUDIT_APP = appMetadata.appName;
     }
+    
     let url
     if (this._plan === 'standard') {
       url = this.options.credentials.url + PATHS.STANDARD[path]
