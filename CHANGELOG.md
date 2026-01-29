@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- Removed alpha auto-detect kind `audit-log-to-als` to prevent failing lookup from now optional `VCAP_SERVICES`
+- Adjusted auto-detection of kind `audit-log-to-als` to now check for a VCAP service name matching "auditlog-ng"
 
 ## Version 1.1.1 - 2025-10-27
 
