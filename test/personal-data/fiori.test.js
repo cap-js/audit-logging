@@ -1,921 +1,1001 @@
-const cds = require('@sap/cds')
+const { describe, test, before, after, beforeEach } = require("node:test");
+const assert = require("node:assert");
+const customAssert = require("../utils/customAssert");
+const cds = require("@sap/cds");
 
-const { POST: _POST, PATCH: _PATCH, GET: _GET, DELETE: _DELETE, data } = cds.test().in(__dirname)
+const {
+  POST: _POST,
+  PATCH: _PATCH,
+  GET: _GET,
+  DELETE: _DELETE,
+  data,
+} = cds.test().in(__dirname);
 
 // the persistent outbox adds a delay
-const wait = require('node:timers/promises').setTimeout
-const POST = (...args) => _POST(...args).then(async res => (await wait(42), res))
-const PATCH = (...args) => _PATCH(...args).then(async res => (await wait(42), res))
-const GET = (...args) => _GET(...args).then(async res => (await wait(42), res))
-const DELETE = (...args) => _DELETE(...args).then(async res => (await wait(42), res))
+const wait = require("node:timers/promises").setTimeout;
+const POST = (...args) =>
+  _POST(...args).then(async (res) => (await wait(42), res));
+const PATCH = (...args) =>
+  _PATCH(...args).then(async (res) => (await wait(42), res));
+const GET = (...args) =>
+  _GET(...args).then(async (res) => (await wait(42), res));
+const DELETE = (...args) =>
+  _DELETE(...args).then(async (res) => (await wait(42), res));
 
-const _logger = require('../utils/logger')({ debug: true })
-cds.log.Logger = _logger
+const _logger = require("../utils/logger")({ debug: true });
+cds.log.Logger = _logger;
 
-describe('personal data audit logging in Fiori', () => {
-  let __log, _logs
+describe("personal data audit logging in Fiori", () => {
+  let __log, _logs;
   const _log = (...args) => {
-    if (!(args.length === 2 && typeof args[0] === 'string' && args[0].match(/\[audit-log\]/i))) {
+    if (
+      !(
+        args.length === 2 &&
+        typeof args[0] === "string" &&
+        args[0].match(/\[audit-log\]/i)
+      )
+    ) {
       // > not an audit log (most likely, anyway)
-      return __log(...args)
+      return __log(...args);
     }
 
-    _logs.push(args[1])
-  }
+    _logs.push(args[1]);
+  };
 
-  const CUSTOMER_ID = 'bcd4a37a-6319-4d52-bb48-02fd06b9ffe9'
+  const CUSTOMER_ID = "bcd4a37a-6319-4d52-bb48-02fd06b9ffe9";
   const DATA_SUBJECT = {
-    type: 'Fiori_1.Customers',
-    role: 'Customer',
-    id: { ID: CUSTOMER_ID }
-  }
+    type: "Fiori_1.Customers",
+    role: "Customer",
+    id: { ID: CUSTOMER_ID },
+  };
 
-  const ALICE = { username: 'alice', password: 'password' }
+  const ALICE = { username: "alice", password: "password" };
 
-  beforeAll(() => {
-    __log = global.console.log
-    global.console.log = _log
-  })
+  before(() => {
+    __log = global.console.log;
+    global.console.log = _log;
+  });
 
-  afterAll(() => {
-    global.console.log = __log
-  })
+  after(() => {
+    global.console.log = __log;
+  });
 
   beforeEach(async () => {
-    await data.reset()
-    _logs = []
-    _logger._resetLogs()
-  })
+    await data.reset();
+    _logs = [];
+    _logger._resetLogs();
+  });
 
-  describe('data access logging for active draft enabled entities', () => {
-    test('read with another data subject and sensitive data only in composition children', async () => {
+  describe("data access logging for active draft enabled entities", () => {
+    test("read with another data subject and sensitive data only in composition children", async () => {
       const { data: customer } = await GET(
         `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses`,
-        { auth: ALICE }
-      )
-      const addressID1 = customer.addresses[0].ID
-      const addressID2 = customer.addresses[1].ID
-      expect(_logs.length).toBe(2)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        { auth: ALICE },
+      );
+      const addressID1 = customer.addresses[0].ID;
+      const addressID2 = customer.addresses[1].ID;
+      assert.strictEqual(_logs.length, 2);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: addressID1 }
+          type: "Fiori_2.CustomerPostalAddress",
+          id: { ID: addressID1 },
         },
         data_subject: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          role: 'Address',
+          type: "Fiori_2.CustomerPostalAddress",
+          role: "Address",
           id: {
             ID: addressID1,
-            street: 'moo',
-            town: 'shu'
-          }
+            street: "moo",
+            town: "shu",
+          },
         },
-        attributes: [{ name: 'someOtherField' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "someOtherField" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: addressID2 }
+          type: "Fiori_2.CustomerPostalAddress",
+          id: { ID: addressID2 },
         },
         data_subject: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          role: 'Address',
+          type: "Fiori_2.CustomerPostalAddress",
+          role: "Address",
           id: {
             ID: addressID2,
-            street: 'sue',
-            town: 'lou'
-          }
+            street: "sue",
+            town: "lou",
+          },
         },
-        attributes: [{ name: 'someOtherField' }]
-      })
-    })
+        attributes: [{ name: "someOtherField" }],
+      });
+    });
 
-    test('read all Customers', async () => {
-      const response = await GET('/fiori-1/Customers', { auth: ALICE })
+    test("read all Customers", async () => {
+      const response = await GET("/fiori-1/Customers", { auth: ALICE });
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 1);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
+        attributes: [{ name: "creditCardNo" }],
+      });
+    });
 
-    test('read single Customer', async () => {
-      const response = await GET(`/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)`, { auth: ALICE })
+    test("read single Customer", async () => {
+      const response = await GET(
+        `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)`,
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 1);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
+        attributes: [{ name: "creditCardNo" }],
+      });
+    });
 
-    test('read Customer expanding addresses and comments - comp of many', async () => {
+    test("read Customer expanding addresses and comments - comp of many", async () => {
       const response = await GET(
         `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses($expand=attachments),comments`,
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(5)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 5);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
+        attributes: [{ name: "creditCardNo" }],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '1ab71292-ef69-4571-8cfb-10b9d5d1459e' }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "1ab71292-ef69-4571-8cfb-10b9d5d1459e" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
+        attributes: [{ name: "street" }],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: '3cd71292-ef69-4571-8cfb-10b9d5d1437e' }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: "3cd71292-ef69-4571-8cfb-10b9d5d1437e" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "description" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: '595225db-6eeb-4b4f-9439-dbe5fcb4ce5a' }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: "595225db-6eeb-4b4f-9439-dbe5fcb4ce5a" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "description" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82' }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "285225db-6eeb-4b4f-9439-dbe5fcb4ce82" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-    })
+        attributes: [{ name: "street" }],
+      });
+    });
 
-    test('read Customer expanding deep nested comp of one', async () => {
+    test("read Customer expanding deep nested comp of one", async () => {
       const response = await GET(
         `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=status($expand=change($expand=last))`,
-        { auth: ALICE }
-      )
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(4)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 4);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "creditCardNo" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerStatus',
-          id: { ID: '23d4a37a-6319-4d52-bb48-02fd06b9ffa4' }
+          type: "Fiori_1.CustomerStatus",
+          id: { ID: "23d4a37a-6319-4d52-bb48-02fd06b9ffa4" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "description" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.StatusChange',
-          id: { ID: '59d4a37a-6319-4d52-bb48-02fd06b9fbc2', secondKey: 'some value' }
+          type: "Fiori_1.StatusChange",
+          id: {
+            ID: "59d4a37a-6319-4d52-bb48-02fd06b9fbc2",
+            secondKey: "some value",
+          },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "description" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.LastOne',
-          id: { ID: '74d4a37a-6319-4d52-bb48-02fd06b9f3r4' }
+          type: "Fiori_1.LastOne",
+          id: { ID: "74d4a37a-6319-4d52-bb48-02fd06b9f3r4" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField' }]
-      })
-    })
+        attributes: [{ name: "lastOneField" }],
+      });
+    });
 
-    test('read all CustomerStatus', async () => {
-      const response = await GET('/fiori-1/CustomerStatus', { auth: ALICE })
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+    test("read all CustomerStatus", async () => {
+      const response = await GET("/fiori-1/CustomerStatus", { auth: ALICE });
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 1);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerStatus',
-          id: { ID: '23d4a37a-6319-4d52-bb48-02fd06b9ffa4' }
+          type: "Fiori_1.CustomerStatus",
+          id: { ID: "23d4a37a-6319-4d52-bb48-02fd06b9ffa4" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description' }]
-      })
-    })
+        attributes: [{ name: "description" }],
+      });
+    });
 
-    test('read all CustomerPostalAddress', async () => {
-      const response = await GET('/fiori-1/CustomerPostalAddress', { auth: ALICE })
+    test("read all CustomerPostalAddress", async () => {
+      const response = await GET("/fiori-1/CustomerPostalAddress", {
+        auth: ALICE,
+      });
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(2)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 2);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '1ab71292-ef69-4571-8cfb-10b9d5d1459e' }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "1ab71292-ef69-4571-8cfb-10b9d5d1459e" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
+        attributes: [{ name: "street" }],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82' }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "285225db-6eeb-4b4f-9439-dbe5fcb4ce82" },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-    })
+        attributes: [{ name: "street" }],
+      });
+    });
 
-    test('read all CustomerPostalAddress expanding Customer', async () => {
-      const response = await GET('/fiori-1/CustomerPostalAddress?$expand=customer', { auth: ALICE })
-
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(3)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '1ab71292-ef69-4571-8cfb-10b9d5d1459e' }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
-        object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: '285225db-6eeb-4b4f-9439-dbe5fcb4ce82' }
-        },
-        data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'street' }]
-      })
-    })
-
-    test('draft union', async () => {
+    test("read all CustomerPostalAddress expanding Customer", async () => {
       const response = await GET(
-        '/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)',
-        { auth: ALICE }
-      )
+        "/fiori-1/CustomerPostalAddress?$expand=customer",
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 3);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
-  })
+        attributes: [{ name: "creditCardNo" }],
+      });
 
-  describe('modification and read draft logging', () => {
-    test('draft edit, patch and activate with another data subject and sensitive data only in composition children', async () => {
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
+        object: {
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "1ab71292-ef69-4571-8cfb-10b9d5d1459e" },
+        },
+        data_subject: DATA_SUBJECT,
+        attributes: [{ name: "street" }],
+      });
+
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
+        object: {
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: "285225db-6eeb-4b4f-9439-dbe5fcb4ce82" },
+        },
+        data_subject: DATA_SUBJECT,
+        attributes: [{ name: "street" }],
+      });
+    });
+
+    test("draft union", async () => {
+      const response = await GET(
+        "/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)",
+        { auth: ALICE },
+      );
+
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 1);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
+        object: {
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
+        },
+        data_subject: DATA_SUBJECT,
+        attributes: [{ name: "creditCardNo" }],
+      });
+    });
+  });
+
+  describe("modification and read draft logging", () => {
+    test("draft edit, patch and activate with another data subject and sensitive data only in composition children", async () => {
       const { data: customer } = await GET(
         `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses`,
-        { auth: ALICE }
-      )
-      const address_1 = customer.addresses[0]
-      const address_2 = customer.addresses[1]
+        { auth: ALICE },
+      );
+      const address_1 = customer.addresses[0];
+      const address_2 = customer.addresses[1];
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       // draftEdit transfers active data to draft tables -> read sensitive data -> logs
-      await POST(`/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/draftEdit`, {}, { auth: ALICE })
-      expect(_logs.length).toBe(2)
-      expect(_logs.length).toBe(2)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      await POST(
+        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/draftEdit`,
+        {},
+        { auth: ALICE },
+      );
+      assert.strictEqual(_logs.length, 2);
+      assert.strictEqual(_logs.length, 2);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: address_1.ID }
+          type: "Fiori_2.CustomerPostalAddress",
+          id: { ID: address_1.ID },
         },
         data_subject: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          role: 'Address',
+          type: "Fiori_2.CustomerPostalAddress",
+          role: "Address",
           id: {
             ID: address_1.ID,
             street: address_1.street,
-            town: address_1.town
-          }
+            town: address_1.town,
+          },
         },
-        attributes: [{ name: 'someOtherField' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "someOtherField" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: address_2.ID }
+          type: "Fiori_2.CustomerPostalAddress",
+          id: { ID: address_2.ID },
         },
         data_subject: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          role: 'Address',
+          type: "Fiori_2.CustomerPostalAddress",
+          role: "Address",
           id: {
             ID: address_2.ID,
             street: address_2.street,
-            town: address_2.town
-          }
+            town: address_2.town,
+          },
         },
-        attributes: [{ name: 'someOtherField' }]
-      })
+        attributes: [{ name: "someOtherField" }],
+      });
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       // draft data is never logged
-      await GET(`/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)?$expand=addresses`, { auth: ALICE })
-      expect(_logs.length).toBe(0)
+      await GET(
+        `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)?$expand=addresses`,
+        { auth: ALICE },
+      );
+      assert.strictEqual(_logs.length, 0);
 
       await PATCH(
         `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)/addresses(ID=${address_1.ID},IsActiveEntity=false)`,
         {
-          street: 'updated',
-          town: 'updated town'
+          street: "updated",
+          town: "updated town",
         },
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
       const response = await POST(
         `/fiori-2/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)/draftActivate`,
         {},
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(1)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 1);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          id: { ID: address_1.ID }
+          type: "Fiori_2.CustomerPostalAddress",
+          id: { ID: address_1.ID },
         },
         data_subject: {
-          type: 'Fiori_2.CustomerPostalAddress',
-          role: 'Address',
+          type: "Fiori_2.CustomerPostalAddress",
+          role: "Address",
           id: {
             ID: address_1.ID,
-            street: 'updated',
-            town: 'updated town'
-          }
+            street: "updated",
+            town: "updated town",
+          },
         },
         attributes: [
-          { name: 'street', new: 'updated', old: 'moo' },
-          { name: 'town', new: 'updated town', old: 'shu' }
-        ]
-      })
-    })
+          { name: "street", new: "updated", old: "moo" },
+          { name: "town", new: "updated town", old: "shu" },
+        ],
+      });
+    });
 
-    test('create, patch, read and activate', async () => {
+    test("create, patch, read and activate", async () => {
       const customer = {
-        emailAddress: 'bla@blub.com',
-        firstName: 'bla',
-        lastName: 'blub',
-        creditCardNo: '98765',
-        someOtherField: 'dummy'
-      }
+        emailAddress: "bla@blub.com",
+        firstName: "bla",
+        lastName: "blub",
+        creditCardNo: "98765",
+        someOtherField: "dummy",
+      };
 
-      let response = await POST('/fiori-1/Customers', {}, { auth: ALICE })
+      let response = await POST("/fiori-1/Customers", {}, { auth: ALICE });
 
-      expect(response).toMatchObject({ status: 201 })
-      customer.ID = response.data.ID
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 201);
+      customer.ID = response.data.ID;
+      assert.strictEqual(_logs.length, 0);
 
-      response = await PATCH(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`, customer, { auth: ALICE })
+      response = await PATCH(
+        `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`,
+        customer,
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
-      response = await GET(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`, { auth: ALICE })
+      response = await GET(
+        `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`,
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
       response = await POST(
         `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/Fiori_1.draftActivate`,
         {},
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(_logs.length).toBe(2)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(_logs.length, 2);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject: {
-          type: 'Fiori_1.Customers',
-          role: 'Customer',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          role: "Customer",
+          id: { ID: customer.ID },
         },
         attributes: [
-          { name: 'emailAddress', new: customer.emailAddress },
-          { name: 'firstName', new: customer.firstName },
-          { name: 'lastName', new: customer.lastName },
-          { name: 'creditCardNo', new: '***' }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "emailAddress", new: customer.emailAddress },
+          { name: "firstName", new: customer.firstName },
+          { name: "lastName", new: customer.lastName },
+          { name: "creditCardNo", new: "***" },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject: {
-          type: 'Fiori_1.Customers',
-          role: 'Customer',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          role: "Customer",
+          id: { ID: customer.ID },
         },
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
+        attributes: [{ name: "creditCardNo" }],
+      });
+    });
 
-    test('draft edit, read union, delete draft', async () => {
+    test("draft edit, read union, delete draft", async () => {
       let response = await POST(
         `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)/Fiori_1.draftEdit`,
         { PreserveChanges: true },
-        { auth: ALICE }
-      )
-      expect(response).toMatchObject({ status: 201 })
-      expect(_logs.length).toBe(10)
-      for (const l of _logs) expect(l).toMatchObject({ data_subject: { id: { ID: CUSTOMER_ID } } })
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 201);
+      assert.strictEqual(_logs.length, 10);
+      for (const l of _logs) {
+        assert.strictEqual(l.data_subject.id.ID, CUSTOMER_ID);
+      }
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       // draft data is never logged and since cds^7.6, we only read actives for which no draft exists -> now 0 logs
       response = await GET(
-        '/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)',
-        { auth: ALICE }
-      )
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+        "/fiori-1/Customers?$filter=(IsActiveEntity eq false or SiblingEntity/IsActiveEntity eq null)",
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
       // reset logs
-      _logs = []
+      _logs = [];
 
-      response = await DELETE(`/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)`, { auth: ALICE })
-      expect(response).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(0)
-    })
+      response = await DELETE(
+        `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=false)`,
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 204);
+      assert.strictEqual(_logs.length, 0);
+    });
 
-    test('draft edit, patch and activate', async () => {
-      let response
+    test("draft edit, patch and activate", async () => {
+      let response;
 
       // draftEdit transfers active data to draft tables -> read sensitive data -> logs
       response = await POST(
         `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=true)/Fiori_1.draftEdit`,
         { PreserveChanges: true },
-        { auth: ALICE }
-      )
-      expect(response).toMatchObject({ status: 201 })
-      expect(_logs.length).toBe(10)
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 201);
+      assert.strictEqual(_logs.length, 10);
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       const customer = {
         ID: response.data.ID,
-        emailAddress: 'bla@blub.com',
-        firstName: 'bla',
-        lastName: 'blub',
-        creditCardNo: '98765',
-        someOtherField: 'dummy'
-      }
+        emailAddress: "bla@blub.com",
+        firstName: "bla",
+        lastName: "blub",
+        creditCardNo: "98765",
+        someOtherField: "dummy",
+      };
 
-      response = await PATCH(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`, customer, { auth: ALICE })
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      response = await PATCH(
+        `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`,
+        customer,
+        { auth: ALICE },
+      );
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       response = await POST(
         `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/Fiori_1.draftActivate`,
         {},
-        { auth: ALICE }
-      )
-      expect(_logs.length).toBe(2)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        { auth: ALICE },
+      );
+      assert.strictEqual(_logs.length, 2);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject: {
-          type: 'Fiori_1.Customers',
-          role: 'Customer',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          role: "Customer",
+          id: { ID: customer.ID },
         },
         attributes: [
-          { name: 'emailAddress', old: 'foo@bar.com', new: customer.emailAddress },
-          { name: 'firstName', old: 'foo', new: customer.firstName },
-          { name: 'lastName', old: 'bar', new: customer.lastName },
-          { name: 'creditCardNo', old: '***', new: '***' }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          {
+            name: "emailAddress",
+            old: "foo@bar.com",
+            new: customer.emailAddress,
+          },
+          { name: "firstName", old: "foo", new: customer.firstName },
+          { name: "lastName", old: "bar", new: customer.lastName },
+          { name: "creditCardNo", old: "***", new: "***" },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject: {
-          type: 'Fiori_1.Customers',
-          role: 'Customer',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          role: "Customer",
+          id: { ID: customer.ID },
         },
-        attributes: [{ name: 'creditCardNo' }]
-      })
-    })
+        attributes: [{ name: "creditCardNo" }],
+      });
+    });
 
-    test('create, patch, and activate - deep', async () => {
-      let response = await POST('/fiori-1/Customers', {}, { auth: ALICE })
+    test("create, patch, and activate - deep", async () => {
+      let response = await POST("/fiori-1/Customers", {}, { auth: ALICE });
 
-      expect(response).toMatchObject({ status: 201 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 201);
+      assert.strictEqual(_logs.length, 0);
 
       const customer = {
         ID: response.data.ID,
-        emailAddress: 'bla@blub.com',
-        firstName: 'bla',
-        lastName: 'blub',
-        creditCardNo: '98765',
-        someOtherField: 'dummy'
-      }
-      response = await PATCH(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`, customer, { auth: ALICE })
+        emailAddress: "bla@blub.com",
+        firstName: "bla",
+        lastName: "blub",
+        creditCardNo: "98765",
+        someOtherField: "dummy",
+      };
+      response = await PATCH(
+        `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)`,
+        customer,
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
-      response = await POST(`/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/addresses`, {}, { auth: ALICE })
+      response = await POST(
+        `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/addresses`,
+        {},
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 201 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 201);
+      assert.strictEqual(_logs.length, 0);
 
       const address = {
         ID: response.data.ID,
-        street: 'A1',
-        town: 'Monnem',
-        someOtherField: 'Beschde'
-      }
+        street: "A1",
+        town: "Monnem",
+        someOtherField: "Beschde",
+      };
 
       response = await PATCH(
         `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/addresses(ID=${address.ID},IsActiveEntity=false)`,
         address,
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
       response = await POST(
         `/fiori-1/Customers(ID=${customer.ID},IsActiveEntity=false)/Fiori_1.draftActivate`,
         {},
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
       const data_subject = {
-        type: 'Fiori_1.Customers',
-        role: 'Customer',
-        id: { ID: customer.ID }
-      }
+        type: "Fiori_1.Customers",
+        role: "Customer",
+        id: { ID: customer.ID },
+      };
 
-      expect(_logs.length).toBe(3)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(_logs.length, 3);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject,
         attributes: [
-          { name: 'emailAddress', new: customer.emailAddress },
-          { name: 'firstName', new: customer.firstName },
-          { name: 'lastName', new: customer.lastName },
-          { name: 'creditCardNo', new: '***' }
-        ]
-      })
+          { name: "emailAddress", new: customer.emailAddress },
+          { name: "firstName", new: customer.firstName },
+          { name: "lastName", new: customer.lastName },
+          { name: "creditCardNo", new: "***" },
+        ],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          id: { ID: customer.ID },
         },
         data_subject: {
-          type: 'Fiori_1.Customers',
-          role: 'Customer',
-          id: { ID: customer.ID }
+          type: "Fiori_1.Customers",
+          role: "Customer",
+          id: { ID: customer.ID },
         },
-        attributes: [{ name: 'creditCardNo' }]
-      })
+        attributes: [{ name: "creditCardNo" }],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: address.ID }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: address.ID },
         },
         data_subject,
         attributes: [
-          { name: 'street', new: '***' },
-          { name: 'town', new: address.town }
-        ]
-      })
-    })
+          { name: "street", new: "***" },
+          { name: "town", new: address.town },
+        ],
+      });
+    });
 
-    test('delete active Customer - deep', async () => {
+    test("delete active Customer - deep", async () => {
       let response = await GET(
         `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses($expand=attachments),status($expand=change($expand=last)),comments`,
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      const oldAddresses = response.data.addresses
-      const oldAttachments = response.data.addresses[0].attachments
-      const oldStatus = response.data.status
-      const oldChange = response.data.status.change
-      const oldLast = response.data.status.change.last
+      const oldAddresses = response.data.addresses;
+      const oldAttachments = response.data.addresses[0].attachments;
+      const oldStatus = response.data.status;
+      const oldChange = response.data.status.change;
+      const oldLast = response.data.status.change.last;
 
       // reset logs
-      _logs = []
-      _logger._resetLogs()
+      _logs = [];
+      _logger._resetLogs();
 
-      response = await DELETE(`/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)`, { auth: ALICE })
+      response = await DELETE(
+        `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)`,
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 204 })
-      expect(_logs.length).toBe(10)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      assert.strictEqual(response.status, 204);
+      assert.strictEqual(_logs.length, 10);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Customers',
-          id: { ID: CUSTOMER_ID }
+          type: "Fiori_1.Customers",
+          id: { ID: CUSTOMER_ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'emailAddress', old: 'foo@bar.com' },
-          { name: 'firstName', old: 'foo' },
-          { name: 'lastName', old: 'bar' },
-          { name: 'creditCardNo', old: '***' }
-        ]
-      })
+          { name: "emailAddress", old: "foo@bar.com" },
+          { name: "firstName", old: "foo" },
+          { name: "lastName", old: "bar" },
+          { name: "creditCardNo", old: "***" },
+        ],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: oldAddresses[0].ID }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: oldAddresses[0].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***' },
-          { name: 'town', old: oldAddresses[0].town }
-        ]
-      })
+          { name: "street", old: "***" },
+          { name: "town", old: oldAddresses[0].town },
+        ],
+      });
 
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: oldAttachments[0].ID }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: oldAttachments[0].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***' },
-          { name: 'todo', old: oldAttachments[0].todo }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "description", old: "***" },
+          { name: "todo", old: oldAttachments[0].todo },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: oldAttachments[1].ID }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: oldAttachments[1].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***' },
-          { name: 'todo', old: oldAttachments[1].todo }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "description", old: "***" },
+          { name: "todo", old: oldAttachments[1].todo },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: oldAddresses[1].ID }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: oldAddresses[1].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***' },
-          { name: 'town', old: oldAddresses[1].town }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "street", old: "***" },
+          { name: "town", old: oldAddresses[1].town },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerStatus',
-          id: { ID: oldStatus.ID }
+          type: "Fiori_1.CustomerStatus",
+          id: { ID: oldStatus.ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***' },
-          { name: 'todo', old: 'send reminder' }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "description", old: "***" },
+          { name: "todo", old: "send reminder" },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.StatusChange',
-          id: { ID: oldChange.ID, secondKey: oldChange.secondKey }
+          type: "Fiori_1.StatusChange",
+          id: { ID: oldChange.ID, secondKey: oldChange.secondKey },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'description', old: '***' }]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+        attributes: [{ name: "description", old: "***" }],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.LastOne',
-          id: { ID: oldLast.ID }
+          type: "Fiori_1.LastOne",
+          id: { ID: oldLast.ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'lastOneField', old: '***' }]
-      })
+        attributes: [{ name: "lastOneField", old: "***" }],
+      });
 
       const selects = _logger._logs.debug.filter(
-        l => typeof l === 'string' && l.match(/^SELECT/) && l.match(/SELECT [Customers.]*ID FROM Fiori_1_Customers/)
-      )
-      expect(selects.length).toBe(1)
-    })
+        (l) =>
+          typeof l === "string" &&
+          l.match(/^SELECT/) &&
+          l.match(/SELECT [Customers.]*ID FROM Fiori_1_Customers/),
+      );
+      assert.strictEqual(selects.length, 1);
+    });
 
-    test('with atomicity group', async () => {
+    test("with atomicity group", async () => {
       let response = await GET(
         `/fiori-1/Customers(ID=${CUSTOMER_ID},IsActiveEntity=true)?$expand=addresses($expand=attachments($expand=notes)),status($expand=change($expand=last),notes)`,
-        { auth: ALICE }
-      )
-      const oldAddresses = response.data.addresses
-      const oldAttachments = response.data.addresses[0].attachments
-      const oldAttachmentNotes = response.data.addresses[0].attachments[0].notes
+        { auth: ALICE },
+      );
+      const oldAddresses = response.data.addresses;
+      const oldAttachments = response.data.addresses[0].attachments;
+      const oldAttachmentNotes =
+        response.data.addresses[0].attachments[0].notes;
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       response = await POST(
         `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=true)/Fiori_1.draftEdit`,
         { PreserveChanges: true },
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 201 })
-      expect(_logs.length).toBe(10)
+      assert.strictEqual(response.status, 201);
+      assert.strictEqual(_logs.length, 10);
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       response = await PATCH(
         `/fiori-1/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=false)`,
         { status: null },
-        { auth: ALICE }
-      )
+        { auth: ALICE },
+      );
 
-      expect(response).toMatchObject({ status: 200 })
-      expect(_logs.length).toBe(0)
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(_logs.length, 0);
 
       // reset logs
-      _logs = []
+      _logs = [];
 
       const body = {
         requests: [
           {
-            method: 'POST',
+            method: "POST",
             url: `/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=false)/Fiori_1.draftActivate`,
-            headers: { 'content-type': 'application/json', 'odata-version': '4.0' },
-            id: 'r1',
-            atomicityGroup: 'g1'
+            headers: {
+              "content-type": "application/json",
+              "odata-version": "4.0",
+            },
+            id: "r1",
+            atomicityGroup: "g1",
           },
           {
-            method: 'DELETE',
+            method: "DELETE",
             url: `/Customers(ID=bcd4a37a-6319-4d52-bb48-02fd06b9ffe9,IsActiveEntity=true)`,
-            headers: { 'content-type': 'application/json', 'odata-version': '4.0' },
-            id: 'r2',
-            atomicityGroup: 'g1',
-            dependsOn: ['r1']
-          }
-        ]
-      }
-      response = await POST('/fiori-1/$batch', body, { auth: ALICE })
-      expect(response).toMatchObject({ status: 200 })
-      expect(response.data.responses.every(r => r.status >= 200 && r.status < 300)).toBeTruthy()
-      expect(_logs.length).toBe(11)
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+            headers: {
+              "content-type": "application/json",
+              "odata-version": "4.0",
+            },
+            id: "r2",
+            atomicityGroup: "g1",
+            dependsOn: ["r1"],
+          },
+        ],
+      };
+      response = await POST("/fiori-1/$batch", body, { auth: ALICE });
+      assert.strictEqual(response.status, 200);
+      expect(
+        response.data.responses.every((r) => r.status >= 200 && r.status < 300),
+      ).toBeTruthy();
+      assert.strictEqual(_logs.length, 11);
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: oldAddresses[0].ID }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: oldAddresses[0].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***' },
-          { name: 'town', old: oldAddresses[0].town }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "street", old: "***" },
+          { name: "town", old: oldAddresses[0].town },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: oldAttachments[0].ID }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: oldAttachments[0].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***' },
-          { name: 'todo', old: oldAttachments[0].todo }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "description", old: "***" },
+          { name: "todo", old: oldAttachments[0].todo },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.AddressAttachment',
-          id: { ID: oldAttachments[1].ID }
+          type: "Fiori_1.AddressAttachment",
+          id: { ID: oldAttachments[1].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'description', old: '***' },
-          { name: 'todo', old: oldAttachments[1].todo }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "description", old: "***" },
+          { name: "todo", old: oldAttachments[1].todo },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.CustomerPostalAddress',
-          id: { ID: oldAddresses[1].ID }
+          type: "Fiori_1.CustomerPostalAddress",
+          id: { ID: oldAddresses[1].ID },
         },
         data_subject: DATA_SUBJECT,
         attributes: [
-          { name: 'street', old: '***' },
-          { name: 'town', old: oldAddresses[1].town }
-        ]
-      })
-      expect(_logs).toContainMatchObject({
-        user: 'alice',
+          { name: "street", old: "***" },
+          { name: "town", old: oldAddresses[1].town },
+        ],
+      });
+      customAssert.toContainMatchObject(_logs, {
+        user: "alice",
         object: {
-          type: 'Fiori_1.Notes',
-          id: { ID: oldAttachmentNotes[0].ID }
+          type: "Fiori_1.Notes",
+          id: { ID: oldAttachmentNotes[0].ID },
         },
         data_subject: DATA_SUBJECT,
-        attributes: [{ name: 'note', old: '***' }]
-      })
-    })
-  })
-})
+        attributes: [{ name: "note", old: "***" }],
+      });
+    });
+  });
+});

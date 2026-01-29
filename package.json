@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "lint": "npx eslint . --max-warnings=0",
-    "test": "npx jest --silent"
+    "test": "node --test --experimental-test-isolation=process"
   },
   "peerDependencies": {
     "@sap/cds": ">=8"
@@ -22,10 +22,8 @@
     "@cap-js/audit-logging": "file:.",
     "@cap-js/cds-test": ">=0",
     "@cap-js/sqlite": ">=1",
-    "axios": "^1",
     "eslint": "^9",
     "express": "^4",
-    "jest": "^30",
     "pretty-quick": "^4.2.2",
     "simple-git-hooks": "^2.13.1"
   },

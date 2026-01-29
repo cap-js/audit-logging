@@ -1,36 +1,54 @@
-const cds = require('@sap/cds')
+const { describe, test } = require("node:test");
+const assert = require("node:assert");
+const cds = require("@sap/cds");
 
-const { POST } = cds.test().in(__dirname)
-const log = cds.test.log()
+const { POST } = cds.test().in(__dirname);
 
-cds.env.requires['audit-log'].credentials = process.env.ALS_CREDS_PREMIUM && JSON.parse(process.env.ALS_CREDS_PREMIUM)
+cds.env.requires["audit-log"].credentials =
+  process.env.ALS_CREDS_PREMIUM && JSON.parse(process.env.ALS_CREDS_PREMIUM);
 
 // stay in provider account (i.e., use "$PROVIDER" and avoid x-zid header when fetching oauth2 token)
-cds.env.requires.auth.users.alice.tenant = cds.env.requires['audit-log'].credentials.uaa.tenantid
+cds.env.requires.auth.users.alice.tenant =
+  cds.env.requires["audit-log"].credentials.uaa.tenantid;
 
-cds.env.log.levels['audit-log'] = 'debug'
+cds.env.log.levels["audit-log"] = "debug";
 
-describe('Log to Audit Log Service with premium plan', () => {
-  if (!cds.env.requires['audit-log'].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => {})
+describe("Log to Audit Log Service with premium plan", () => {
+  let logs = [];
+  before(async () => {
+    const audit = await cds.connect.to("audit-log");
+    audit.after("*", (res, req) => {
+      let sendLogs = req.data;
+      if (!Array.isArray(sendLogs)) sendLogs = [sendLogs];
+      logs.push(...sendLogs);
+    });
+  });
+  beforeEach(() => {
+    logs = [];
+  });
+  if (!cds.env.requires["audit-log"].credentials)
+    return test.skip("Skipping tests due to missing credentials", () => {});
 
-  // required for tests to exit correctly (cf. token expiration timeouts)
-  jest.useFakeTimers()
+  require("./shared-asserts")(POST);
 
-  require('./tests')(POST)
+  test("no tenant is handled correctly", async () => {
+    const data = JSON.stringify({ data: { foo: "bar" } });
+    const res = await POST("/integration/passthrough", {
+      event: "SecurityEvent",
+      data,
+    });
+    assert.strictEqual(res.status, 204);
+    assert.strictEqual(logs[0].tenant, "$PROVIDER");
+  });
 
-  test('no tenant is handled correctly', async () => {
-    const data = JSON.stringify({ data: { foo: 'bar' } })
-    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
-    expect(res).toMatchObject({ status: 204 })
-    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
-  })
-
-  // NOTE: unoffcial feature
-  test('tenant $PROVIDER is handled correctly', async () => {
-    const data = JSON.stringify({ data: { foo: 'bar' }, tenant: '$PROVIDER' })
-    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
-    expect(res).toMatchObject({ status: 204 })
-    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
-  })
-})
+  // NOTE: unofficial feature
+  test("tenant $PROVIDER is handled correctly", async () => {
+    const data = JSON.stringify({ data: { foo: "bar" }, tenant: "$PROVIDER" });
+    const res = await POST("/integration/passthrough", {
+      event: "SecurityEvent",
+      data,
+    });
+    assert.strictEqual(res.status, 204);
+    assert.strictEqual(logs[0].tenant, "$PROVIDER");
+  });
+});
