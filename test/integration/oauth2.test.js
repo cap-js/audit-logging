@@ -15,6 +15,18 @@ cds.env.requires.auth.users.alice.tenant =
 cds.env.log.levels["audit-log"] = "debug";
 
 describe("Log to Audit Log Service with oauth2 plan", () => {
+  let logs = [];
+  before(async () => {
+    const audit = await cds.connect.to("audit-log");
+    audit.after("*", (res, req) => {
+      let sendLogs = req.data;
+      if (!Array.isArray(sendLogs)) sendLogs = [sendLogs];
+      logs.push(...sendLogs);
+    });
+  });
+  beforeEach(() => {
+    logs = [];
+  });
   if (!cds.env.requires["audit-log"].credentials)
     return test.skip("Skipping tests due to missing credentials", () => {});
 
@@ -27,10 +39,10 @@ describe("Log to Audit Log Service with oauth2 plan", () => {
       data,
     });
     assert.strictEqual(res.status, 204);
-    assert.ok(log.output.match(/\$PROVIDER/));
+    assert.strictEqual(logs[0].tenant, "$PROVIDER");
   });
 
-  // NOTE: unoffcial feature
+  // NOTE: unofficial feature
   test("tenant $PROVIDER is handled correctly", async () => {
     const data = JSON.stringify({ data: { foo: "bar" }, tenant: "$PROVIDER" });
     const res = await POST("/integration/passthrough", {
@@ -38,6 +50,6 @@ describe("Log to Audit Log Service with oauth2 plan", () => {
       data,
     });
     assert.strictEqual(res.status, 204);
-    assert.ok(log.output.match(/\$PROVIDER/));
+    assert.strictEqual(logs[0].tenant, "$PROVIDER");
   });
 });
