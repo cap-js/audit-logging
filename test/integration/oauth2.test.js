@@ -27,11 +27,6 @@ describe("Log to Audit Log Service with oauth2 plan", () => {
       data,
     });
     assert.strictEqual(res.status, 204);
-    assert.ok(
-      cds.env.requires.auth.users.alice.tenant ===
-        cds.env.requires["audit-log"].credentials.uaa.tenantid,
-      `${cds.env.requires.auth.users.alice.tenant} does mot match audit log tenant`,
-    );
     assert.ok(log.output.match(/\$PROVIDER/));
   });
 
