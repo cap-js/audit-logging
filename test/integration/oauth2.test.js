@@ -6,7 +6,7 @@ const log = cds.test.log()
 cds.env.requires['audit-log'].credentials = process.env.ALS_CREDS_OAUTH2 && JSON.parse(process.env.ALS_CREDS_OAUTH2)
 
 // stay in provider account (i.e., use "$PROVIDER" and avoid x-zid header when fetching oauth2 token)
-cds.env.requires.auth.users.alice.tenant = cds.env.requires['audit-log'].credentials.uaa.tenantid
+cds.env.requires.auth.users.alice.tenant = cds.env.requires['audit-log'].credentials?.uaa.tenantid
 
 cds.env.log.levels['audit-log'] = 'debug'
 

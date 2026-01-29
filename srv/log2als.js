@@ -1,4 +1,6 @@
-const credentials = JSON.parse(process.env.VCAP_SERVICES) || {}
-const isV3 = credentials['user-provided']?.some(obj => obj.tags.includes('auditlog-ng'))
+const cds = require("@sap/cds");
 
-module.exports = isV3 ? require('./log2alsng') : require('./log2restv2')
+module.exports =
+  cds.env.requires["audit-log"].vcap.name === "auditlog-ng"
+    ? require("./log2alsng")
+    : require("./log2restv2");

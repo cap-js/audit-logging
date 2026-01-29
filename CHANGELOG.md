@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.1.2 - tbd
+
+### Changed
+
+- Adjusted auto-detection of kind `audit-log-to-als` to now check for a VCAP service name matching "auditlog-ng"
+
 ## Version 1.1.1 - 2025-10-27
 
 ### Fixed
