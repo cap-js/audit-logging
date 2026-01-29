@@ -3,7 +3,6 @@ const assert = require("node:assert");
 const cds = require("@sap/cds");
 
 const { POST } = cds.test().in(__dirname);
-const log = cds.test.log();
 
 cds.env.requires["audit-log"].credentials =
   process.env.ALS_CREDS_OAUTH2 && JSON.parse(process.env.ALS_CREDS_OAUTH2);
