@@ -1,6 +1,6 @@
 const { describe, test, before, after, beforeEach } = require("node:test");
 const assert = require("node:assert");
-const customAssert = require("../jest.setup");
+const customAssert = require("../utils/customAssert");
 const cds = require("@sap/cds");
 
 const { axios, POST, GET } = cds.test().in(__dirname);

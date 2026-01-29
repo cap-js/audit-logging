@@ -1,5 +1,5 @@
 const { describe, test, before, after, beforeEach } = require("node:test");
-const customAssert = require("../jest.setup");
+const customAssert = require("../utils/customAssert");
 const cds = require("@sap/cds");
 
 // set cwd for resolving impl
