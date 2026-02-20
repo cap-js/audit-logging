@@ -48,11 +48,11 @@
         }
       },
       "kinds": {
-        "audit-log-to-console": {
-          "impl": "@cap-js/audit-logging/srv/log2console"
-        },
         "audit-log-to-als": {
           "impl": "@cap-js/audit-logging/srv/log2als"
+        },
+        "audit-log-to-console": {
+          "impl": "@cap-js/audit-logging/srv/log2console"
         },
         "audit-log-to-restv2": {
           "impl": "@cap-js/audit-logging/srv/log2restv2",
@@ -61,7 +61,10 @@
           }
         },
         "audit-log-to-alsng": {
-          "impl": "@cap-js/audit-logging/srv/log2alsng"
+          "impl": "@cap-js/audit-logging/srv/log2alsng",
+          "vcap": {
+            "name": "auditlog-ng"
+          }
         }
       }
     }
