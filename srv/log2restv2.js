@@ -192,9 +192,10 @@ async function _post(url, data, options) {
         let body = Buffer.concat(chunks).toString();
         if (res.headers["content-type"]?.match(/json/)) body = JSON.parse(body);
         if (res.statusCode >= 400) {
-          const message = body?.constructor
-            ? Object.values(body).join(" - ")
-            : "";
+          const message =
+            body && typeof body === "object" && !Array.isArray(body)
+              ? Object.values(body).join(" - ")
+              : "";
           LOG._trace && LOG.trace(`Request body of failed audit-log: `, data);
           const err = new Error(
             `Request failed with${message ? `: ${statusCode} - ${message}` : ` status ${statusCode}`}`,
