@@ -1,11 +1,9 @@
 const cds = require("@sap/cds");
 
-let { GET: _GET, POST: _POST } = cds.test().in(__dirname);
+let { POST: _POST } = cds.test().in(__dirname);
 
 // the persistent outbox adds a delay
 const wait = require("node:timers/promises").setTimeout;
-const GET = (...args) =>
-  _GET(...args).then(async (res) => (await wait(42), res));
 const POST = (...args) =>
   _POST(...args).then(async (res) => (await wait(42), res));
 
