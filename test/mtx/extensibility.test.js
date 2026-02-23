@@ -26,12 +26,9 @@ describe("handle", () => {
 
   const CAROL = { username: "carol", password: "password" };
 
-  let _handle;
-
   beforeAll(async () => {
     __log = global.console.log;
     global.console.log = _log;
-    _handle = cds.env.requires["audit-log"].handle;
 
     await POST(
       `/-/cds/deployment/subscribe`,
@@ -62,7 +59,6 @@ describe("handle", () => {
   });
 
   beforeEach(() => {
-    cds.env.requires["audit-log"].handle = _handle;
     _logs = [];
   });
 
