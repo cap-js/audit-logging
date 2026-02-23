@@ -1,5 +1,3 @@
-const cds = require("@sap/cds");
-
 const VCAP_SERVICES = {
   "user-provided": [
     {
@@ -12,6 +10,7 @@ const VCAP_SERVICES = {
 };
 process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES);
 
+const cds = require("@sap/cds");
 const { POST } = cds.test(
   __dirname,
   "--with-mocks",
