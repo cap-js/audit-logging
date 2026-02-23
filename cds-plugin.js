@@ -45,26 +45,18 @@ cds.on("served", (services) => {
   }
   for (const service of services) {
     if (!(service instanceof cds.ApplicationService)) continue;
-    /*
-     * data access
-     */
     service.after("READ", async (res, req) => {
       // Checking for req.target._service to make sure only entities within services are considered
       if (!req.target._service || !hasPersonalData(req.target)) return;
       await auditAccess.call(service, res, req);
     });
 
-    /*
-     * data modification
-     */
     service.after(WRITE, async (res, req) => {
       if (!req.target._service || !hasPersonalData(req.target)) return;
       await emitModLogs.call(service, res, req);
     });
   }
-  /*
-   * data modification
-   */
+
   db.before("CREATE", async (req) => {
     if (!req.target._service || !hasPersonalData(req.target)) return;
     await addDiffToCtx.call(db, req);
@@ -74,23 +66,11 @@ cds.on("served", (services) => {
    * for deleted data, modifications are calculated in before phase
    * deep updates can contain new, modified and deleted data -> both phases
    */
-  // create
-  db.after("CREATE", async (res, req) => {
+  db.after(["CREATE", "UPDATE"], async (res, req) => {
     if (!req.target._service || !hasPersonalData(req.target)) return;
     await calcModLogs4After.call(db, res, req);
   });
-  // update
-  db.before("UPDATE", async (req) => {
-    if (!req.target._service || !hasPersonalData(req.target)) return;
-    await addDiffToCtx.call(db, req);
-    await calcModLogs4Before.call(db, req);
-  });
-  db.after("UPDATE", async (res, req) => {
-    if (!req.target._service || !hasPersonalData(req.target)) return;
-    await calcModLogs4After.call(db, res, req);
-  });
-  // delete
-  db.before("DELETE", async (req) => {
+  db.before(["DELETE", "UPDATE"], async (req) => {
     if (!req.target._service || !hasPersonalData(req.target)) return;
     await addDiffToCtx.call(db, req);
     await calcModLogs4Before.call(db, req);
