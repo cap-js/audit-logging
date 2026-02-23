@@ -48,7 +48,7 @@ cds.on("served", (services) => {
      */
     service.after("READ", async (res, req) => {
       if (!hasPersonalData(req.target)) return;
-      await auditAccess(res, req);
+      await auditAccess.call(service, res, req);
     });
 
     /*
@@ -56,7 +56,7 @@ cds.on("served", (services) => {
      */
     service.after(WRITE, async (res, req) => {
       if (!hasPersonalData(req.target)) return;
-      await emitModLogs(res, req);
+      await emitModLogs.call(service, res, req);
     });
   }
   /*
@@ -65,7 +65,7 @@ cds.on("served", (services) => {
   // common
   db.before(WRITE, async (req) => {
     if (!hasPersonalData(req.target)) return;
-    await addDiffToCtx(req);
+    await addDiffToCtx.call(db, req);
   });
   /*
    * for new or modified data, modifications are calculated in after phase
@@ -75,21 +75,21 @@ cds.on("served", (services) => {
   // create
   db.after("CREATE", async (res, req) => {
     if (!hasPersonalData(req.target)) return;
-    await calcModLogs4After(res, req);
+    await calcModLogs4After.call(db, res, req);
   });
   // update
   db.before("UPDATE", async (req) => {
     if (!hasPersonalData(req.target)) return;
-    await calcModLogs4Before(req);
+    await calcModLogs4Before.call(db, req);
   });
   db.after("UPDATE", async (res, req) => {
     if (!hasPersonalData(req.target)) return;
-    await calcModLogs4After(res, req);
+    await calcModLogs4After.call(db, res, req);
   });
   // delete
   db.before("DELETE", async (req) => {
     if (!hasPersonalData(req.target)) return;
-    await calcModLogs4Before(req);
+    await calcModLogs4Before.call(db, req);
   });
 });
 
