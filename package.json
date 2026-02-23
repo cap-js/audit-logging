@@ -22,6 +22,7 @@
     "@cap-js/audit-logging": "file:.",
     "@cap-js/cds-test": ">=0",
     "@cap-js/sqlite": ">=1",
+    "@sap/cds-mtxs": "^3.7.1",
     "axios": "^1",
     "eslint": "^9",
     "express": "^4",

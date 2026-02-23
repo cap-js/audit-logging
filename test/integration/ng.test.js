@@ -1,10 +1,10 @@
-const cds = require("@sap/cds");
-
 const VCAP_SERVICES = {
   "user-provided": [
     {
       name: "auditlog-ng",
       tags: [],
+      // REVISIT: only needed for cds 8 because cds-mtxs injects vcap matching for that
+      label: "auditlog",
       credentials:
         process.env.ALS_CREDS_NG && JSON.parse(process.env.ALS_CREDS_NG),
     },
@@ -12,6 +12,7 @@ const VCAP_SERVICES = {
 };
 process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES);
 
+const cds = require("@sap/cds");
 const { POST } = cds.test(
   __dirname,
   "--with-mocks",
