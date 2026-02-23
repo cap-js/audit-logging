@@ -47,7 +47,8 @@ cds.on("served", (services) => {
      * data access
      */
     service.after("READ", async (res, req) => {
-      if (!hasPersonalData(req.target) || !req.target._service) return;
+      // Checking for req.target._service to make sure only entities within services are considered
+      if (!req.target._service || !hasPersonalData(req.target)) return;
       await auditAccess.call(service, res, req);
     });
 
@@ -55,7 +56,7 @@ cds.on("served", (services) => {
      * data modification
      */
     service.after(WRITE, async (res, req) => {
-      if (!hasPersonalData(req.target) || !req.target._service) return;
+      if (!req.target._service || !hasPersonalData(req.target)) return;
       await emitModLogs.call(service, res, req);
     });
   }
@@ -63,7 +64,7 @@ cds.on("served", (services) => {
    * data modification
    */
   db.before("CREATE", async (req) => {
-    if (!hasPersonalData(req.target) || !req.target._service) return;
+    if (!req.target._service || !hasPersonalData(req.target)) return;
     await addDiffToCtx.call(db, req);
   });
   /*
@@ -73,22 +74,22 @@ cds.on("served", (services) => {
    */
   // create
   db.after("CREATE", async (res, req) => {
-    if (!hasPersonalData(req.target) || !req.target._service) return;
+    if (!req.target._service || !hasPersonalData(req.target)) return;
     await calcModLogs4After.call(db, res, req);
   });
   // update
   db.before("UPDATE", async (req) => {
-    if (!hasPersonalData(req.target) || !req.target._service) return;
+    if (!req.target._service || !hasPersonalData(req.target)) return;
     await addDiffToCtx.call(db, req);
     await calcModLogs4Before.call(db, req);
   });
   db.after("UPDATE", async (res, req) => {
-    if (!hasPersonalData(req.target) || !req.target._service) return;
+    if (!req.target._service || !hasPersonalData(req.target)) return;
     await calcModLogs4After.call(db, res, req);
   });
   // delete
   db.before("DELETE", async (req) => {
-    if (!hasPersonalData(req.target) || !req.target._service) return;
+    if (!req.target._service || !hasPersonalData(req.target)) return;
     await addDiffToCtx.call(db, req);
     await calcModLogs4Before.call(db, req);
   });
