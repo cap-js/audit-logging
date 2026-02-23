@@ -52,9 +52,7 @@ cds.on("served", (services) => {
       await auditAccess.call(service, res, req);
     });
 
-    /*
-     * data modification
-     */
+    // data modification
     service.after(WRITE, async (res, req) => {
       if (!req.target._service || !hasPersonalData(req.target)) return;
       await emitModLogs.call(service, res, req);
