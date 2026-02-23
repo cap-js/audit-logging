@@ -45,9 +45,7 @@ cds.on("served", (services) => {
   }
   for (const service of services) {
     if (!(service instanceof cds.ApplicationService)) continue;
-    /*
-     * data access
-     */
+    // data access
     service.after("READ", async (res, req) => {
       // Checking for req.target._service to make sure only entities within services are considered
       if (!req.target._service || !hasPersonalData(req.target)) return;
