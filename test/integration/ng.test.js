@@ -3,6 +3,8 @@ const VCAP_SERVICES = {
     {
       name: "auditlog-ng",
       tags: [],
+      // REVISIT: only needed for cds 8 because cds-mtxs injects vcap matching for that
+      label: "auditlog",
       credentials:
         process.env.ALS_CREDS_NG && JSON.parse(process.env.ALS_CREDS_NG),
     },
