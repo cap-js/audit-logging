@@ -62,8 +62,7 @@ cds.on("served", (services) => {
   /*
    * data modification
    */
-  // common
-  db.before(WRITE, async (req) => {
+  db.before("CREATE", async (req) => {
     if (!hasPersonalData(req.target) || !req.target._service) return;
     await addDiffToCtx.call(db, req);
   });
@@ -80,6 +79,7 @@ cds.on("served", (services) => {
   // update
   db.before("UPDATE", async (req) => {
     if (!hasPersonalData(req.target) || !req.target._service) return;
+    await addDiffToCtx.call(db, req);
     await calcModLogs4Before.call(db, req);
   });
   db.after("UPDATE", async (res, req) => {
@@ -89,6 +89,7 @@ cds.on("served", (services) => {
   // delete
   db.before("DELETE", async (req) => {
     if (!hasPersonalData(req.target) || !req.target._service) return;
+    await addDiffToCtx.call(db, req);
     await calcModLogs4Before.call(db, req);
   });
 });
