@@ -42,7 +42,9 @@ cds.on("served", (services) => {
         }
       }
     }
-
+  }
+  for (const service of services) {
+    if (!(service instanceof cds.ApplicationService)) continue;
     /*
      * data access
      */

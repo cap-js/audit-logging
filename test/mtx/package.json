@@ -1,0 +1,52 @@
+{
+  "name": "mtx",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sap/cds": "^9",
+    "@cap-js/audit-logging": "*",
+    "@sap/cds-mtxs": "^3"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2"
+  },
+  "scripts": {
+    "start": "cds-serve"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "[production]": {
+        "multitenancy": true
+      },
+      "toggles": true,
+      "extensibility": true,
+      "[development]": {
+        "multitenancy": true,
+        "auth": {
+          "users": {
+            "carol": {
+              "tenant": "t1"
+            },
+            "erin": {
+              "tenant": "t2"
+            },
+            "fred": {
+              "tenant": "t2"
+            }
+          },
+          "tenants": {
+            "t1": {
+              "features": [
+                "customers"
+              ]
+            },
+            "t2": {
+              "features": []
+            }
+          }
+        }
+      }
+    },
+    "profile": "with-mtx"
+  }
+}
