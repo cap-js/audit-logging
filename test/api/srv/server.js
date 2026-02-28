@@ -35,12 +35,18 @@ cds.on('bootstrap', app => {
 // log for batch subrequests that are rejected with 403 (but the batch request itself is successful)
 cds.on('serving', srv => {
   if (srv instanceof cds.ApplicationService) {
-    srv.on('error', (err, req) => {
-      if (err.code == 403) {
-        const { originalUrl, ip } = req.http.req
-        if (originalUrl.endsWith('/$batch')) audit_log_403(originalUrl.replace('/$batch', req.req.url), ip)
+    const { handle } = srv
+    srv.handle = async function (req) {
+      try {
+        return await handle.call(this, req)
+      } catch (err) {
+        if (err.code == 403) {
+          const { originalUrl, ip } = req.http.req
+          if (originalUrl.endsWith('/$batch')) audit_log_403(originalUrl.replace('/$batch', req.req.url), ip)
+        }
+        throw err
       }
-    })
+    }
   }
 })
 
