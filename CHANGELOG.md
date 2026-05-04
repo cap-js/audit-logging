@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 1.1.2 - tbd
+## Version 1.2.0 - 2026-02-23
 
 ### Changed
 
 - Adjusted auto-detection of kind `audit-log-to-als` to now check for a VCAP service name matching "auditlog-ng"
+- Adjusted how the handlers for emitting audit logs are registered to support feature toggle and extensibility scenarios.
+- Improved debug logging in cases where emitting audit log fails
 
 ## Version 1.1.1 - 2025-10-27
 
