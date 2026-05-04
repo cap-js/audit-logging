@@ -19,7 +19,9 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
           "base64",
         );
     } else {
-      this._plan = credentials.url.match(/6081/) ? "premium" : "oauth2";
+      this._plan = credentials.url.match(/6081|\/premium/)
+        ? "premium"
+        : "oauth2";
       this._tokens = new Map();
       this._provider = credentials.uaa.tenantid;
     }
