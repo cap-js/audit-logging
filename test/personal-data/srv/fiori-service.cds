@@ -1,6 +1,6 @@
 using {sap.auditlog.test.personal_data.db as db} from '../db/schema';
 
-@path    : '/fiori-1'
+@path: '/fiori-1'
 @requires: 'admin'
 service Fiori_1 {
   @odata.draft.enabled
@@ -38,39 +38,39 @@ service Fiori_1 {
     note @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate Pages with @PersonalData       : {EntitySemantics: 'DataSubject'
-                                                                           // no DataSubjectRole for testing purposes
-                                                              } {
-    ID        @PersonalData.FieldSemantics: 'DataSubjectID';
+  annotate Pages with @PersonalData: {EntitySemantics: 'DataSubject'
+  // no DataSubjectRole for testing purposes
+  } {
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
     sensitive @PersonalData.IsPotentiallySensitive;
-    personal  @PersonalData.IsPotentiallyPersonal;
+    personal @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate Customers with @PersonalData       : {
+  annotate Customers with @PersonalData: {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Customer'
   } {
-    ID            @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
     emailAddress  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
-    firstName     @PersonalData.IsPotentiallyPersonal;
-    lastName      @PersonalData.IsPotentiallyPersonal;
-    creditCardNo  @PersonalData.IsPotentiallySensitive;
+    firstName @PersonalData.IsPotentiallyPersonal;
+    lastName @PersonalData.IsPotentiallyPersonal;
+    creditCardNo @PersonalData.IsPotentiallySensitive;
   }
 
   annotate CustomerPostalAddress with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
-    customer @PersonalData.FieldSemantics          : 'DataSubjectID';
-    street   @PersonalData.IsPotentiallySensitive;
-    town     @PersonalData.IsPotentiallyPersonal;
+    customer @PersonalData.FieldSemantics: 'DataSubjectID';
+    street @PersonalData.IsPotentiallySensitive;
+    town @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
-    todo        @PersonalData.IsPotentiallyPersonal;
+    todo @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate StatusChange with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
-    secondKey   @PersonalData.IsPotentiallyPersonal;
+    secondKey @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate LastOne with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
@@ -78,18 +78,18 @@ service Fiori_1 {
   }
 
   annotate AddressAttachment with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
-    customer    @PersonalData.FieldSemantics   : 'DataSubjectID';
+    customer @PersonalData.FieldSemantics: 'DataSubjectID';
     description @PersonalData.IsPotentiallySensitive;
-    todo        @PersonalData.IsPotentiallyPersonal;
+    todo @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate Notes with @PersonalData: {EntitySemantics: 'Other'} {
-    note       @PersonalData.IsPotentiallySensitive;
+    note @PersonalData.IsPotentiallySensitive;
     dummyArray @PersonalData.IsPotentiallyPersonal;
   }
 }
 
-@path    : '/fiori-2'
+@path: '/fiori-2'
 @requires: 'admin'
 service Fiori_2 {
   @odata.draft.enabled
@@ -103,7 +103,7 @@ service Fiori_2 {
       address.customer as customer
     }
 
-  annotate Customers with @PersonalData   : {EntitySemantics: 'Other'} {
+  annotate Customers with @PersonalData: {EntitySemantics: 'Other'} {
     addresses @PersonalData.FieldSemantics: 'DataSubjectID';
   }
 
@@ -111,9 +111,9 @@ service Fiori_2 {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Address'
   } {
-    ID             @PersonalData.FieldSemantics    : 'DataSubjectID';
-    street         @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
-    town           @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
+    street  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
+    town  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
     someOtherField @PersonalData.IsPotentiallySensitive;
   }
 }

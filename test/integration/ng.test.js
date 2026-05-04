@@ -5,20 +5,14 @@ const VCAP_SERVICES = {
       tags: [],
       // REVISIT: only needed for cds 8 because cds-mtxs injects vcap matching for that
       label: "auditlog",
-      credentials:
-        process.env.ALS_CREDS_NG && JSON.parse(process.env.ALS_CREDS_NG),
-    },
-  ],
+      credentials: process.env.ALS_CREDS_NG && JSON.parse(process.env.ALS_CREDS_NG)
+    }
+  ]
 };
 process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES);
 
 const cds = require("@sap/cds");
-const { POST } = cds.test(
-  __dirname,
-  "--with-mocks",
-  "--profile",
-  "audit-log-to-alsng",
-);
+const { POST } = cds.test(__dirname, "--with-mocks", "--profile", "audit-log-to-alsng");
 
 describe("Log to Audit Log Service NG ", () => {
   if (!VCAP_SERVICES["user-provided"][0].credentials)
@@ -35,26 +29,26 @@ describe("Log to Audit Log Service NG ", () => {
         foo: "bar",
         alpha: "omega",
         ping: "pong",
-        fizz: "buzz",
-      }),
+        fizz: "buzz"
+      })
     ).toBe("alpha:omega fizz:buzz foo:bar ping:pong");
   });
 
   test("writes log with multiple id attributes in object and data subject", async () => {
     const object = {
       type: "foo.bar",
-      id: { foo: "bar", alpha: "omega", ping: "pong", fizz: "buzz" },
+      id: { foo: "bar", alpha: "omega", ping: "pong", fizz: "buzz" }
     };
     const data_subject = { ...object, role: "foo.bar" };
     const data = JSON.stringify({
       object,
       data_subject,
-      attributes: update_attributes,
+      attributes: update_attributes
     });
     const res = await POST(
       "/integration/passthrough",
       { event: "PersonalDataModified", data },
-      { auth: ALICE },
+      { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });
   });
@@ -65,12 +59,12 @@ describe("Log to Audit Log Service NG ", () => {
     const data = JSON.stringify({
       object,
       data_subject,
-      attributes: update_attributes,
+      attributes: update_attributes
     });
     const res = await POST(
       "/integration/passthrough",
       { event: "PersonalDataModified", data },
-      { auth: ALICE },
+      { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });
   });
@@ -80,20 +74,20 @@ describe("Log to Audit Log Service NG ", () => {
       POST(
         "/integration/passthrough",
         { event: "PersonalDataModified", data: "{}" },
-        { auth: ALICE },
-      ),
+        { auth: ALICE }
+      )
     ).rejects.toThrow("Request failed with: 403 - Forbidden");
   });
 
   test("writes log for custom event tenantOnboarding", async () => {
     const customEvent = "tenantOnboarding";
     const data = JSON.stringify({
-      tenantId: "test-tenant",
+      tenantId: "test-tenant"
     });
     const res = await POST(
       "/integration/passthrough",
       { event: customEvent, data },
-      { auth: ALICE },
+      { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });
   });
@@ -101,12 +95,12 @@ describe("Log to Audit Log Service NG ", () => {
   test("writes log for custom event userLogoff", async () => {
     const customEvent = "userLogoff";
     const data = JSON.stringify({
-      logoffType: "UNSPECIFIED",
+      logoffType: "UNSPECIFIED"
     });
     const res = await POST(
       "/integration/passthrough",
       { event: customEvent, data },
-      { auth: ALICE },
+      { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });
   });

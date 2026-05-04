@@ -2,31 +2,31 @@ namespace sap.auditlog;
 
 service AuditLogService {
 
-  action log    (event : String, data : LogEntry);
-  action logSync(event : String, data : LogEntry);
+  action log(event: String, data: LogEntry);
+  action logSync(event: String, data: LogEntry);
 
   event SensitiveDataRead : LogEntry {
     data_subject : DataSubject;
     object       : DataObject;
     attributes   : many {
-      name       : String;
+      name : String;
     };
     attachments  : many {
-      id         : String;
-      name       : String;
+      id   : String;
+      name : String;
     };
     channel      : String;
   }
 
   event PersonalDataModified : LogEntry {
-    data_subject :      DataSubject;
-    object       :      DataObject;
+    data_subject : DataSubject;
+    object       : DataObject;
     attributes   : many Modification;
-    success      :      Boolean default true;
+    success      : Boolean default true;
   }
 
   event ConfigurationModified : LogEntry {
-    object     :      DataObject;
+    object     : DataObject;
     attributes : many Modification;
   }
 

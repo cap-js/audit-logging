@@ -5,7 +5,7 @@ const {
   addDiffToCtx,
   calcModLogs4Before,
   calcModLogs4After,
-  emitModLogs,
+  emitModLogs
 } = require("./lib/modification");
 const { hasPersonalData } = require("./lib/utils");
 
@@ -30,13 +30,9 @@ cds.on("served", (services) => {
       if (entity["@PersonalData.EntitySemantics"] !== "DataSubject") continue;
       for (const e of service.entities) {
         for (const k in e.associations) {
-          if (
-            e.associations[k].target === entity.name &&
-            k !== "SiblingEntity"
-          ) {
+          if (e.associations[k].target === entity.name && k !== "SiblingEntity") {
             e["@PersonalData.EntitySemantics"] ??= "Other";
-            e.associations[k]["@PersonalData.FieldSemantics"] ??=
-              "DataSubjectID";
+            e.associations[k]["@PersonalData.FieldSemantics"] ??= "DataSubjectID";
             if (!relevantEntities.includes(e)) relevantEntities.push(e);
           }
         }
@@ -81,5 +77,5 @@ cds.on("served", (services) => {
  * Export base class for extending in custom implementations
  */
 module.exports = {
-  AuditLogService: require("./srv/service"),
+  AuditLogService: require("./srv/service")
 };

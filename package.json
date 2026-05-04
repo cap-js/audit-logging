@@ -13,6 +13,8 @@
   ],
   "scripts": {
     "lint": "npx eslint . --max-warnings=0",
+    "format": "prettier . --write && format-cds -f",
+    "format:check": "prettier . --check && format-cds --check",
     "test": "npx jest --silent"
   },
   "peerDependencies": {
@@ -22,9 +24,10 @@
     "@cap-js/audit-logging": "file:.",
     "@cap-js/cds-test": ">=0",
     "@cap-js/sqlite": ">=1",
+    "@sap/cds-lsp": "^9.9.0",
     "@sap/cds-mtxs": "^3.7.1",
     "axios": "^1",
-    "eslint": "^9",
+    "eslint": "^10",
     "express": "^4",
     "jest": "^30",
     "pretty-quick": "^4.2.2",
