@@ -1,114 +1,116 @@
-const cds = require('@sap/cds')
-const LOG = cds.log('audit-log')
+const cds = require("@sap/cds");
+const LOG = cds.log("audit-log");
 const { appMetadata } = require("../lib/utils");
-const https = require('https')
+const https = require("https");
 
-const AuditLogService = require('./service')
+const AuditLogService = require("./service");
 
 module.exports = class AuditLog2ALSNG extends AuditLogService {
   constructor() {
-    super()
-    if (!cds.env.requires['audit-log']?.credentials)
-      throw new Error('No credentials found for SAP Audit Log Service NG')
+    super();
+    if (!cds.env.requires["audit-log"]?.credentials)
+      throw new Error("No credentials found for SAP Audit Log Service NG");
   }
 
   async init() {
-    this.on('*', function (req) {
-      const { event, data } = req
-      return this.eventMapper(event, data)
-    })
-    await super.init()
+    this.on("*", function (req) {
+      const { event, data } = req;
+      return this.eventMapper(event, data);
+    });
+    await super.init();
   }
 
   eventMapper(event, data) {
     const known = {
-      PersonalDataModified: () => this.logEvent('dppDataModification', data),
-      SensitiveDataRead: () => this.logEvent('dppDataAccess', data),
-      ConfigurationModified: () => this.logEvent('configurationChange', data),
-      SecurityEvent: () => this.logEvent('legacySecurityWrapper', data)
-    }
-    const dfault = () => this.logEvent(event, data)
-    return (known[event] ?? dfault)()
+      PersonalDataModified: () => this.logEvent("dppDataModification", data),
+      SensitiveDataRead: () => this.logEvent("dppDataAccess", data),
+      ConfigurationModified: () => this.logEvent("configurationChange", data),
+      SecurityEvent: () => this.logEvent("legacySecurityWrapper", data)
+    };
+    const dfault = () => this.logEvent(event, data);
+    return (known[event] ?? dfault)();
   }
 
   flattenAndSortIdObject(id) {
-    if (!id || !Object.keys(id).length) return 'not provided'
+    if (!id || !Object.keys(id).length) return "not provided";
 
-    let s = ''
-    for (const k of Object.keys(id).sort()) s += `${k}:${id[k]} `
-    return s.trim()
+    let s = "";
+    for (const k of Object.keys(id).sort()) s += `${k}:${id[k]} `;
+    return s.trim();
   }
 
   eventDataPayload(event, data) {
-    const object = data['object'] || { type: 'not provided', id: { ID: 'not provided' } }
-    const channel = data['channel'] || { type: 'not specified', id: 'not specified' }
-    const subject = data['data_subject'] || { type: 'not provided', id: { ID: 'not provided' } }
-    const attributes = data['attributes'] || [{ name: 'not provided', old: 'not provided', new: 'not provided' }]
-    const objectId = this.flattenAndSortIdObject(object['id'])
-    const oldValue = attributes[0]['old'] ?? ''
-    const newValue = attributes[0]['new'] ?? ''
-    const dataSubjectId = this.flattenAndSortIdObject(subject['id'])
+    const object = data["object"] || { type: "not provided", id: { ID: "not provided" } };
+    const channel = data["channel"] || { type: "not specified", id: "not specified" };
+    const subject = data["data_subject"] || { type: "not provided", id: { ID: "not provided" } };
+    const attributes = data["attributes"] || [
+      { name: "not provided", old: "not provided", new: "not provided" }
+    ];
+    const objectId = this.flattenAndSortIdObject(object["id"]);
+    const oldValue = attributes[0]["old"] ?? "";
+    const newValue = attributes[0]["new"] ?? "";
+    const dataSubjectId = this.flattenAndSortIdObject(subject["id"]);
 
     const known = {
       dppDataModification: {
-        objectType: object['type'],
+        objectType: object["type"],
         objectId: objectId,
-        attribute: attributes[0]['name'],
+        attribute: attributes[0]["name"],
         oldValue: oldValue,
         newValue: newValue,
-        dataSubjectType: subject['type'],
+        dataSubjectType: subject["type"],
         dataSubjectId: dataSubjectId
       },
       dppDataAccess: {
-        channelType: channel['type'],
-        channelId: channel['id'],
-        dataSubjectType: subject['type'],
+        channelType: channel["type"],
+        channelId: channel["id"],
+        dataSubjectType: subject["type"],
         dataSubjectId: dataSubjectId,
-        objectType: object['type'],
+        objectType: object["type"],
         objectId: objectId,
-        attribute: attributes[0]['name']
+        attribute: attributes[0]["name"]
       },
       configurationChange: {
-        propertyName: attributes[0]['name'],
+        propertyName: attributes[0]["name"],
         oldValue: oldValue,
         newValue: newValue,
-        objectType: object['type'],
+        objectType: object["type"],
         objectId: objectId
       },
       legacySecurityWrapper: {
         origEvent: JSON.stringify({
           ...data,
           data:
-            typeof data.data === 'object' && data.data !== null && !Array.isArray(data.data)
+            typeof data.data === "object" && data.data !== null && !Array.isArray(data.data)
               ? JSON.stringify(data.data)
               : data.data
         })
       }
-    }
-    if (event in known) return known[event]
+    };
+    if (event in known) return known[event];
 
     // For unknown events, remove common audit log entry fields from the event payload
-    if (typeof data === 'object' && data !== null) {
-      const rest = this.removeCommonAuditLogFields(data)
-      return rest
+    if (typeof data === "object" && data !== null) {
+      const rest = this.removeCommonAuditLogFields(data);
+      return rest;
     }
 
-    return data
+    return data;
   }
 
   removeCommonAuditLogFields(obj) {
-    if (typeof obj !== 'object' || obj === null) return obj
-    const { ...rest } = obj
-    delete rest.uuid
-    delete rest.user
-    delete rest.time
-    delete rest.tenant
-    return rest
+    if (typeof obj !== "object" || obj === null) return obj;
+    const { ...rest } = obj;
+    delete rest.uuid;
+    delete rest.user;
+    delete rest.time;
+    delete rest.tenant;
+    return rest;
   }
 
   eventPayload(event, data) {
-    const tenant = cds.context?.tenant || null
-    const timestamp = new Date().toISOString()
+    const tenant = cds.context?.tenant || null;
+    const timestamp = new Date().toISOString();
 
     const eventData = {
       id: cds.utils.uuid(),
@@ -122,12 +124,12 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
           appId: appMetadata.appID || "default app",
           infrastructure: {
             other: {
-              runtimeType: 'Node.js'
+              runtimeType: "Node.js"
             }
           },
           platform: {
             other: {
-              platformName: 'CAP'
+              platformName: "CAP"
             }
           }
         },
@@ -135,28 +137,28 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
           [event]: this.eventDataPayload(event, data)
         }
       }
-    }
+    };
 
-    return eventData
+    return eventData;
   }
 
   formatEventData(event, data) {
-    if (event === 'legacySecurityWrapper') {
-      return JSON.stringify([this.eventPayload(event, data)])
+    if (event === "legacySecurityWrapper") {
+      return JSON.stringify([this.eventPayload(event, data)]);
     }
 
     if (event in { dppDataModification: 1, dppDataAccess: 1, configurationChange: 1 }) {
-      const eventData = data['attributes']?.map(attr => {
+      const eventData = data["attributes"]?.map((attr) => {
         return this.eventPayload(event, {
           ...data,
           attributes: [attr]
-        })
-      })
-      return JSON.stringify(eventData || [])
+        });
+      });
+      return JSON.stringify(eventData || []);
     }
 
     // Always wrap event in an envelope for custom events
-    return JSON.stringify([this.eventPayload(event, data)])
+    return JSON.stringify([this.eventPayload(event, data)]);
   }
 
   logEvent(event, data) {
@@ -165,53 +167,54 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
       throw new Error("No credentials found for SAP Audit Log Service NG");
     }
 
-    const passphrase = credentials.keyPassphrase
-    const url = new URL(`${credentials.url}/ingestion/v1/events`)
-    const eventData = this.formatEventData(event, data)
+    const passphrase = credentials.keyPassphrase;
+    const url = new URL(`${credentials.url}/ingestion/v1/events`);
+    const eventData = this.formatEventData(event, data);
 
     const options = {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(eventData)
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(eventData)
       },
       key: credentials.key,
       cert: credentials.cert,
       ...(passphrase !== undefined && { passphrase })
-    }
+    };
 
     return new Promise((resolve, reject) => {
-      const req = https.request(url, options, res => {
-        LOG.trace('🛰️ Status Code:', res.statusCode)
+      const req = https.request(url, options, (res) => {
+        LOG.trace("🛰️ Status Code:", res.statusCode);
 
-        const chunks = []
-        res.on('data', chunk => chunks.push(chunk))
+        const chunks = [];
+        res.on("data", (chunk) => chunks.push(chunk));
 
-        res.on('end', () => {
-          const { statusCode, statusMessage } = res
-          let body = Buffer.concat(chunks).toString()
-          if (res.headers['content-type']?.match(/json/)) body = JSON.parse(body)
+        res.on("end", () => {
+          const { statusCode, statusMessage } = res;
+          let body = Buffer.concat(chunks).toString();
+          if (res.headers["content-type"]?.match(/json/)) body = JSON.parse(body);
           if (res.statusCode >= 400) {
             // prettier-ignore
             const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`)
-            err.request = { method: options.method, url, headers: options.headers, body: data }
+            err.request = { method: options.method, url, headers: options.headers, body: data };
             if (err.request.headers.authorization)
-              err.request.headers.authorization = err.request.headers.authorization.split(' ')[0] + ' ***'
-            err.response = { statusCode, statusMessage, headers: res.headers, body }
-            reject(err)
+              err.request.headers.authorization =
+                err.request.headers.authorization.split(" ")[0] + " ***";
+            err.response = { statusCode, statusMessage, headers: res.headers, body };
+            reject(err);
           } else {
-            resolve(body)
+            resolve(body);
           }
-        })
-      })
+        });
+      });
 
-      req.on('error', e => {
-        reject(e.message)
-        LOG.trace(`Problem with request: ${e.message}`)
-      })
+      req.on("error", (e) => {
+        reject(e.message);
+        LOG.trace(`Problem with request: ${e.message}`);
+      });
 
-      req.write(eventData)
-      req.end()
-    })
+      req.write(eventData);
+      req.end();
+    });
   }
-}
+};
