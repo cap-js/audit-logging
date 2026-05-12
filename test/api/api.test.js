@@ -1,9 +1,10 @@
 const cds = require("@sap/cds");
 
-const { axios, POST, GET } = cds.test().in(__dirname);
+const { POST: _POST, GET: _GET } = cds.test().in(__dirname);
 
-// do not throw for 4xx responses
-axios.defaults.validateStatus = () => true;
+// Wrap to not throw on 4xx — returns the response regardless of status
+const POST = (...args) => _POST(...args).catch((e) => e.response ?? e);
+const GET = (...args) => _GET(...args).catch((e) => e.response ?? e);
 
 cds.env.requires["audit-log"] = {
   kind: "audit-log-to-console",
@@ -40,7 +41,7 @@ describe("AuditLogService API", () => {
   });
 
   beforeEach(async () => {
-    await POST("/api/resetSequence", {}, { auth: ALICE });
+    await _POST("/api/resetSequence", {}, { auth: ALICE });
     _logs = [];
   });
 

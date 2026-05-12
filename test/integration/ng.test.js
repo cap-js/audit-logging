@@ -1,25 +1,8 @@
-const VCAP_SERVICES = {
-  "user-provided": [
-    {
-      name: "auditlog-ng",
-      tags: [],
-      // REVISIT: only needed for cds 8 because cds-mtxs injects vcap matching for that
-      label: "auditlog",
-      credentials: process.env.ALS_CREDS_NG && JSON.parse(process.env.ALS_CREDS_NG)
-    }
-  ]
-};
-process.env.VCAP_SERVICES = JSON.stringify(VCAP_SERVICES);
-
 const cds = require("@sap/cds");
-const { POST } = cds.test(__dirname, "--with-mocks", "--profile", "audit-log-to-alsng");
 
-describe("Log to Audit Log Service NG ", () => {
-  if (!VCAP_SERVICES["user-provided"][0].credentials)
-    return test.skip("Skipping tests due to missing credentials", () => {});
+const { POST } = cds.test().in(__dirname);
 
-  require("./tests")(POST);
-
+describe("NG specific tests", () => {
   const ALICE = { username: "alice", password: "password" };
   const update_attributes = [{ name: "foo", old: "bar", new: "baz" }];
 
@@ -80,26 +63,24 @@ describe("Log to Audit Log Service NG ", () => {
   });
 
   test("writes log for custom event tenantOnboarding", async () => {
-    const customEvent = "tenantOnboarding";
     const data = JSON.stringify({
       tenantId: "test-tenant"
     });
     const res = await POST(
       "/integration/passthrough",
-      { event: customEvent, data },
+      { event: "tenantOnboarding", data },
       { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });
   });
 
   test("writes log for custom event userLogoff", async () => {
-    const customEvent = "userLogoff";
     const data = JSON.stringify({
       logoffType: "UNSPECIFIED"
     });
     const res = await POST(
       "/integration/passthrough",
-      { event: customEvent, data },
+      { event: "userLogoff", data },
       { auth: ALICE }
     );
     expect(res).toMatchObject({ status: 204 });

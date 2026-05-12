@@ -1,4 +1,8 @@
-module.exports = (POST) => {
+const cds = require("@sap/cds");
+
+const { POST } = cds.test().in(__dirname);
+
+describe("Log to Audit Log Service", () => {
   const object = { type: "foo.bar", id: { foo: "bar" } };
   const data_subject = Object.assign({ role: "foo.bar" }, object);
   const create_attributes = [{ name: "foo", new: "baz" }];
@@ -90,4 +94,4 @@ module.exports = (POST) => {
     );
     expect(res).toMatchObject({ status: 204 });
   });
-};
+});
