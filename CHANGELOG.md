@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.3.0 - 2026-05-13
+
+### Fixed
+
+- Updated the audit log service plan detection logic to support the new URL format
+- The absence of `req.target` does not lead to an error
+
 ## Version 1.2.0 - 2026-02-23
 
 ### Changed
