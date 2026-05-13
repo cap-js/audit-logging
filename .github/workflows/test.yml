@@ -60,8 +60,11 @@ jobs:
         cds-version: [latest, 8]
         als-plan: [standard, premium, oauth2, ng]
     steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Run integration tests
-        uses: ./.github/actions/integration-tests/action.yml
+        uses: ./.github/actions/integration-tests
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
