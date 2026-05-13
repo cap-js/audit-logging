@@ -40,9 +40,6 @@
         "[development]": {
           "kind": "audit-log-to-console"
         },
-        "[hybrid]": {
-          "kind": "audit-log-to-restv2"
-        },
         "[production]": {
           "kind": "audit-log-to-restv2"
         }
