@@ -91,11 +91,36 @@ runs:
       run: |
         INSTANCE="cap-js-audit-logging-${{ inputs.ALS_PLAN }}"
         if [ "${{ inputs.ALS_PLAN }}" == "ng" ]; then
-          cds bind auditlog-ng --to "$INSTANCE" --kind audit-log-to-alsng
-          cds bind auditlog-ng --to "$INSTANCE" --kind audit-log-to-alsng -o test/integration/package.json
+          cds bind audit-log --to "$INSTANCE" --kind audit-log-to-alsng
+          cp .cdsrc-private.json test/integration/
         else
           cds bind audit-log -2 "$INSTANCE" --kind audit-log-to-restv2
         fi
+
+    - name: Debug audit-log config (ng only)
+      if: ${{ inputs.ALS_PLAN == 'ng' }}
+      shell: bash
+      run: |
+        echo "=== .cdsrc-private.json ==="
+        cat .cdsrc-private.json
+        echo ""
+        echo "=== test/integration/.cdsrc-private.json ==="
+        cat test/integration/.cdsrc-private.json
+        echo ""
+        echo "=== Effective config in child context ==="
+        cds bind --exec -- node -e "
+          const cds = require('@sap/cds');
+          cds.root = 'test/integration';
+          const env = cds.env;
+          const conf = env.requires['audit-log'];
+          console.log('kind:', conf?.kind);
+          console.log('impl:', conf?.impl);
+          console.log('has credentials:', !!conf?.credentials);
+          console.log('credentials.url:', conf?.credentials?.url);
+          console.log('has key:', !!conf?.credentials?.key);
+          console.log('has cert:', !!conf?.credentials?.cert);
+          console.log('VCAP_SERVICES:', process.env.VCAP_SERVICES);
+        "
 
     - name: Run integration tests
       shell: bash
@@ -106,5 +131,5 @@ runs:
         elif [ "$PLAN" == "premium" ] || [ "$PLAN" == "oauth2" ]; then
           cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|oauth2)"
         elif [ "$PLAN" == "ng" ]; then
-          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
+          cds bind --exec -- npx jest --testPathPatterns="test/integration/(integration|ng)"
         fi
