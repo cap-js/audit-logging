@@ -13,8 +13,8 @@
   ],
   "scripts": {
     "lint": "npx eslint . --max-warnings=0",
-    "format": "prettier . --write && format-cds -f",
-    "format:check": "prettier . --check && format-cds --check",
+    "format": "npx prettier . --write && format-cds -f",
+    "format:check": "npx prettier . --check && format-cds --check",
     "test": "npx jest --silent --testPathIgnorePatterns=integration"
   },
   "peerDependencies": {
