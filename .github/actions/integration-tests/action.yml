@@ -105,5 +105,5 @@ runs:
         elif [ "$PLAN" == "premium" ] || [ "$PLAN" == "oauth2" ]; then
           cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|oauth2)"
         elif [ "$PLAN" == "ng" ]; then
-          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
+          CDS_REQUIRES_AUDIT_LOG_KIND=audit-log-to-alsng cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
         fi
