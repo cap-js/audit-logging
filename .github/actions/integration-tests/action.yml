@@ -92,6 +92,7 @@ runs:
         INSTANCE="cap-js-audit-logging-${{ inputs.ALS_PLAN }}"
         if [ "${{ inputs.ALS_PLAN }}" == "ng" ]; then
           cds bind audit-log --to "$INSTANCE" --kind audit-log-to-alsng
+          cds bind audit-log --to "$INSTANCE" --kind audit-log-to-alsng -o test/integration/package.json
         else
           cds bind audit-log -2 "$INSTANCE" --kind audit-log-to-restv2
         fi
@@ -105,5 +106,5 @@ runs:
         elif [ "$PLAN" == "premium" ] || [ "$PLAN" == "oauth2" ]; then
           cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|oauth2)"
         elif [ "$PLAN" == "ng" ]; then
-          CDS_CONFIG='{"requires":{"audit-log":{"kind":"audit-log-to-alsng"}}}' cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
+          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
         fi
