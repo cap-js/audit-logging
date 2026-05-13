@@ -60,9 +60,6 @@ jobs:
         cds-version: [latest, 8]
         als-plan: [standard, oauth2]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Run integration tests
         uses: cap-js/audit-logging/.github/actions/integration-tests@main
         with:
