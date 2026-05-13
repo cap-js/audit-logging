@@ -9,15 +9,11 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
   async init() {
     // credentials stuff
     const { credentials } = this.options;
-    if (!credentials)
-      throw new Error('No or malformed credentials for "audit-log"');
+    if (!credentials) throw new Error('No or malformed credentials for "audit-log"');
     if (!credentials.uaa) {
       this._plan = "standard";
       this._auth =
-        "Basic " +
-        Buffer.from(credentials.user + ":" + credentials.password).toString(
-          "base64",
-        );
+        "Basic " + Buffer.from(credentials.user + ":" + credentials.password).toString("base64");
     } else {
       this._plan = credentials.url.match(/6081/) ? "premium" : "oauth2";
       this._tokens = new Map();
@@ -31,10 +27,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       if (event === "SensitiveDataRead" || event.match(/^dataAccess/i)) {
         return this._handle(data, "DATA_ACCESS");
       }
-      if (
-        event === "PersonalDataModified" ||
-        event.match(/^dataModification/i)
-      ) {
+      if (event === "PersonalDataModified" || event.match(/^dataModification/i)) {
         data.success = true;
         return this._handle(data, "DATA_MODIFICATION");
       }
@@ -43,8 +36,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
         return this._handle(data, "CONFIGURATION_CHANGE");
       }
       if (event === "SecurityEvent" || event.match(/^security/i)) {
-        if (typeof data.data === "object")
-          data.data = JSON.stringify(data.data);
+        if (typeof data.data === "object") data.data = JSON.stringify(data.data);
         return this._handle(data, "SECURITY_EVENT");
       }
 
@@ -64,10 +56,10 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     const data = {
       grant_type: "client_credentials",
       response_type: "token",
-      client_id: uaa.clientid,
+      client_id: uaa.clientid
     };
     const options = {
-      headers: { "content-type": "application/x-www-form-urlencoded" },
+      headers: { "content-type": "application/x-www-form-urlencoded" }
     };
     if (tenant !== this._provider) options.headers["x-zid"] = tenant;
 
@@ -82,11 +74,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       return acc;
     }, "");
     try {
-      const { access_token, expires_in } = await _post(
-        url,
-        urlencoded,
-        options,
-      );
+      const { access_token, expires_in } = await _post(url, urlencoded, options);
       tokens.set(tenant, access_token);
       // remove token from cache 60 seconds before it expires
       setTimeout(() => tokens.delete(tenant), (expires_in - 60) * 1000);
@@ -94,8 +82,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     } catch (err) {
       LOG._trace && LOG.trace("error during token fetch:", err);
       // 401 could also mean x-zid is not valid
-      if (String(err.response?.statusCode).match(/^4\d\d$/))
-        err.unrecoverable = true;
+      if (String(err.response?.statusCode).match(/^4\d\d$/)) err.unrecoverable = true;
       throw err;
     }
   }
@@ -118,16 +105,15 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
       data.tenant ??= this._provider; //> if request has no tenant, stay in provider account
       if (data.tenant === "$PROVIDER") data.tenant = this._provider;
       headers.authorization = "Bearer " + (await this._getToken(data.tenant));
-      data.tenant =
-        data.tenant === this._provider ? "$PROVIDER" : "$SUBSCRIBER";
+      data.tenant = data.tenant === this._provider ? "$PROVIDER" : "$SUBSCRIBER";
     }
     if (LOG._debug) {
       const _headers = Object.assign({}, headers, {
-        authorization: headers.authorization.split(" ")[0] + " ***",
+        authorization: headers.authorization.split(" ")[0] + " ***"
       });
       LOG.debug(
         `sending audit log to ${url} with tenant "${data.tenant}", user "${data.user}", and headers`,
-        _headers,
+        _headers
       );
     }
     try {
@@ -135,10 +121,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
     } catch (err) {
       LOG._trace && LOG.trace("error during log send:", err);
       // 429 (rate limit) is not unrecoverable
-      if (
-        String(err.response?.statusCode).match(/^4\d\d$/) &&
-        err.response?.statusCode !== 429
-      )
+      if (String(err.response?.statusCode).match(/^4\d\d$/) && err.response?.statusCode !== 429)
         err.unrecoverable = true;
       throw err;
     }
@@ -149,9 +132,7 @@ module.exports = class AuditLog2RESTv2 extends AuditLogService {
 
     // write the logs
     const errors = [];
-    await Promise.all(
-      logs.map((log) => this._send(log, path).catch((err) => errors.push(err))),
-    );
+    await Promise.all(logs.map((log) => this._send(log, path).catch((err) => errors.push(err))));
     if (errors.length) throw _getErrorToThrow(errors);
   }
 };
@@ -165,14 +146,14 @@ const PATHS = {
     DATA_ACCESS: "/audit-log/v2/data-accesses",
     DATA_MODIFICATION: "/audit-log/v2/data-modifications",
     CONFIGURATION_CHANGE: "/audit-log/v2/configuration-changes",
-    SECURITY_EVENT: "/audit-log/v2/security-events",
+    SECURITY_EVENT: "/audit-log/v2/security-events"
   },
   OAUTH2: {
     DATA_ACCESS: "/audit-log/oauth2/v2/data-accesses",
     DATA_MODIFICATION: "/audit-log/oauth2/v2/data-modifications",
     CONFIGURATION_CHANGE: "/audit-log/oauth2/v2/configuration-changes",
-    SECURITY_EVENT: "/audit-log/oauth2/v2/security-events",
-  },
+    SECURITY_EVENT: "/audit-log/oauth2/v2/security-events"
+  }
 };
 
 /*
@@ -198,13 +179,13 @@ async function _post(url, data, options) {
               : "";
           LOG._trace && LOG.trace(`Request body of failed audit-log: `, data);
           const err = new Error(
-            `Request failed with${message ? `: ${statusCode} - ${message}` : ` status ${statusCode}`}`,
+            `Request failed with${message ? `: ${statusCode} - ${message}` : ` status ${statusCode}`}`
           );
           err.request = {
             method: options.method,
             url,
             headers: options.headers,
-            body: data,
+            body: data
           };
           if (err.request.headers.authorization)
             err.request.headers.authorization =

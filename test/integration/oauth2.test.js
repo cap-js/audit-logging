@@ -1,36 +1,35 @@
-const cds = require('@sap/cds')
+const cds = require("@sap/cds");
 
-const { POST } = cds.test().in(__dirname)
-const log = cds.test.log()
-
-cds.env.requires['audit-log'].credentials = process.env.ALS_CREDS_OAUTH2 && JSON.parse(process.env.ALS_CREDS_OAUTH2)
+const { POST } = cds.test().in(__dirname);
+const log = cds.test.log();
 
 // stay in provider account (i.e., use "$PROVIDER" and avoid x-zid header when fetching oauth2 token)
-cds.env.requires.auth.users.alice.tenant = cds.env.requires['audit-log'].credentials?.uaa.tenantid
+cds.env.requires.auth.users.alice.tenant = cds.env.requires["audit-log"].credentials?.uaa?.tenantid;
 
-cds.env.log.levels['audit-log'] = 'debug'
+cds.env.log.levels["audit-log"] = "debug";
 
-describe('Log to Audit Log Service with oauth2 plan', () => {
-  if (!cds.env.requires['audit-log'].credentials)
-    return test.skip('Skipping tests due to missing credentials', () => {})
-
+describe("Premium/OAuth2 specific tests", () => {
   // required for tests to exit correctly (cf. token expiration timeouts)
-  jest.useFakeTimers()
+  jest.useFakeTimers();
 
-  require('./tests')(POST)
+  const ALICE = { username: "alice", password: "password" };
 
-  test('no tenant is handled correctly', async () => {
-    const data = JSON.stringify({ data: { foo: 'bar' } })
-    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
-    expect(res).toMatchObject({ status: 204 })
-    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
-  })
+  test("no tenant is handled correctly", async () => {
+    const data = JSON.stringify({ data: { foo: "bar" } });
+    const res = await POST("/integration/passthrough", { event: "SecurityEvent", data });
+    expect(res).toMatchObject({ status: 204 });
+    expect(log.output.match(/\$PROVIDER/)).toBeTruthy();
+  });
 
-  // NOTE: unoffcial feature
-  test('tenant $PROVIDER is handled correctly', async () => {
-    const data = JSON.stringify({ data: { foo: 'bar' }, tenant: '$PROVIDER' })
-    const res = await POST('/integration/passthrough', { event: 'SecurityEvent', data })
-    expect(res).toMatchObject({ status: 204 })
-    expect(log.output.match(/\$PROVIDER/)).toBeTruthy()
-  })
-})
+  // NOTE: unofficial feature
+  test("tenant $PROVIDER is handled correctly", async () => {
+    const data = JSON.stringify({ data: { foo: "bar" }, tenant: "$PROVIDER" });
+    const res = await POST(
+      "/integration/passthrough",
+      { event: "SecurityEvent", data },
+      { auth: ALICE }
+    );
+    expect(res).toMatchObject({ status: 204 });
+    expect(log.output.match(/\$PROVIDER/)).toBeTruthy();
+  });
+});
