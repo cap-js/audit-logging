@@ -139,3 +139,7 @@ package-lock.json
 .prettierrc.js
 .vscode/
 .vscode-test/
+
+# added by cds
+.cdsrc-private.json
+
