@@ -1,18 +1,5 @@
 {
   "dependencies": {
     "@cap-js/audit-logging": "*"
-  },
-  "cds": {
-    "requires": {
-      "audit-log": "audit-log-to-restv2",
-      "[audit-log-to-alsng]": {
-        "audit-log": {
-          "kind": "audit-log-to-alsng",
-          "vcap": {
-            "name": "auditlog-ng"
-          }
-        }
-      }
-    }
   }
 }

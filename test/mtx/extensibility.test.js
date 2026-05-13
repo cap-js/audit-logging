@@ -4,19 +4,12 @@ let { POST: _POST } = cds.test().in(__dirname);
 
 // the persistent outbox adds a delay
 const wait = require("node:timers/promises").setTimeout;
-const POST = (...args) =>
-  _POST(...args).then(async (res) => (await wait(42), res));
+const POST = (...args) => _POST(...args).then(async (res) => (await wait(42), res));
 
 describe("handle", () => {
   let __log, _logs;
   const _log = (...args) => {
-    if (
-      !(
-        args.length === 2 &&
-        typeof args[0] === "string" &&
-        args[0].match(/\[audit-log\]/i)
-      )
-    ) {
+    if (!(args.length === 2 && typeof args[0] === "string" && args[0].match(/\[audit-log\]/i))) {
       // > not an audit log (most likely, anyway)
       return __log(...args);
     }
@@ -35,22 +28,22 @@ describe("handle", () => {
       {
         tenant: "t1",
         metadata: {},
-        options: {},
+        options: {}
       },
       {
-        auth: { username: "yves", password: "password" },
-      },
+        auth: { username: "yves", password: "password" }
+      }
     );
     await POST(
       `/-/cds/deployment/subscribe`,
       {
         tenant: "t2",
         metadata: {},
-        options: {},
+        options: {}
       },
       {
-        auth: { username: "yves", password: "password" },
-      },
+        auth: { username: "yves", password: "password" }
+      }
     );
   });
 
@@ -64,22 +57,22 @@ describe("handle", () => {
 
   test("data access is not logged by default", async () => {
     const {
-      data: { ID },
+      data: { ID }
     } = await POST(
       "/odata/v4/catalog/Customers",
       {
         firstName: "Carol",
-        lastName: "Testing",
+        lastName: "Testing"
       },
-      { auth: CAROL },
+      { auth: CAROL }
     );
     const response = await POST(
       "/odata/v4/catalog/Orders",
       {
         customer_ID: ID,
-        amount: 20,
+        amount: 20
       },
-      { auth: CAROL },
+      { auth: CAROL }
     );
     expect(response).toMatchObject({ status: 201 });
     expect(_logs.length).toBe(2);
@@ -87,14 +80,14 @@ describe("handle", () => {
       user: "carol",
       object: {
         type: "CatalogService.Customers",
-        id: { ID: expect.any(String) },
+        id: { ID: expect.any(String) }
       },
       data_subject: {
         type: "CatalogService.Customers",
         id: { ID: expect.any(String) },
-        role: expect.any(String),
+        role: expect.any(String)
       },
-      attributes: [{ name: "firstName" }, { name: "lastName" }],
+      attributes: [{ name: "firstName" }, { name: "lastName" }]
     });
   });
 });

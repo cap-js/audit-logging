@@ -113,14 +113,14 @@ entity RBase : cuid {
   creditCardNo : String(16);
 }
 
-annotate RBase with @PersonalData          : {
+annotate RBase with @PersonalData: {
   EntitySemantics: 'DataSubject',
   DataSubjectRole: 'RBase'
 } {
-  ID           @PersonalData.FieldSemantics: 'DataSubjectID';
+  ID @PersonalData.FieldSemantics: 'DataSubjectID';
   emailAddress @PersonalData.IsPotentiallyPersonal;
-  firstName    @PersonalData.IsPotentiallyPersonal;
-  lastName     @PersonalData.IsPotentiallyPersonal;
+  firstName @PersonalData.IsPotentiallyPersonal;
+  lastName @PersonalData.IsPotentiallyPersonal;
   creditCardNo @PersonalData.IsPotentiallySensitive;
 }
 
@@ -141,13 +141,13 @@ annotate MainEntities with @PersonalData: {
   EntitySemantics: 'DataSubject',
   DataSubjectRole: 'MainEntity'
 } {
-  ID   @PersonalData.FieldSemantics     : 'DataSubjectID';
+  ID @PersonalData.FieldSemantics: 'DataSubjectID';
   name @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate SubEntities with @PersonalData  : {EntitySemantics: 'DataSubjectDetails'} {
+annotate SubEntities with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
   mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
-  name       @PersonalData.IsPotentiallyPersonal;
+  name @PersonalData.IsPotentiallyPersonal;
 }
 
 entity A {
@@ -175,22 +175,22 @@ entity D {
       c    : Association to C;
 }
 
-annotate A with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
-  c    @PersonalData.FieldSemantics: 'DataSubjectID';
+annotate A with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
+  c @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate B with @PersonalData      : {EntitySemantics: 'DataSubjectDetails'} {
-  c    @PersonalData.FieldSemantics: 'DataSubjectID';
+annotate B with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
+  c @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate C with @PersonalData      : {EntitySemantics: 'DataSubject'} {
-  ID   @PersonalData.FieldSemantics: 'DataSubjectID';
+annotate C with @PersonalData: {EntitySemantics: 'DataSubject'} {
+  ID @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }
 
-annotate D with @PersonalData      : {EntitySemantics: 'Other'} {
-  c    @PersonalData.FieldSemantics: 'DataSubjectID';
+annotate D with @PersonalData: {EntitySemantics: 'Other'} {
+  c @PersonalData.FieldSemantics: 'DataSubjectID';
   text @PersonalData.IsPotentiallyPersonal;
 }

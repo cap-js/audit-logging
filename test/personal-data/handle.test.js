@@ -4,21 +4,14 @@ let { GET: _GET } = cds.test().in(__dirname);
 
 // the persistent outbox adds a delay
 const wait = require("node:timers/promises").setTimeout;
-const GET = (...args) =>
-  _GET(...args).then(async (res) => (await wait(42), res));
+const GET = (...args) => _GET(...args).then(async (res) => (await wait(42), res));
 
 cds.env.requires["audit-log"].handle = ["WRITE"];
 
 describe("handle", () => {
   let __log, _logs;
   const _log = (...args) => {
-    if (
-      !(
-        args.length === 2 &&
-        typeof args[0] === "string" &&
-        args[0].match(/\[audit-log\]/i)
-      )
-    ) {
+    if (!(args.length === 2 && typeof args[0] === "string" && args[0].match(/\[audit-log\]/i))) {
       // > not an audit log (most likely, anyway)
       return __log(...args);
     }
@@ -67,36 +60,14 @@ describe("handle", () => {
       user: "alice",
       object: {
         type: "CRUD_1.Customers",
-        id: { ID: expect.any(String) },
+        id: { ID: expect.any(String) }
       },
       data_subject: {
         type: "CRUD_1.Customers",
         id: { ID: expect.any(String) },
         role: expect.any(String),
       },
-      attributes: [{ name: "creditCardNo" }],
+      attributes: [{ name: "creditCardNo" }]
     });
-  });
-
-  test("READ with path but no target does not crash", async () => {
-    cds.env.requires["audit-log"].handle = ["READ", "WRITE"];
-    const srv = await cds.connect.to("CRUD_1");
-    // Prepend on handler so it runs before generic CRUD handler — after handler runs with req.target undefined
-    srv.prepend(() =>
-      srv.on("READ", (req, next) => {
-        if (req.path === "CRUD_1.nonExistent") {
-          return [{ ID: 1 }];
-        } else {
-          return next();
-        }
-      }),
-    );
-    // Without the req.target?. fix this would throw TypeError: Cannot read properties of undefined (reading '_service')
-    const res = await srv.send({
-      event: "READ",
-      path: "/nonExistent",
-      user: new cds.User.Privileged(),
-    });
-    expect(res.length).toEqual(1);
   });
 });

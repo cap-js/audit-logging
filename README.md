@@ -4,11 +4,10 @@
 
 `@cap-js/audit-logging` is a CDS plugin providing integration to the SAP Audit Log service as well as out-of-the-box personal data-related audit logging based on annotations.
 
-Documentation can be found at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy). 
+Documentation can be found at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy).
 
 > [!IMPORTANT]
-> The information in this file is by no means complete but enables you to get started quickly. Make sure to read the provided documentation at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy) to get the full picture. 
-
+> The information in this file is by no means complete but enables you to get started quickly. Make sure to read the provided documentation at [cap.cloud.sap](https://cap.cloud.sap/docs/guides/data-privacy) to get the full picture.
 
 ## Preliminaries
 
@@ -20,7 +19,6 @@ cd incidents-app
 npm i
 ```
 
-
 ## Setup
 
 To enable audit logging, simply add this self-configuring plugin package to your project:
@@ -28,7 +26,6 @@ To enable audit logging, simply add this self-configuring plugin package to your
 ```sh
 npm add @cap-js/audit-logging
 ```
-
 
 ## Annotate Personal Data
 
@@ -65,24 +62,27 @@ annotate my.Incidents with @PersonalData : {
 };
 
 ```
+
 Learn more about the annotations in capire:
+
 - [@PersonalData.EntitySemantics](https://cap.cloud.sap/docs/guides/data-privacy/annotations#entitysemantics)
 - [@PersonalData.EntitySemantics: 'DataSubject'](https://cap.cloud.sap/docs/guides/data-privacy/annotations#datasubjectrole)
 - [@PersonalData.FieldSemantics: 'DataSubjectID'](https://cap.cloud.sap/docs/guides/data-privacy/annotations#fieldsemantics-datasubjectid)
 - [@PersonalData.IsPotentiallyPersonal](https://cap.cloud.sap/docs/guides/data-privacy/annotations#ispotentiallypersonal)
 - [@PersonalData.IsPotentiallySensitive](https://cap.cloud.sap/docs/guides/data-privacy/annotations#ispotentiallysensitive)
 
-
 ## Test-Drive Locally
 
 You've prepared everything to log personal data-related events. Let's see that in action.
 
 Start the server as usual:
+
 ```sh
 cds watch
 ```
 
 Send an update request that changes personal data:
+
 ```http
 PATCH http://localhost:4004/odata/v4/admin/Customers('1004155')
 Authorization: Basic alice:in-wonderland
@@ -95,6 +95,7 @@ Content-Type: application/json
 ```
 
 See the audit logs in the server's console output:
+
 ```sh
 [audit-log] - PersonalDataModified: {
   data_subject: {
@@ -117,7 +118,6 @@ See the audit logs in the server's console output:
 }
 ```
 
-
 ## In Production
 
 The end-to-end out-of-the-box functionality provided by this plugin requires a paid-for instance of the [SAP Audit Log service for customers](https://help.sap.com/docs/btp/sap-business-technology-platform/audit-log-write-api-for-customers?locale=en-US). However, it is possible to provide an own implementation that writes the audit logs to a custom store.
@@ -126,16 +126,13 @@ The end-to-end out-of-the-box functionality provided by this plugin requires a p
 
 [_Learn more about custom audit logging._](https://cap.cloud.sap/docs/guides/data-privacy/audit-logging#custom-audit-logging)
 
-
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js/audit-logging/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
 
-
 ## Code of Conduct
 
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](CODE_OF_CONDUCT.md) at all times.
-
 
 ## Licensing
 
