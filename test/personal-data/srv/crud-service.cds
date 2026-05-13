@@ -1,6 +1,6 @@
 using {sap.auditlog.test.personal_data.db as db} from '../db/schema';
 
-@path    : '/crud-1'
+@path: '/crud-1'
 @requires: 'admin'
 service CRUD_1 {
 
@@ -36,39 +36,39 @@ service CRUD_1 {
     note @PersonalData.IsPotentiallySensitive;
   }
 
-  annotate Pages with @PersonalData       : {EntitySemantics: 'DataSubject'
-                                                                           // no DataSubjectRole for testing purposes
-                                                              } {
-    ID        @PersonalData.FieldSemantics: 'DataSubjectID';
+  annotate Pages with @PersonalData: {EntitySemantics: 'DataSubject'
+  // no DataSubjectRole for testing purposes
+  } {
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
     sensitive @PersonalData.IsPotentiallySensitive;
-    personal  @PersonalData.IsPotentiallyPersonal;
+    personal @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate Customers with @PersonalData      : {
+  annotate Customers with @PersonalData: {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Customer'
   } {
-    ID           @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
     emailAddress @PersonalData.IsPotentiallyPersonal;
-    firstName    @PersonalData.IsPotentiallyPersonal;
-    lastName     @PersonalData.IsPotentiallyPersonal;
+    firstName @PersonalData.IsPotentiallyPersonal;
+    lastName @PersonalData.IsPotentiallyPersonal;
     creditCardNo @PersonalData.IsPotentiallySensitive;
   }
 
   annotate CustomerPostalAddress with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
-    customer @PersonalData.FieldSemantics          : 'DataSubjectID';
-    street   @PersonalData.IsPotentiallySensitive;
-    town     @PersonalData.IsPotentiallyPersonal;
+    customer @PersonalData.FieldSemantics: 'DataSubjectID';
+    street @PersonalData.IsPotentiallySensitive;
+    town @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
-    todo        @PersonalData.IsPotentiallyPersonal;
+    todo @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate StatusChange with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     description @PersonalData.IsPotentiallySensitive;
-    secondKey   @PersonalData.IsPotentiallyPersonal;
+    secondKey @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate LastOne with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
@@ -76,13 +76,13 @@ service CRUD_1 {
   }
 
   annotate AddressAttachment with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
-    customer    @PersonalData.FieldSemantics   : 'DataSubjectID';
+    customer @PersonalData.FieldSemantics: 'DataSubjectID';
     description @PersonalData.IsPotentiallySensitive;
-    todo        @PersonalData.IsPotentiallyPersonal;
+    todo @PersonalData.IsPotentiallyPersonal;
   }
 
   annotate Notes with @PersonalData: {EntitySemantics: 'Other'} {
-    note       @PersonalData.IsPotentiallySensitive;
+    note @PersonalData.IsPotentiallySensitive;
     dummyArray @PersonalData.IsPotentiallyPersonal;
   }
 
@@ -92,20 +92,20 @@ service CRUD_1 {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Employee'
   } {
-    ID     @PersonalData.FieldSemantics: 'DataSubjectID';
-    name   @PersonalData.IsPotentiallyPersonal;
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
+    name @PersonalData.IsPotentiallyPersonal;
     notes  @PersonalData.IsPotentiallySensitive  @PersonalData.IsPotentiallyPersonal;
     skills @PersonalData.IsPotentiallyPersonal;
   }
 
-  annotate SubEntities with @PersonalData  : {EntitySemantics: 'DataSubjectDetails'} {
+  annotate SubEntities with @PersonalData: {EntitySemantics: 'DataSubjectDetails'} {
     mainEntity @PersonalData.FieldSemantics: 'DataSubjectID';
-    ID         @PersonalData.IsPotentiallyPersonal;
-    name       @PersonalData.IsPotentiallyPersonal;
+    ID @PersonalData.IsPotentiallyPersonal;
+    name @PersonalData.IsPotentiallyPersonal;
   }
 }
 
-@path    : '/crud-2'
+@path: '/crud-2'
 @requires: 'admin'
 service CRUD_2 {
   entity Customers             as projection on db.Customers;
@@ -118,7 +118,7 @@ service CRUD_2 {
       address.customer as customer
     }
 
-  annotate Customers with @PersonalData   : {EntitySemantics: 'Other'} {
+  annotate Customers with @PersonalData: {EntitySemantics: 'Other'} {
     addresses @PersonalData.FieldSemantics: 'DataSubjectID';
   }
 
@@ -126,9 +126,9 @@ service CRUD_2 {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Address'
   } {
-    ID             @PersonalData.FieldSemantics    : 'DataSubjectID';
-    street         @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
-    town           @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
+    street  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
+    town  @PersonalData.IsPotentiallyPersonal  @PersonalData.FieldSemantics: 'DataSubjectID';
     someOtherField @PersonalData.IsPotentiallySensitive;
   }
 
@@ -136,7 +136,7 @@ service CRUD_2 {
   annotate CustomerStatus with @PersonalData: {EntitySemantics: 'DataSubjectDetails'};
 }
 
-@path    : '/crud-3'
+@path: '/crud-3'
 @requires: 'admin'
 service CRUD_3 {
 
@@ -192,7 +192,7 @@ service CRUD_3 {
     };
 }
 
-@path    : '/crud-4'
+@path: '/crud-4'
 @requires: 'admin'
 service CRUD_4 {
 
@@ -207,7 +207,7 @@ service CRUD_4 {
 
 }
 
-@path    : '/crud-5'
+@path: '/crud-5'
 @requires: 'admin'
 service CRUD_5 {
 
@@ -217,7 +217,7 @@ service CRUD_5 {
 
 }
 
-@path    : '/crud-6'
+@path: '/crud-6'
 @requires: 'admin'
 service CRUD_6 {
   entity D as projection on db.D;

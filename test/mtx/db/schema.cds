@@ -10,7 +10,7 @@ namespace sap.capire.bookshop;
 entity Books : managed {
   key ID       : Integer;
       author   : Association to Authors @mandatory;
-      title    : localized String       @mandatory;
+      title    : localized String @mandatory;
       descr    : localized String;
       genre    : Association to Genres;
       stock    : Integer;
@@ -29,7 +29,9 @@ entity Authors : managed {
                        on books.author = $self;
 }
 
-/** Hierarchically organized Code List for Genres */
+/**
+ * Hierarchically organized Code List for Genres
+ */
 entity Genres : cuid, sap.common.CodeList {
   parent   : Association to Genres;
   children : Composition of many Genres
