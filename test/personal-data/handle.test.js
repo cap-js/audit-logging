@@ -65,7 +65,7 @@ describe("handle", () => {
       data_subject: {
         type: "CRUD_1.Customers",
         id: { ID: expect.any(String) },
-        role: expect.any(String),
+        role: expect.any(String)
       },
       attributes: [{ name: "creditCardNo" }]
     });
