@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request_target:
+  pull_request:
     branches: [main]
     types: [reopened, synchronize, opened]
 
@@ -61,7 +61,7 @@ jobs:
         als-plan: [standard, premium, oauth2, ng]
     steps:
       - name: Run integration tests
-        uses: cap-js/audit-logging/.github/actions/integration-tests@main
+        uses: ./.github/actions/integration-tests
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
