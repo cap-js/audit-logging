@@ -61,7 +61,7 @@ jobs:
         als-plan: [standard, premium, oauth2, ng]
     steps:
       - name: Run integration tests
-        uses: ./.github/actions/integration-tests
+        uses: ./.github/actions/integration-tests/action.yml
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
