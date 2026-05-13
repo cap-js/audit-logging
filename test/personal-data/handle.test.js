@@ -70,4 +70,26 @@ describe("handle", () => {
       attributes: [{ name: "creditCardNo" }]
     });
   });
+
+  test("READ with path but no target does not crash", async () => {
+    cds.env.requires["audit-log"].handle = ["READ", "WRITE"];
+    const srv = await cds.connect.to("CRUD_1");
+    // Prepend on handler so it runs before generic CRUD handler — after handler runs with req.target undefined
+    srv.prepend(() =>
+      srv.on("READ", (req, next) => {
+        if (req.path === "CRUD_1.nonExistent") {
+          return [{ ID: 1 }];
+        } else {
+          return next();
+        }
+      })
+    );
+    // Without the req.target?. fix this would throw TypeError: Cannot read properties of undefined (reading '_service')
+    const res = await srv.send({
+      event: "READ",
+      path: "/nonExistent",
+      user: new cds.User.Privileged()
+    });
+    expect(res.length).toEqual(1);
+  });
 });
