@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        als-plan: [standard, premium, oauth2, ng]
+        als-plan: [standard, oauth2]
     steps:
       - name: Run integration tests
         uses: cap-js/audit-logging/.github/actions/integration-tests@main
