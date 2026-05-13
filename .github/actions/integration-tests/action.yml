@@ -107,19 +107,99 @@ runs:
         echo "=== test/integration/.cdsrc-private.json ==="
         cat test/integration/.cdsrc-private.json
         echo ""
-        echo "=== Effective config in child context ==="
+        echo "=== Verify certificate and key ==="
         cds bind --exec -- node -e "
-          const cds = require('@sap/cds');
-          cds.root = 'test/integration';
-          const env = cds.env;
-          const conf = env.requires['audit-log'];
-          console.log('kind:', conf?.kind);
-          console.log('impl:', conf?.impl);
-          console.log('has credentials:', !!conf?.credentials);
-          console.log('credentials.url:', conf?.credentials?.url);
-          console.log('has key:', !!conf?.credentials?.key);
-          console.log('has cert:', !!conf?.credentials?.cert);
-          console.log('VCAP_SERVICES:', process.env.VCAP_SERVICES);
+          const crypto = require('crypto');
+          const https = require('https');
+          const vcap = JSON.parse(process.env.VCAP_SERVICES);
+          const creds = vcap['user-provided'][0].credentials;
+
+          console.log('=== Credential fields ===');
+          console.log('url:', creds.url);
+          console.log('has cert:', !!creds.cert);
+          console.log('cert length:', creds.cert?.length);
+          console.log('has key:', !!creds.key);
+          console.log('key length:', creds.key?.length);
+          console.log('keyPassphrase:', creds.keyPassphrase);
+          console.log('namespace:', creds.namespace);
+          console.log('region:', creds.region);
+
+          // Parse cert
+          try {
+            const certPem = creds.cert.split('-----END CERTIFICATE-----')[0] + '-----END CERTIFICATE-----';
+            const x509 = new crypto.X509Certificate(certPem);
+            console.log('');
+            console.log('=== Certificate Details ===');
+            console.log('subject:', x509.subject);
+            console.log('issuer:', x509.issuer);
+            console.log('validFrom:', x509.validFrom);
+            console.log('validTo:', x509.validTo);
+            console.log('serialNumber:', x509.serialNumber);
+            const now = new Date();
+            const validTo = new Date(x509.validTo);
+            const validFrom = new Date(x509.validFrom);
+            console.log('current time:', now.toISOString());
+            console.log('is expired:', now > validTo);
+            console.log('is not yet valid:', now < validFrom);
+          } catch(e) {
+            console.log('cert parse error:', e.message);
+          }
+
+          // Decrypt private key
+          try {
+            const keyObj = crypto.createPrivateKey({ key: creds.key, passphrase: creds.keyPassphrase });
+            console.log('');
+            console.log('=== Private Key ===');
+            console.log('type:', keyObj.type);
+            console.log('asymmetricKeyType:', keyObj.asymmetricKeyType);
+            console.log('decryption with passphrase: SUCCESS');
+          } catch(e) {
+            console.log('');
+            console.log('=== Private Key ===');
+            console.log('decryption FAILED:', e.message);
+          }
+
+          // Direct HTTPS call to ALS NG (bypasses CDS entirely)
+          console.log('');
+          console.log('=== Direct HTTPS test call (bypassing CDS) ===');
+          const url = new URL(creds.url + '/ingestion/v1/events');
+          const testPayload = JSON.stringify([{id:crypto.randomUUID(),specversion:1,source:'/test/debug',type:'dppDataModification',time:new Date().toISOString(),data:{metadata:{ts:new Date().toISOString(),appId:'debug-test',infrastructure:{other:{runtimeType:'Node.js'}},platform:{other:{platformName:'CAP'}}},data:{dppDataModification:{objectType:'test',objectId:'test',attribute:'test',oldValue:'old',newValue:'new',dataSubjectType:'test',dataSubjectId:'test'}}}}]);
+          console.log('target:', url.href);
+          console.log('payload length:', testPayload.length);
+
+          const req = https.request(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(testPayload) },
+            key: creds.key,
+            cert: creds.cert,
+            passphrase: creds.keyPassphrase
+          }, (res) => {
+            const chunks = [];
+            res.on('data', c => chunks.push(c));
+            res.on('end', () => {
+              const body = Buffer.concat(chunks).toString();
+              console.log('response status:', res.statusCode, res.statusMessage);
+              console.log('response body:', body || '(empty)');
+              if (res.statusCode === 401) {
+                console.log('');
+                console.log('CONCLUSION: Certificate is REJECTED by ALS NG service.');
+                console.log('This is a credentials issue - the cert/key in the CF user-provided service are invalid or revoked.');
+                console.log('Action needed: Update the cap-js-audit-logging-ng user-provided service with fresh credentials.');
+              } else if (res.statusCode >= 200 && res.statusCode < 400) {
+                console.log('');
+                console.log('CONCLUSION: Certificate WORKS. The issue is in our CDS integration code.');
+              } else {
+                console.log('');
+                console.log('CONCLUSION: Unexpected status', res.statusCode, '- needs investigation.');
+              }
+            });
+          });
+          req.on('error', (e) => {
+            console.log('request error:', e.message);
+            console.log('CONCLUSION: Network or TLS error - possibly cert/key format issue.');
+          });
+          req.write(testPayload);
+          req.end();
         "
 
     - name: Run integration tests
