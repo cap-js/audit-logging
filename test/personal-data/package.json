@@ -2,6 +2,9 @@
   "dependencies": {
     "@cap-js/audit-logging": "*"
   },
+  "devDependencies": {
+    "@cap-js/sqlite": "*"
+  },
   "cds": {
     "runtime": {
       "patch_as_upsert": true,
