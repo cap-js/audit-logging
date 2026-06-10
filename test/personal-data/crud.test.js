@@ -2115,4 +2115,115 @@ describe("personal data audit logging in CRUD", () => {
       time: expect.any(Date)
     });
   });
+
+  describe("DataSubject resolution for composition target with @PersonalData 'Other'", () => {
+    test("creating an attachment on a composition target resolves data subject via parent's association", async () => {
+      const ownerID = cds.utils.uuid();
+      const thingID = cds.utils.uuid();
+
+      await POST("/crud-7/Owners", {
+        ID: ownerID,
+        email: "owner@example.com",
+        things: [{ ID: thingID, name: "my-thing" }]
+      }, { auth: ALICE });
+
+      _logs = [];
+
+      // Create an attachment on the composition target
+      await POST(
+        `/crud-7/OwnedThings(${thingID})/attachments`,
+        { filename: "hello.txt", url: "/files/hello.txt" },
+        { auth: ALICE }
+      );
+
+      expect(_logs.length).toBeGreaterThanOrEqual(1);
+      expect(_logs).toContainMatchObject({
+        data_subject: {
+          type: "CRUD_7.Owners",
+          role: "Owner",
+          id: { ID: ownerID }
+        },
+        object: {
+          type: "CRUD_7.ThingAttachments",
+          id: { ID: expect.any(String) }
+        },
+        attributes: [
+          { name: "filename", new: "hello.txt" },
+          { name: "url", new: "/files/hello.txt" }
+        ]
+      });
+    });
+
+    test("updating an attachment on a composition target resolves data subject via parent's association", async () => {
+      const ownerID = cds.utils.uuid();
+      const thingID = cds.utils.uuid();
+      const attachmentID = cds.utils.uuid();
+
+      await POST("/crud-7/Owners", {
+        ID: ownerID,
+        email: "owner@example.com",
+        things: [{
+          ID: thingID,
+          name: "my-thing",
+          attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }]
+        }]
+      }, { auth: ALICE });
+
+      _logs = [];
+
+      await PATCH(
+        `/crud-7/ThingAttachments(${attachmentID})`,
+        { filename: "new.txt" },
+        { auth: ALICE }
+      );
+
+      expect(_logs.length).toBeGreaterThanOrEqual(1);
+      expect(_logs).toContainMatchObject({
+        data_subject: {
+          type: "CRUD_7.Owners",
+          role: "Owner",
+          id: { ID: ownerID }
+        },
+        object: {
+          type: "CRUD_7.ThingAttachments",
+          id: { ID: attachmentID }
+        },
+        attributes: [{ name: "filename", old: "old.txt", new: "new.txt" }]
+      });
+    });
+
+    test("deleting an attachment on a composition target resolves data subject via parent's association", async () => {
+      const ownerID = cds.utils.uuid();
+      const thingID = cds.utils.uuid();
+      const attachmentID = cds.utils.uuid();
+
+      await POST("/crud-7/Owners", {
+        ID: ownerID,
+        email: "owner@example.com",
+        things: [{
+          ID: thingID,
+          name: "my-thing",
+          attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }]
+        }]
+      }, { auth: ALICE });
+
+      _logs = [];
+
+      await DELETE(`/crud-7/ThingAttachments(${attachmentID})`, { auth: ALICE });
+
+      expect(_logs.length).toBeGreaterThanOrEqual(1);
+      expect(_logs).toContainMatchObject({
+        data_subject: {
+          type: "CRUD_7.Owners",
+          role: "Owner",
+          id: { ID: ownerID }
+        },
+        object: {
+          type: "CRUD_7.ThingAttachments",
+          id: { ID: attachmentID }
+        },
+        attributes: [{ name: "filename", old: "doomed.txt" }, { name: "url", old: "/files/doomed.txt" }]
+      });
+    });
+  });
 });
