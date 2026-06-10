@@ -226,27 +226,27 @@ service CRUD_6 {
 @path: '/crud-7'
 @requires: 'admin'
 service CRUD_7 {
-  entity Owners          as projection on db.Owners;
-  entity OwnedThings    as projection on db.OwnedThings;
+  entity Owners           as projection on db.Owners;
+  entity OwnedThings      as projection on db.OwnedThings;
   entity ThingAttachments as projection on db.ThingAttachments;
 
   annotate Owners with @PersonalData: {
     EntitySemantics: 'DataSubject',
     DataSubjectRole: 'Owner'
   } {
-    ID    @PersonalData.FieldSemantics: 'DataSubjectID';
+    ID @PersonalData.FieldSemantics: 'DataSubjectID';
     email @PersonalData.IsPotentiallyPersonal;
   };
 
   annotate OwnedThings with @PersonalData: {EntitySemantics: 'Other'} {
     owner @PersonalData.FieldSemantics: 'DataSubjectID';
-    name  @PersonalData.IsPotentiallyPersonal;
+    name @PersonalData.IsPotentiallyPersonal;
   };
 
   // The composition target annotated with 'Other' — DataSubject reachable only
   // via upward composition to OwnedThings, then sideways via owner to Owners.
   annotate ThingAttachments with @PersonalData: {EntitySemantics: 'Other'} {
     filename @PersonalData.IsPotentiallyPersonal;
-    url      @PersonalData.IsPotentiallyPersonal;
+    url @PersonalData.IsPotentiallyPersonal;
   };
 }

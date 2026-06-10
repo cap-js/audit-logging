@@ -2121,11 +2121,15 @@ describe("personal data audit logging in CRUD", () => {
       const ownerID = cds.utils.uuid();
       const thingID = cds.utils.uuid();
 
-      await POST("/crud-7/Owners", {
-        ID: ownerID,
-        email: "owner@example.com",
-        things: [{ ID: thingID, name: "my-thing" }]
-      }, { auth: ALICE });
+      await POST(
+        "/crud-7/Owners",
+        {
+          ID: ownerID,
+          email: "owner@example.com",
+          things: [{ ID: thingID, name: "my-thing" }]
+        },
+        { auth: ALICE }
+      );
 
       _logs = [];
 
@@ -2159,15 +2163,21 @@ describe("personal data audit logging in CRUD", () => {
       const thingID = cds.utils.uuid();
       const attachmentID = cds.utils.uuid();
 
-      await POST("/crud-7/Owners", {
-        ID: ownerID,
-        email: "owner@example.com",
-        things: [{
-          ID: thingID,
-          name: "my-thing",
-          attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }]
-        }]
-      }, { auth: ALICE });
+      await POST(
+        "/crud-7/Owners",
+        {
+          ID: ownerID,
+          email: "owner@example.com",
+          things: [
+            {
+              ID: thingID,
+              name: "my-thing",
+              attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }]
+            }
+          ]
+        },
+        { auth: ALICE }
+      );
 
       _logs = [];
 
@@ -2197,15 +2207,21 @@ describe("personal data audit logging in CRUD", () => {
       const thingID = cds.utils.uuid();
       const attachmentID = cds.utils.uuid();
 
-      await POST("/crud-7/Owners", {
-        ID: ownerID,
-        email: "owner@example.com",
-        things: [{
-          ID: thingID,
-          name: "my-thing",
-          attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }]
-        }]
-      }, { auth: ALICE });
+      await POST(
+        "/crud-7/Owners",
+        {
+          ID: ownerID,
+          email: "owner@example.com",
+          things: [
+            {
+              ID: thingID,
+              name: "my-thing",
+              attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }]
+            }
+          ]
+        },
+        { auth: ALICE }
+      );
 
       _logs = [];
 
@@ -2222,7 +2238,10 @@ describe("personal data audit logging in CRUD", () => {
           type: "CRUD_7.ThingAttachments",
           id: { ID: attachmentID }
         },
-        attributes: [{ name: "filename", old: "doomed.txt" }, { name: "url", old: "/files/doomed.txt" }]
+        attributes: [
+          { name: "filename", old: "doomed.txt" },
+          { name: "url", old: "/files/doomed.txt" }
+        ]
       });
     });
   });
