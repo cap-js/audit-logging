@@ -244,7 +244,7 @@ service CRUD_7 {
   };
 
   // The composition target annotated with 'Other' — DataSubject reachable only
-  // via upward composition to OwnedThings, then sideways via owner to Owners.
+  // via upward composition to OwnedThings, then via owner association to Owners.
   annotate ThingAttachments with @PersonalData: {EntitySemantics: 'Other'} {
     filename @PersonalData.IsPotentiallyPersonal;
     url @PersonalData.IsPotentiallyPersonal;

@@ -196,12 +196,10 @@ annotate D with @PersonalData: {EntitySemantics: 'Other'} {
 }
 
 // Scenario: composition target with @PersonalData 'Other' where
-// the DataSubject is only reachable via the parent's sibling association
+// the DataSubject is only reachable via the parent's association
 // (simulates @cap-js/attachments + @PersonalData on the composition target)
 entity Owners : cuid {
-  email  : String;
-  things : Composition of many OwnedThings
-             on things.owner = $self;
+  email : String;
 }
 
 entity OwnedThings : cuid {

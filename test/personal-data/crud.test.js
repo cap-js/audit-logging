@@ -2121,19 +2121,13 @@ describe("personal data audit logging in CRUD", () => {
       const ownerID = cds.utils.uuid();
       const thingID = cds.utils.uuid();
 
-      await POST(
-        "/crud-7/Owners",
-        {
-          ID: ownerID,
-          email: "owner@example.com",
-          things: [{ ID: thingID, name: "my-thing" }]
-        },
-        { auth: ALICE }
-      );
+      // Setup: create owner and thing (Owners does not compose OwnedThings)
+      await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
+      await POST("/crud-7/OwnedThings", { ID: thingID, name: "my-thing", owner_ID: ownerID }, { auth: ALICE });
 
       _logs = [];
 
-      // Create an attachment on the composition target
+      // Create an attachment on the composition target — this previously crashed
       await POST(
         `/crud-7/OwnedThings(${thingID})/attachments`,
         { filename: "hello.txt", url: "/files/hello.txt" },
@@ -2163,24 +2157,17 @@ describe("personal data audit logging in CRUD", () => {
       const thingID = cds.utils.uuid();
       const attachmentID = cds.utils.uuid();
 
+      // Setup: create owner, thing, and attachment
+      await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
       await POST(
-        "/crud-7/Owners",
-        {
-          ID: ownerID,
-          email: "owner@example.com",
-          things: [
-            {
-              ID: thingID,
-              name: "my-thing",
-              attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }]
-            }
-          ]
-        },
+        "/crud-7/OwnedThings",
+        { ID: thingID, name: "my-thing", owner_ID: ownerID, attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }] },
         { auth: ALICE }
       );
 
       _logs = [];
 
+      // Update the attachment
       await PATCH(
         `/crud-7/ThingAttachments(${attachmentID})`,
         { filename: "new.txt" },
@@ -2207,24 +2194,17 @@ describe("personal data audit logging in CRUD", () => {
       const thingID = cds.utils.uuid();
       const attachmentID = cds.utils.uuid();
 
+      // Setup: create owner, thing, and attachment
+      await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
       await POST(
-        "/crud-7/Owners",
-        {
-          ID: ownerID,
-          email: "owner@example.com",
-          things: [
-            {
-              ID: thingID,
-              name: "my-thing",
-              attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }]
-            }
-          ]
-        },
+        "/crud-7/OwnedThings",
+        { ID: thingID, name: "my-thing", owner_ID: ownerID, attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }] },
         { auth: ALICE }
       );
 
       _logs = [];
 
+      // Delete the attachment
       await DELETE(`/crud-7/ThingAttachments(${attachmentID})`, { auth: ALICE });
 
       expect(_logs.length).toBeGreaterThanOrEqual(1);
