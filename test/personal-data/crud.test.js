@@ -2123,7 +2123,11 @@ describe("personal data audit logging in CRUD", () => {
 
       // Setup: create owner and thing (Owners does not compose OwnedThings)
       await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
-      await POST("/crud-7/OwnedThings", { ID: thingID, name: "my-thing", owner_ID: ownerID }, { auth: ALICE });
+      await POST(
+        "/crud-7/OwnedThings",
+        { ID: thingID, name: "my-thing", owner_ID: ownerID },
+        { auth: ALICE }
+      );
 
       _logs = [];
 
@@ -2161,7 +2165,12 @@ describe("personal data audit logging in CRUD", () => {
       await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
       await POST(
         "/crud-7/OwnedThings",
-        { ID: thingID, name: "my-thing", owner_ID: ownerID, attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }] },
+        {
+          ID: thingID,
+          name: "my-thing",
+          owner_ID: ownerID,
+          attachments: [{ ID: attachmentID, filename: "old.txt", url: "/files/old.txt" }]
+        },
         { auth: ALICE }
       );
 
@@ -2198,7 +2207,12 @@ describe("personal data audit logging in CRUD", () => {
       await POST("/crud-7/Owners", { ID: ownerID, email: "owner@example.com" }, { auth: ALICE });
       await POST(
         "/crud-7/OwnedThings",
-        { ID: thingID, name: "my-thing", owner_ID: ownerID, attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }] },
+        {
+          ID: thingID,
+          name: "my-thing",
+          owner_ID: ownerID,
+          attachments: [{ ID: attachmentID, filename: "doomed.txt", url: "/files/doomed.txt" }]
+        },
         { auth: ALICE }
       );
 
