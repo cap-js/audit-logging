@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.2.2 - 2026-06-09
+
+### Fixed
+
+- Resolved server crash when `@PersonalData` annotations are applied to composition targets whose DataSubject is only reachable via the parent entity's sibling association
+
 ## Version 1.2.1 - 2026-05-13
 
 ### Fixed
