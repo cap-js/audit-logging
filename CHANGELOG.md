@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.2.2 - tbd
+
+### Fixed
+
+- Properly encode request body parameters using in audit-log-to-restv2
+
 ## Version 1.2.1 - 2026-05-13
 
 ### Fixed
