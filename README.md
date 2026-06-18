@@ -122,9 +122,9 @@ See the audit logs in the server's console output:
 
 The end-to-end out-of-the-box functionality provided by this plugin requires a paid-for instance of the [SAP Audit Log service for customers](https://help.sap.com/docs/btp/sap-business-technology-platform/audit-log-write-api-for-customers?locale=en-US). However, it is possible to provide an own implementation that writes the audit logs to a custom store.
 
-[_Learn more about using the SAP Audit Log service._](https://cap.cloud.sap/docs/guides/data-privacy/audit-logging#use-sap-audit-log-service)
+[_Learn more about using the SAP Audit Log service._](https://cap.cloud.sap/docs/guides/security/dpp-audit-logging#use-sap-audit-log-service)
 
-[_Learn more about custom audit logging._](https://cap.cloud.sap/docs/guides/data-privacy/audit-logging#custom-audit-logging)
+[_Learn more about custom audit logging._](https://cap.cloud.sap/docs/guides/security/dpp-audit-logging#custom-audit-logging)
 
 ## Support, Feedback, Contributing
 
