@@ -1,0 +1,110 @@
+name: "Integration tests"
+description: "Run integration tests with BTP Audit Log Service bound"
+inputs:
+  CF_API:
+    description: "Cloud Foundry API endpoint"
+    required: true
+  CF_USERNAME:
+    description: "Cloud Foundry username"
+    required: true
+  CF_PASSWORD:
+    description: "Cloud Foundry password"
+    required: true
+  CF_ORG:
+    description: "Cloud Foundry organization"
+    required: true
+  CF_SPACE:
+    description: "Cloud Foundry space"
+    required: true
+  NODE_VERSION:
+    description: "Node.js version to use for tests"
+    required: true
+  CDS_VERSION:
+    description: "CDS version to use for tests"
+    required: true
+  ALS_PLAN:
+    description: "Audit Log Service plan: standard, premium, oauth2, ng"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install Cloud Foundry CLI (v8.9.0)
+      shell: bash
+      run: |
+        wget -q "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.9.0&source=github-rel" -O cf-cli.tar.gz
+        tar -xzf cf-cli.tar.gz
+        sudo mv cf /usr/local/bin/
+        sudo mv cf8 /usr/local/bin/
+        cf --version
+
+    - name: Authenticate with Cloud Foundry
+      shell: bash
+      env:
+        CF_API: ${{ inputs.CF_API }}
+        CF_USERNAME: ${{ inputs.CF_USERNAME }}
+        CF_PASSWORD: ${{ inputs.CF_PASSWORD }}
+        CF_ORG: ${{ inputs.CF_ORG }}
+        CF_SPACE: ${{ inputs.CF_SPACE }}
+      run: |
+        for i in {1..5}; do
+          cf api "$CF_API" && \
+          cf auth && \
+          cf target -o "$CF_ORG" -s "$CF_SPACE" && break
+          echo "cf login failed, retrying ($i/5)..."
+          sleep 10
+          if [ "$i" -eq 5 ]; then
+            echo "❌ cf login failed after 5 attempts."
+            exit 1
+          fi
+        done
+
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    - name: Use Node.js ${{ inputs.NODE_VERSION }}
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: ${{ inputs.NODE_VERSION }}
+
+    - name: Install global CDS
+      shell: bash
+      run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION }}
+
+    - name: Install dependencies
+      shell: bash
+      run: npm i
+
+    - name: Set CDS 8 compatible dependencies
+      shell: bash
+      run: |
+        if [ "${{ inputs.CDS_VERSION }}" == "8" ]; then
+          npm i -f @sap/cds@8 @cap-js/sqlite@1 @cap-js/cds-test@0 @sap/cds-mtxs@2
+        fi
+
+    - name: CDS versions
+      shell: bash
+      run: cds v
+
+    - name: Bind Audit Log Service
+      shell: bash
+      run: |
+        INSTANCE="cap-js-audit-logging-${{ inputs.ALS_PLAN }}"
+        if [ "${{ inputs.ALS_PLAN }}" == "ng" ]; then
+          cds bind audit-log --to "$INSTANCE" --kind audit-log-to-alsng
+          cp .cdsrc-private.json test/integration/
+        else
+          cds bind audit-log -2 "$INSTANCE" --kind audit-log-to-restv2
+        fi
+
+    - name: Run integration tests
+      shell: bash
+      run: |
+        PLAN="${{ inputs.ALS_PLAN }}"
+        if [ "$PLAN" == "standard" ]; then
+          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/integration"
+        elif [ "$PLAN" == "premium" ] || [ "$PLAN" == "oauth2" ]; then
+          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|oauth2)"
+        elif [ "$PLAN" == "ng" ]; then
+          cds bind --exec -- npx jest --silent --testPathPatterns="test/integration/(integration|ng)"
+        fi

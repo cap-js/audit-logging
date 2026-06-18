@@ -12,8 +12,8 @@ service APIService {
 
   @requires: 'cds.ExtensionDeveloper'
   entity Books {
-    key ID : Integer;
-    title : String;
+    key ID    : Integer;
+        title : String;
   }
 
   // test helpers

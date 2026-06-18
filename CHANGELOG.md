@@ -4,11 +4,27 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 1.1.2 - tbd
+## Version 1.2.2 - 2026-06-17
+
+### Fixed
+
+- Properly encode request body parameters using in audit-log-to-restv2
+- Resolved server crash when `@PersonalData` annotations are applied to composition targets whose DataSubject is only reachable via the parent entity's sibling association
+
+## Version 1.2.1 - 2026-05-13
+
+### Fixed
+
+- Updated the audit log service plan detection logic to support the new URL format
+- The absence of `req.target` does not lead to an error
+
+## Version 1.2.0 - 2026-02-23
 
 ### Changed
 
 - Adjusted auto-detection of kind `audit-log-to-als` to now check for a VCAP service name matching "auditlog-ng"
+- Adjusted how the handlers for emitting audit logs are registered to support feature toggle and extensibility scenarios.
+- Improved debug logging in cases where emitting audit log fails
 
 ## Version 1.1.1 - 2025-10-27
 
