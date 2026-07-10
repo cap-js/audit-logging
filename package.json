@@ -24,7 +24,7 @@
     "@cap-js/audit-logging": "file:.",
     "@cap-js/cds-test": ">=0",
     "@cap-js/sqlite": ">=1",
-    "@sap/cds-lsp": "^9.9.0",
+    "@sap/cds-lsp": "^10.0.1",
     "@sap/cds-mtxs": "^3.7.1",
     "express": "^4 || ^5",
     "jest": "^30"
