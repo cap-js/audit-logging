@@ -133,7 +133,6 @@ dist
 .pnp.*
 
 # custom
-package-lock.json
 .npmrc
 .babelrc
 .prettierrc.js

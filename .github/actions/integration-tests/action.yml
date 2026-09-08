@@ -58,12 +58,12 @@ runs:
           fi
         done
 
-    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Use Node.js ${{ inputs.NODE_VERSION }}
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
         node-version: ${{ inputs.NODE_VERSION }}
 
@@ -74,13 +74,6 @@ runs:
     - name: Install dependencies
       shell: bash
       run: npm i
-
-    - name: Set CDS 8 compatible dependencies
-      shell: bash
-      run: |
-        if [ "${{ inputs.CDS_VERSION }}" == "8" ]; then
-          npm i -f @sap/cds@8 @cap-js/sqlite@1 @cap-js/cds-test@0 @sap/cds-mtxs@2
-        fi
 
     - name: CDS versions
       shell: bash

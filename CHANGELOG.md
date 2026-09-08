@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.3.0 - 2026-09-08
+
+### Removed
+
+- Dropped CDS 8 support; minimum supported version is now `@sap/cds@>=9`
+
 ## Version 1.2.2 - 2026-06-18
 
 ### Fixed
