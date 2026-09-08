@@ -2,12 +2,12 @@
   "name": "mtx",
   "version": "1.0.0",
   "dependencies": {
-    "@sap/cds": "^9",
+    "@sap/cds": "^10",
     "@cap-js/audit-logging": "*",
-    "@sap/cds-mtxs": "^4.0.4"
+    "@sap/cds-mtxs": "^4"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2"
+    "@cap-js/sqlite": "^3"
   },
   "scripts": {
     "start": "cds-serve"

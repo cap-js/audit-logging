@@ -4,14 +4,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 1.2.3 - 2026-09-08
+## Version 1.3.0 - 2026-09-08
 
-### Fixed
-
-- Bumped `@sap/cds-mtxs` to `^4.0.4` to address a security vulnerability (affected versions `<= 4.0.2`)
-- Bumped `@sap/cds-dk` to `>=9.9.5` (v9) or `>=10.0.8` (v10) in CI to address a security vulnerability in `cds login / cds pull / cds push`
-
-### Changed
+### Removed
 
 - Dropped CDS 8 support; minimum supported version is now `@sap/cds@>=9`
 
