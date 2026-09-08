@@ -69,18 +69,11 @@ runs:
 
     - name: Install global CDS
       shell: bash
-      run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION == '8' && '9.9.5' || inputs.CDS_VERSION }}
+      run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION }}
 
     - name: Install dependencies
       shell: bash
       run: npm i
-
-    - name: Set CDS 8 compatible dependencies
-      shell: bash
-      run: |
-        if [ "${{ inputs.CDS_VERSION }}" == "8" ]; then
-          npm i -f @sap/cds@8 @cap-js/sqlite@1 @cap-js/cds-test@0 @sap/cds-mtxs@2.7.7
-        fi
 
     - name: CDS versions
       shell: bash

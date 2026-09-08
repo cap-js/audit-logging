@@ -15,10 +15,10 @@
     "lint": "npx eslint . --max-warnings=0",
     "format": "npx prettier . --write && format-cds -f",
     "format:check": "npx prettier . --check && format-cds --check",
-    "test": "npx jest --verbose --silent --testPathIgnorePatterns=integration"
+    "test": "npx jest --silent --testPathIgnorePatterns=integration"
   },
   "peerDependencies": {
-    "@sap/cds": ">=8"
+    "@sap/cds": ">=9"
   },
   "devDependencies": {
     "@cap-js/audit-logging": "file:.",
