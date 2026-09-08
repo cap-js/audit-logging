@@ -31,6 +31,9 @@ jobs:
       matrix:
         node-version: [20.x, 22.x]
         cds-version: [latest, 8]
+        exclude:
+          - node-version: 20.x
+            cds-version: latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -43,7 +46,7 @@ jobs:
       - run: npm i
       - name: Set CDS 8 compatible dependencies
         if: matrix.cds-version == 8
-        run: npm i -f @sap/cds@8 @cap-js/sqlite@1 @cap-js/cds-test@0 @sap/cds-mtxs@2
+        run: npm i -f @sap/cds@8 @cap-js/sqlite@1 @cap-js/cds-test@0 @sap/cds-mtxs@2.7.7
       - run: cds v
       - name: Run unit tests
         run: npx jest --silent --testPathIgnorePatterns=integration
@@ -59,6 +62,9 @@ jobs:
         node-version: [20.x, 22.x]
         cds-version: [latest, 8]
         als-plan: [standard, oauth2]
+        exclude:
+          - node-version: 20.x
+            cds-version: latest
     steps:
       - name: Run integration tests
         uses: cap-js/audit-logging/.github/actions/integration-tests@main
