@@ -2,8 +2,8 @@
   "name": "mtx",
   "version": "1.0.0",
   "dependencies": {
-    "@sap/cds": "^10",
     "@cap-js/audit-logging": "*",
+    "@sap/cds": "^10",
     "@sap/cds-mtxs": "^4"
   },
   "devDependencies": {
