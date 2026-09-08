@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 1.2.3 - 2026-09-08
+
+### Fixed
+
+- Bumped `@sap/cds-mtxs` to `^4.0.4` to address a security vulnerability (affected versions `<= 4.0.2`)
+
 ## Version 1.2.2 - 2026-06-18
 
 ### Fixed
