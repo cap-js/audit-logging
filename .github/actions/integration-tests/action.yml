@@ -84,7 +84,7 @@ runs:
 
     - name: CDS versions
       shell: bash
-      run: cds v
+      run: node -e "console.log(require('@sap/cds/package.json').version)"
 
     - name: Bind Audit Log Service
       shell: bash
