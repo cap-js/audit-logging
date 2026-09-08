@@ -55,7 +55,7 @@ jobs:
       matrix:
         node-version: [22.x, 24.x]
         cds-version: [latest, 9]
-        als-plan: [standard, oauth2]
+        als-plan: [standard, oauth2, premium, ng]
     steps:
       - name: Run integration tests
         uses: cap-js/audit-logging/.github/actions/integration-tests@main
