@@ -195,7 +195,7 @@ module.exports = class AuditLog2ALSNG extends AuditLogService {
           if (res.headers["content-type"]?.match(/json/)) body = JSON.parse(body);
           if (res.statusCode >= 400) {
             // prettier-ignore
-            const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`)
+            const err = new Error(`Request failed with${statusMessage ? `: ${statusCode} - ${statusMessage}` : ` status ${statusCode}`}`);
             err.request = { method: options.method, url, headers: options.headers, body: data };
             if (err.request.headers.authorization)
               err.request.headers.authorization =
