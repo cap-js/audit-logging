@@ -62,6 +62,7 @@ describe("personal data audit logging in CRUD", () => {
       expect(_logs.length).toBe(2);
       expect(_logs).toContainMatchObject({
         user: "alice",
+        service_user: "bob",
         object: {
           type: "CRUD_2.CustomerPostalAddress",
           id: { ID: addressID1 }
@@ -79,6 +80,7 @@ describe("personal data audit logging in CRUD", () => {
       });
       expect(_logs).toContainMatchObject({
         user: "alice",
+        service_user: "bob",
         object: {
           type: "CRUD_2.CustomerPostalAddress",
           id: { ID: addressID2 }
